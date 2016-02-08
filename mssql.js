@@ -61,39 +61,41 @@ module.exports = function(RED) {
                  }
             }
         };
-/*		node.on('input',function(msg){
-			node.pool.open(node.cn, function(err, db){
-		    	if (err){
-		    		node.error(err);
-		    		node.status({fill:'red',shape:'ring',text:'Error'});
-		    		return;
-		    	}*/
-
-		node.connection.connect(node.config, function(err, db){
-        	if (err) {
-	    		node.error(err);
-	    		node.status({fill:'red',shape:'ring',text:'Error'});
-	    		db.close(function(){});
-	    		return;
-	    	}
-			node.on('input', function(msg) {
-		    	node.status({fill:'blue',shape:'dot',text:'requesting'});
-		    	var query = mustache.render(node.query,msg);
-                
-                var request = new node.connection.Request();
-		    	request.query(query, function (err, rows){
-	        		if (err) {
-	        			node.error(err);
-	        			node.status({fill:'red',shape:'ring',text:'Error'});
-	        			return;
-	        		}
+        
+        node.on('input',function(msg){
+            console.log(node.config);
+		  
+            node.connection.connect(node.config).then(function(){
+ 
+              node.status({fill:'blue',shape:'dot',text:'requesting'});
+		  
+              var query = mustache.render(node.query,msg);
+              
+              if (!query || (query === '')) {
+                  query = msg.payload;
+              }
+            
+              var request = new node.connection.Request();
+              
+              request.query(query).then(function (rows){
 	        		i = 0;
 	        		r = rows;
 	        		m = msg;
 	        		rec(msg);
-	        	});
-		    });
-		});
+              }).catch(function(err) {
+                  node.error(err);
+                  node.status({fill:'red',shape:'ring',text:'Error'});
+                  return;
+              });
+            
+              
+          }).catch(function(err) {
+	    		node.error(err);
+	    		node.status({fill:'red',shape:'ring',text:'Error'});
+	    		return;
+          });
+        });
+
 	}
   	RED.nodes.registerType('MSSQL', mssql);
 };

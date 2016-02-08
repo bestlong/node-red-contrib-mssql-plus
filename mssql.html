@@ -39,8 +39,8 @@
         <input type="text" id="node-config-input-database">
     </div>
     <div class="form-row">
-        <label for="node-config-input-encryption"><i class="fa fa-user"></i> Use Encryption?</label>
-        <input type="checkbox" id="node-config-input-encryption">
+        <label for="node-config-input-encyption"><i class="fa fa-user"></i> Use Encryption?</label>
+        <input type="checkbox" id="node-config-input-encyption">
         <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
     </div>
 </script>
@@ -132,4 +132,6 @@
     <h4>Query</h4>
     <p>You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</br>
     Example: <i>SELECT * FROM Test WHERE Name = {{{payload.name}}}</i></p>
+    
+    If no query is specified, the msg.payload value is used as the query.
 </script>

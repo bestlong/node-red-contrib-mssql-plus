@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-mssql",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Node for node-red to connect to a Microsoft MS SQL Database",
   "main": "odbc.js",
   "dependencies": {
@@ -30,5 +30,8 @@
   ],
   "author": "Redconnect.io",
   "license": "MIT",
-  "homepage": "http://www.redconnect.io"
+  "homepage": "http://www.redconnect.io",
+  "bugs": {
+    "url": "https://github.com/redconnect-io/node-red-contrib-mssql/issues"
+  }
 }
