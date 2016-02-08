@@ -1,0 +1,135 @@
+<script type="text/javascript">
+    RED.nodes.registerType('MSSQL-CN',{
+        category: 'config',
+        defaults: {
+            name: {value:""},
+            server: {value:""},
+            encyption:{value:true},
+            database: {value:""}
+        },
+        credentials: {
+            username: {type:"text"},
+            password: {type:"password"}
+        },
+        label: function() {
+            return this.name || "MSSQL-CN";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="MSSQL-CN">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Connection Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-server"><i class="icon-bookmark"></i> Server</label>
+        <input type="text" id="node-config-input-server" placeholder="Server name or IP">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
+        <input type="text" id="node-config-input-username">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+        <input type="password" id="node-config-input-password">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-database"><i class="fa fa-user"></i> Database</label>
+        <input type="text" id="node-config-input-database">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-encryption"><i class="fa fa-user"></i> Use Encryption?</label>
+        <input type="checkbox" id="node-config-input-encryption">
+        <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('MSSQL',{
+        category: 'storage',
+        color: '#C0DEED',
+        defaults: {
+            mssqlCN: {type:"MSSQL-CN"},
+            name: {value:""},
+            query: {value: ""},
+            outField: {value:"payload"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "db.png",
+        label: function() {
+            return this.name||"MSSQL";
+        },
+        oneditprepare: function() {
+            function functionDialogResize() {
+                var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+                var height = $("#dialog-form").height();
+                for (var i=0;i<rows.size();i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                var editorRow = $("#dialog-form>div.node-text-editor-row");
+                height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+                $(".node-text-editor").css("height",height+"px");
+            };
+            $( "#dialog" ).on("dialogresize", functionDialogResize);
+            $( "#dialog" ).one("dialogopen", function(ev) {
+                var size = $( "#dialog" ).dialog('option','sizeCache-function');
+                if (size) {
+                    $("#dialog").dialog('option','width',size.width);
+                    $("#dialog").dialog('option','height',size.height);
+                    functionDialogResize();
+                }
+            });
+            $( "#dialog" ).one("dialogclose", function(ev,ui) {
+                var height = $( "#dialog" ).dialog('option','height');
+                $( "#dialog" ).off("dialogresize",functionDialogResize);
+            });
+            var that = this;
+            require(["orion/editor/edit"], function(edit) {
+                that.editor = edit({
+                    parent:document.getElementById('node-input-query-editor'),
+                    lang:"text",
+                    showLinesRuler:false,
+                    showFoldingRuler:false,
+                    contents: $("#node-input-query").val()
+                });
+                $("#node-input-name").focus();
+            });
+        },
+        oneditsave: function() {
+            $("#node-input-query").val(this.editor.getText());
+            delete this.editor;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="MSSQL">
+    <div class="form-row">
+        <label for="node-input-mssqlCN"><i class="icon-tag"></i> Connection</label>
+        <input type="text" id="node-input-mssqlCN">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-query" style="width: 100% !important;"><i class="fa fa-comments"></i> Query</label>
+        <input type="hidden" id="node-input-query" autofocus="autofocus">
+    </div>
+    <div class="form-row node-text-editor-row">
+        <div style="height: 250px;" class="node-text-editor" id="node-input-query-editor" ></div>
+    </div>
+    <div class="form-tips">Tip: You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</div>
+    <div class="form-row">
+        <label for="node-input-outField"><i class="fa fa-edit"></i> Result to</label>
+        msg.<input type="text" id="node-input-outField" placeholder="payload" style="width: 64%;">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="MSSQL">
+    <p>Node for Node-RED to MS SQL</p>
+    <h4>Query</h4>
+    <p>You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</br>
+    Example: <i>SELECT * FROM Test WHERE Name = {{{payload.name}}}</i></p>
+</script>

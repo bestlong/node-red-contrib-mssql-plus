@@ -1,0 +1,63 @@
+{
+	
+	"globals": {
+        "RED"           : true,
+        "Promise"       : true
+	},
+ 
+    "bitwise"       : true,
+    "curly"         : true,
+    "eqeqeq"        : true,
+    "forin"         : true,
+    "immed"         : true,
+    "latedef"       : true,
+    "newcap"        : true,
+    "noarg"         : true,
+    "node"          : true,
+    "noempty"       : true,
+    "nonew"         : true,
+    "plusplus"      : false,
+    "regexp"        : true,
+    "undef"         : true,
+    "strict"        : false,
+    "trailing"      : true,
+    "multistr"      : true,
+    
+	"jquery"		: true,
+	"browser"		: true,
+	"devel"			: true,
+	
+    "asi"           : false,
+    "boss"          : false,
+    "debug"         : false,
+    "eqnull"        : false,
+    "esnext"        : false,
+    "evil"          : false,
+    "expr"          : false,
+    "funcscope"     : false,
+    "globalstrict"  : false,
+    "iterator"      : false,
+    "lastsemic"     : false,
+    "laxbreak"      : false,
+    "laxcomma"      : true,
+    "loopfunc"      : false,
+    "onecase"       : false,
+    "proto"         : false,
+    "quotmark"      : "single",
+    "regexdash"     : false,
+    "scripturl"     : false,
+    "smarttabs"     : true,
+    "shadow"        : false,
+    "sub"           : false,
+    "supernew"      : false,
+    "validthis"     : true,
+	
+    "nomen"         : false,
+    "onevar"        : false,
+    "passfail"      : false,
+    "white"         : true,
+
+    "maxerr"        : 100,
+    "indent"        : 4
+
+}
