@@ -13,7 +13,8 @@ module.exports = function(RED) {
             server : config.server,
             database : config.database,
             options : {
-                           encrypt : config.encyption
+                           encrypt : config.encyption,
+                           useUTC: config.useUTC
                        }
         };
         
