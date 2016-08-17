@@ -5,6 +5,7 @@
             name: {value:""},
             server: {value:""},
             encyption:{value:true},
+            useUTC: {value: true},            
             database: {value:""}
         },
         credentials: {
@@ -43,6 +44,11 @@
         <input type="checkbox" id="node-config-input-encyption">
         <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
     </div>
+    <div class="form-row">
+        <label><i class="fa fa-user"></i> Use UTC?</label>
+        <input type="checkbox" id="node-config-input-useUTC" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-config-input-useUTC" style="width: 70%;"> Use UTC time for values without time zone offset</label>
+    </div>    
 </script>
 
 <script type="text/javascript">
