@@ -1,22 +1,18 @@
-<script type="text/javascript">
-    RED.nodes.registerType('MSSQL-CN',{
-        category: 'config',
-        defaults: {
-            name: {value:""},
-            server: {value:""},
-            encyption:{value:true},
-            useUTC: {value: true},            
-            database: {value:""}
-        },
-        credentials: {
-            username: {type:"text"},
-            password: {type:"password"}
-        },
-        label: function() {
-            return this.name || "MSSQL-CN";
-        }
-    });
-</script>
+<!--
+  Copyright 2013, 2016 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 
 <script type="text/x-red" data-template-name="MSSQL-CN">
     <div class="form-row">
@@ -44,51 +40,29 @@
         <input type="checkbox" id="node-config-input-encyption">
         <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
     </div>
-    <div class="form-row">
-        <label><i class="fa fa-user"></i> Use UTC?</label>
-        <input type="checkbox" id="node-config-input-useUTC" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-config-input-useUTC" style="width: 70%;"> Use UTC time for values without time zone offset</label>
-    </div>    
+</script>
+
+<script type="text/x-red" data-help-name="MSSQL-CN">
+    <p>A node you can use to add comments to your flows.</p>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('MSSQL',{
-        category: 'storage',
-        color: '#C0DEED',
+    RED.nodes.registerType('MSSQL-CN',{
+        category: 'config',
         defaults: {
-            mssqlCN: {type:"MSSQL-CN"},
             name: {value:""},
-            query: {value: ""},
-            outField: {value:"payload"}
+            server: {value:""},
+            encyption:{value:true},
+            database: {value:""}
         },
-        inputs:1,
-        outputs:1,
-        icon: "db.png",
+        inputs:0,
+        outputs:0,
+        credentials: {
+            username: {type:"text"},
+            password: {type:"password"}
+        },
         label: function() {
-            return this.name||"MSSQL";
-        },
-        oneditprepare: function() {
-            var that = this;
-            that.editor = RED.editor.createEditor({
-               id: 'node-input-query-editor',
-               value: $("#node-input-query").val()
-            });
-            $("#node-input-name").focus();
-        },
-        oneditsave: function() {
-            $("#node-input-query").val(this.editor.getValue());
-            delete this.editor;
-        },
-        oneditresize: function() {
-            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-            var height = $("#dialog-form").height();
-            for (var i=0;i<rows.size();i++) {
-                height -= $(rows[i]).outerHeight(true);
-            }
-            var editorRow = $("#dialog-form>div.node-text-editor-row");
-            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
-            $(".node-text-editor").css("height",height+"px");
-            this.editor.resize();
+            return this.name || "MSSQL-CN";
         }
     });
 </script>
@@ -123,4 +97,50 @@
     Example: <i>SELECT * FROM Test WHERE Name = {{{payload.name}}}</i></p>
     
     If no query is specified, the msg.payload value is used as the query.
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('MSSQL',{
+        category: 'storage',
+        color:"#C0DEED",
+        defaults: {
+            mssqlCN: {type:"MSSQL-CN"},
+            name: {value:""},
+            query: {value: ""},
+            outField: {value:"payload"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "db.png",
+        label: function() {
+            return this.name||"";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            var that = this;
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-query-editor',
+                mode: 'ace/mode/sql',
+                value: $("#node-input-query").val()
+            });
+            this.editor.focus();
+        },
+        oneditsave: function() {
+            $("#node-input-query").val(this.editor.getValue());
+            delete this.editor;
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+            var height = $("#dialog-form").height();
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-text-editor-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $(".node-text-editor").css("height",height+"px");
+            this.editor.resize();
+        }
+    });
 </script>
