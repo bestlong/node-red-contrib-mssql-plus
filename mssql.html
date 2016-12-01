@@ -32,6 +32,10 @@
         <input type="password" id="node-config-input-password">
     </div>
     <div class="form-row">
+        <label for="node-config-input-domain"><i class="fa fa-user"></i> Domain</label>
+        <input type="text" id="node-config-input-domain">
+    </div>
+    <div class="form-row">
         <label for="node-config-input-database"><i class="fa fa-user"></i> Database</label>
         <input type="text" id="node-config-input-database">
     </div>
@@ -55,7 +59,8 @@
         outputs:0,
         credentials: {
             username: {type:"text"},
-            password: {type:"password"}
+            password: {type:"password"},
+            domain: {type:"text"}
         },
         label: function() {
             return this.name || "MSSQL-CN";
@@ -91,7 +96,7 @@
     <h4>Query</h4>
     <p>You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</br>
     Example: <i>SELECT * FROM Test WHERE Name = {{{payload.name}}}</i></p>
-    
+
     If no query is specified, the msg.payload value is used as the query.
 </script>
 
