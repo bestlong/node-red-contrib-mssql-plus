@@ -1,6 +1,6 @@
 # node-red-contrib-mssql
 
-[![RedConnect Approved](https://img.shields.io/badge/RedConnect-Approved-brightgreen.svg?style=flat)](https://www.redconnect.io/addons) [![Gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/redconnect-io/redconnect)
+[![RedConnect Approved](https://img.shields.io/badge/RedConnect-Approved-brightgreen.svg?style=flat)](https://www.redconnect.io/addons) 
 
 A node-red node for connecting to Microsoft MS SQL Databases
 Based on npm package [mssql](https://www.npmjs.com/package/mssql) 
