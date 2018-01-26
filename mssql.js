@@ -6,17 +6,18 @@ module.exports = function(RED) {
 	function connection(config) {
 	    RED.nodes.createNode(this, config);
 
-      var node = this;
+        var node = this;
 	    this.config = {
             user: node.credentials.username,
             password: node.credentials.password,
-						domain: node.credentials.domain,
+            domain: node.credentials.domain,
             server: config.server,
             database: config.database,
             options: {
-                           encrypt : config.encyption,
-                           useUTC: config.useUTC
-                       }
+                tdsVersion: config.tdsVersion,
+                encrypt : config.encyption,
+                useUTC: config.useUTC
+            }
         };
 
 

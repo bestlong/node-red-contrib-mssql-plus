@@ -40,6 +40,16 @@
         <input type="text" id="node-config-input-database">
     </div>
     <div class="form-row">
+        <label for="node-config-input-tdsVersion"><i class="fa fa-user"></i> TDS Version</label>
+        <select id="node-config-input-tdsVersion">
+            <option value="7_4">7_4 (SQL Server 2012/2014)</option>
+            <option value="7_3_B">7_3_B (SQL Server 2008R2)</option>
+            <option value="7_3_A">7_3_A (SQL Server 2008)</option>
+            <option value="7_2">7_2 (SQL Server 2005)</option>
+            <option value="7_1">7_1 (SQL Server 2000)</option>
+        </select>
+    </div>
+    <div class="form-row">
         <label for="node-config-input-encyption"><i class="fa fa-user"></i> Use Encryption?</label>
         <input type="checkbox" id="node-config-input-encyption">
         <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
@@ -50,6 +60,7 @@
     RED.nodes.registerType('MSSQL-CN',{
         category: 'config',
         defaults: {
+            tdsVersion: {value:"7_4"},
             name: {value:""},
             server: {value:""},
             encyption:{value:true},
