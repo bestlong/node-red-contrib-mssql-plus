@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-mssql",
+  "name": "node-red-contrib-mssql-plus",
   "version": "0.0.7",
   "description": "Node for node-red to connect to a Microsoft MS SQL Database",
   "main": "odbc.js",
