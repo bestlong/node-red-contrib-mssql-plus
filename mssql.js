@@ -13,6 +13,7 @@ module.exports = function(RED) {
             server: config.server,
             database: config.database,
             options: {
+                port: config.port,
                 tdsVersion: config.tdsVersion,
                 encrypt : config.encyption,
                 useUTC: config.useUTC

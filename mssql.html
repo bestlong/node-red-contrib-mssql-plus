@@ -24,6 +24,10 @@
         <input type="text" id="node-config-input-server" placeholder="Server name or IP">
     </div>
     <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-random"></i> Port</label>
+        <input type="text" id="node-config-input-port" placeholder="Port">
+    </div>
+    <div class="form-row">
         <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
         <input type="text" id="node-config-input-username">
     </div>
@@ -63,6 +67,7 @@
             tdsVersion: {value:"7_4"},
             name: {value:""},
             server: {value:""},
+            port: {value:"1433", required: true},
             encyption:{value:true},
             database: {value:""}
         },
