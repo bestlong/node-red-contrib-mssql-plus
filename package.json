@@ -31,9 +31,12 @@
     "database"
   ],
   "author": "Redconnect.io",
+  "contributors": [
+    "Shao Yu-Lung <bestlong168@gmail.com> (https://github.com/bestlong)"
+  ],
   "license": "MIT",
-  "homepage": "http://www.redconnect.io",
+  "homepage": "https://github.com/bestlong/node-red-contrib-mssql-plus",
   "bugs": {
-    "url": "https://github.com/redconnect-io/node-red-contrib-mssql/issues"
+    "url": "https://github.com/bestlong/node-red-contrib-mssql-plus/issues"
   }
 }
