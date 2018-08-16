@@ -69,8 +69,6 @@ module.exports = function(RED) {
       };
 
       node.on('input',function(msg){
-          console.log(node.config);
-
           node.connection.connect(node.config).then(function(){
 
             node.status({fill:'blue',shape:'dot',text:'requesting'});
