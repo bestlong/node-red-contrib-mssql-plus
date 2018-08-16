@@ -58,6 +58,11 @@
         <input type="checkbox" id="node-config-input-encyption">
         <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
     </div>
+    <div class="form-row">
+        <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
+        <input type="checkbox" id="node-config-input-useUTC">
+        <div class="form-tips">Pass time values in UTC or local time.</div>
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -69,7 +74,8 @@
             server: {value:"", required: true},
             port: {value:"1433", required: true},
             encyption:{value:true},
-            database: {value:"", required: true}
+            database: {value:"", required: true},
+            useUTC: {value:true}
         },
         inputs:0,
         outputs:0,
