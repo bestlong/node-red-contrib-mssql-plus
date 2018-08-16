@@ -66,10 +66,10 @@
         defaults: {
             tdsVersion: {value:"7_4"},
             name: {value:""},
-            server: {value:""},
+            server: {value:"", required: true},
             port: {value:"1433", required: true},
             encyption:{value:true},
-            database: {value:""}
+            database: {value:"", required: true}
         },
         inputs:0,
         outputs:0,
