@@ -9,7 +9,7 @@
   },
   "node-red": {
     "nodes": {
-      "mssql": "mssql.js"
+      "mssql": "src/mssql.js"
     }
   },
   "scripts": {
