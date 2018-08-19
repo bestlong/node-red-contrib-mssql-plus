@@ -16,7 +16,10 @@ module.exports = function(RED) {
                 port: config.port,
                 tdsVersion: config.tdsVersion,
                 encrypt : config.encyption,
-                useUTC: config.useUTC
+                useUTC: config.useUTC,
+                connectTimeout: config.connectTimeout,
+                requestTimeout: config.requestTimeout,
+                cancelTimeout: config.cancelTimeout
             }
         };
 

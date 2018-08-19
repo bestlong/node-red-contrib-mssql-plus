@@ -63,6 +63,21 @@
         <input type="checkbox" id="node-config-input-useUTC">
         <div class="form-tips">Pass time values in UTC or local time.</div>
     </div>
+    <div class="form-row">
+        <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> Connect Timeout</label>
+        <input type="text" id="node-config-input-connectTimeout">
+        <div class="form-tips">The number of milliseconds before the attempt to connect is considered failed.</div>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> Request Timeout</label>
+        <input type="text" id="node-config-input-requestTimeout">
+        <div class="form-tips">The number of milliseconds before a request is considered failed, or 0 for no timeout.</div>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> Cancel Timeout</label>
+        <input type="text" id="node-config-input-cancelTimeout">
+        <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -75,7 +90,10 @@
             port: {value:"1433", required: true},
             encyption:{value:true},
             database: {value:"", required: true},
-            useUTC: {value:true}
+            useUTC: {value:true},
+            connectTimeout: {value:"15000"},
+            requestTimeout: {value:"15000"},
+            cancelTimeout: {value:"5000"}
         },
         inputs:0,
         outputs:0,
