@@ -5,7 +5,7 @@
   "main": "odbc.js",
   "dependencies": {
     "mssql": ">=3.0.1 <4.0.0",
-    "mustache": "latest"
+    "mustache": "^2.3.2"
   },
   "node-red": {
     "nodes": {
