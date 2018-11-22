@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-mssql-plus",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Node for node-red to connect to a Microsoft MS SQL Database",
   "main": "odbc.js",
   "dependencies": {
@@ -32,7 +32,8 @@
   ],
   "author": "Redconnect.io",
   "contributors": [
-    "Shao Yu-Lung <bestlong168@gmail.com> (https://github.com/bestlong)"
+    "Shao Yu-Lung <bestlong168@gmail.com> (https://github.com/bestlong)",
+    "Olli Kasari <8488349+kasarol@users.noreply.github.com>"
   ],
   "license": "MIT",
   "homepage": "https://github.com/bestlong/node-red-contrib-mssql-plus",
