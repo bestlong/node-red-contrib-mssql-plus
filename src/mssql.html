@@ -78,6 +78,10 @@
         <input type="text" id="node-config-input-cancelTimeout">
         <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
     </div>
+    <div class="form-row">
+        <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
+        <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -93,7 +97,8 @@
             useUTC: {value:true},
             connectTimeout: {value:"15000"},
             requestTimeout: {value:"15000"},
-            cancelTimeout: {value:"5000"}
+            cancelTimeout: {value:"5000"},
+            pool: {value:"5"}
         },
         inputs:0,
         outputs:0,
