@@ -6,6 +6,12 @@ module.exports = function (RED) {
     function connection(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+        
+        //add mustache transformation to connection object
+        var configStr = JSON.stringify(config)
+        var transform = mustache.render(configStr, process.env);
+        config = JSON.parse(transform);
+        
         this.config = {
             user: node.credentials.username,
             password: node.credentials.password,
