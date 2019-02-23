@@ -13,6 +13,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<script type="text/x-red" data-help-name="MSSQL-CN">
+  <p>Config node for Node-RED to MS SQL</p>
+  <h4>Connection setup</h4>
+  <p>
+      You can use environment variables in any connection field, using
+      <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i>
+      format.
+  </p>
+  <p>
+      Example: <i>{{{environment variable name}}}</i>; or<br />
+      Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
+  </p>
+</script>
 
 <script type="text/x-red" data-template-name="MSSQL-CN">
     <div class="form-row">
