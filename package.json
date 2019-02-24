@@ -12,6 +12,9 @@
       "mssql": "src/mssql.js"
     }
   },
+  "files": [
+    "src/"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "release": "npm version patch && git push --tags",

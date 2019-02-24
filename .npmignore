@@ -3,3 +3,10 @@
 .git
 .npmrc
 npm-debug.log
+
+*.tgz
+
+.vscode
+docker-compose.yml
+temp
+test
