@@ -7,11 +7,6 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         
-        //add mustache transformation to connection object
-        var configStr = JSON.stringify(config)
-        var transform = mustache.render(configStr, process.env);
-        config = JSON.parse(transform);
-        
         this.config = {
             user: node.credentials.username,
             password: node.credentials.password,
@@ -34,6 +29,11 @@ module.exports = function (RED) {
             }
         };
 
+        //add mustache transformation to connection object
+        var configStr = JSON.stringify(this.config)
+        var transform = mustache.render(configStr, process.env);
+        this.config = JSON.parse(transform);
+        
         this.connectedNodes = [];
 
         this.connect = function (nodeId) {
