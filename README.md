@@ -18,7 +18,7 @@ Alternatively in your Node-RED user directory, typically ~/.node-red, run
 npm install node-red-contrib-mssql-plus
 ```
 
-# Other
+## Other
 
 This node based on [node-red-contrib-mssql](https://github.com/redconnect-io/node-red-contrib-mssql).
 
