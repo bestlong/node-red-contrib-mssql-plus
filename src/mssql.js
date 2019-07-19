@@ -1,12 +1,12 @@
 module.exports = function (RED) {
     'use strict';
     var mustache = require('mustache');
-    var sql = require('mssql');
+    const sql = require('mssql');
 
     function connection(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        
+
         node.config = {
             user: node.credentials.username,
             password: node.credentials.password,
@@ -30,13 +30,13 @@ module.exports = function (RED) {
         };
 
         //add mustache transformation to connection object
-        var configStr = JSON.stringify(this.config)
+        var configStr = JSON.stringify(node.config)
         var transform = mustache.render(configStr, process.env);
-        this.config = JSON.parse(transform);
+        node.config = JSON.parse(transform);
         
-        this.connectedNodes = [];
+        node.connectedNodes = [];
 
-        this.connect = function (nodeId) {
+        node.connect = function (nodeId) {
             if (node.connectedNodes.indexOf(nodeId) < 0) {
                 node.connectedNodes.push(nodeId);
             }
@@ -56,7 +56,7 @@ module.exports = function (RED) {
             }
         }
 
-        this.disconnect = function (nodeId) {
+        node.disconnect = function (nodeId) {
             let index = node.connectedNodes.indexOf(nodeId);
             if (index >= 0) {
                 node.connectedNodes.splice(index, 1);
@@ -89,10 +89,11 @@ module.exports = function (RED) {
     function mssql(config) {
         RED.nodes.createNode(this, config);
         var mssqlCN = RED.nodes.getNode(config.mssqlCN);
-        this.query = config.query;
-        this.outField = config.outField;
-
         var node = this;
+        node.query = config.query;
+        node.outField = config.outField;
+
+        
         var b = node.outField.split('.');
         var i = 0;
         var r = null;
