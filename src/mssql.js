@@ -7,7 +7,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         
-        this.config = {
+        node.config = {
             user: node.credentials.username,
             password: node.credentials.password,
             domain: node.credentials.domain,
@@ -18,12 +18,12 @@ module.exports = function (RED) {
                 tdsVersion: config.tdsVersion,
                 encrypt: config.encyption,
                 useUTC: config.useUTC,
-                connectTimeout: config.connectTimeout,
-                requestTimeout: config.requestTimeout,
-                cancelTimeout: config.cancelTimeout
+                connectTimeout: config.connectTimeout ? parseInt(config.connectTimeout) : undefined,
+                requestTimeout: config.requestTimeout ? parseInt(config.requestTimeout) : undefined,
+                cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined
             },
             pool: {
-                max: config.pool,
+                max: parseInt(config.pool),
                 min: 0,
                 idleTimeoutMillis: 3000
             }
