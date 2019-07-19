@@ -33,41 +33,41 @@ module.exports = function (RED) {
         var configStr = JSON.stringify(node.config)
         var transform = mustache.render(configStr, process.env);
         node.config = JSON.parse(transform);
-        
         node.connectedNodes = [];
-
-        node.connect = function (nodeId) {
-            if (node.connectedNodes.indexOf(nodeId) < 0) {
-                node.connectedNodes.push(nodeId);
-            }
-            if (!node.connection) {
-                if (!node.connectPromise) {
-                    node.connectPromise = sql.connect(node.config).then(function () {
-                        node.log('Connected to SQL database');
-                        node.connection = sql;
-                    }).catch(function (error) {
-                        node.connectPromise = null;
-                        throw (error);
-                    });
-                }
-                return node.connectPromise;
-            } else {
-                return Promise.resolve();
-            }
+        node.connect = function(config){
+            if(node.pool)
+                return;
+            node.pool = new sql.ConnectionPool(node.config).connect()
+            .then(_ => { 
+                return _ 
+            }).catch(e => {
+                node.log(`Error connecting to MSSQL:- server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                node.error(e);
+                node.pool = null;
+            });
         }
-
+        node.execSql = function(sql, callback) {
+            node.connect();
+            node.pool.then(_ => {
+                return _.request().query(sql)
+            }).then(result => {
+                callback(null,result) 
+            }).catch(e => { 
+                callback(e) 
+                node.pool = null;
+            })
+        };
         node.disconnect = function (nodeId) {
             let index = node.connectedNodes.indexOf(nodeId);
             if (index >= 0) {
                 node.connectedNodes.splice(index, 1);
             }
             if (node.connectedNodes.length === 0) {
-                node.connectPromise = null;
-                if (node.connection) {
-                    node.log("Disconnecting SQL connection");
-                    node.connection.close();
-                    node.connection = null;
+                if (node.pool) {
+                    node.log(`Disconnecting MSSQL:- server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                    node.pool.then(_ => _.close()).catch(e => console.error(e));
                 }
+                node.pool = null;
             }
         }
     }
@@ -90,70 +90,81 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var mssqlCN = RED.nodes.getNode(config.mssqlCN);
         var node = this;
+
         node.query = config.query;
         node.outField = config.outField;
+        node.returnType = config.returnType;
+        node.throwErrors = !config.throwErrors || config.throwErrors == "0" ? false : true;
 
-        
-        var b = node.outField.split('.');
-        var i = 0;
-        var r = null;
-        var m = null;
-        var rec = function (obj) {
-            i += 1;
-            if ((i < b.length) && (typeof obj[b[i - 1]] === 'object')) {
-                rec(obj[b[i - 1]]); // not there yet - carry on digging
-            } else {
-                if (i === b.length) { // we've finished so assign the value
-                    obj[b[i - 1]] = r;
-                    node.send(m);
-                    node.status({});
-                } else {
-                    obj[b[i - 1]] = {}; // needs to be a new object so create it
-                    rec(obj[b[i - 1]]); // and carry on digging
-                }
+        var setResult = function (msg, field, value, returnType = 0 ) {
+            const set = (obj, path, val) => { 
+                const keys = path.split('.');
+                const lastKey = keys.pop();
+                const lastObj = keys.reduce((obj, key) => 
+                    obj[key] = obj[key] || {}, 
+                    obj); 
+                lastObj[lastKey] = val;
             }
+            set(msg, field, returnType == 1 ? value : value.recordset);
         };
 
-        node.on('input', function (msg) {
-            mssqlCN.connect(node.id).then(() => {
-                node.status({
-                    fill: 'blue',
-                    shape: 'dot',
-                    text: 'requesting'
-                });
-
-                var query = mustache.render(node.query, msg);
-
-                if (!query || (query === '')) {
-                    query = msg.payload;
-                }
-
-                var request = new mssqlCN.connection.Request();
-                request.query(query).then(function (rows) {
-                    i = 0;
-                    r = rows;
-                    m = msg;
-                    rec(msg);
-                }).catch(function (error) {
-                    node.error(error);
-                    node.status({
-                        fill: 'red',
-                        shape: 'ring',
-                        text: 'Error'
-                    });
-                    msg.error = error;
-                    node.send(msg);
-                });
-            }).catch(function (error) {
-                node.error(error);
-                node.status({
-                    fill: 'red',
-                    shape: 'ring',
-                    text: 'Error'
-                });
-                msg.error = error;
-                node.send(msg);
+        node.processError = function(err,msg){
+            let errMsg = "Error";
+            if(typeof err == "string"){
+                errMsg = err;
+            } else if(err && err.message) {
+                errMsg = err.message;
+            }
+            
+            node.status({
+                fill: 'red',
+                shape: 'ring',
+                text: errMsg
             });
+
+            if(node.throwErrors){
+                node.error(err,msg);
+            } else {
+                msg.error = err; 
+                node.send(msg);
+            }
+        }    
+
+        node.on('input', function (msg) {
+            //clear node status
+            node.status({}); 
+
+            //put query into msg object so user can inspect how mustache rendered it
+            msg.query = mustache.render(node.query, msg);
+
+            if (!msg.query || (msg.query === '')) {
+                msg.query = msg.payload;
+            }
+
+            node.status({
+                fill: 'blue',
+                shape: 'dot',
+                text: 'requesting'
+            });
+
+            try {
+
+                mssqlCN.execSql(msg.query, function (err, data) {
+                    if (err) {
+                        node.processError(err,msg)
+                    } else {
+                        node.status({
+                            fill: 'green',
+                            shape: 'dot',
+                            text: 'done'
+                        });
+                        setResult(msg, node.outField, data, node.returnType);
+                        node.send(msg);
+                    }
+                });
+            } catch (err) {
+                node.processError(err,msg)
+            }
         });
 
         node.on('close', function () {
