@@ -19,43 +19,77 @@ module.exports = function (RED) {
             server: config.server,
             database: config.database,
             options: {
-                port: config.port,
+                port: config.port ? parseInt(config.port) : undefined,
                 tdsVersion: config.tdsVersion,
                 encrypt: config.encyption,
                 useUTC: config.useUTC,
                 connectTimeout: config.connectTimeout ? parseInt(config.connectTimeout) : undefined,
                 requestTimeout: config.requestTimeout ? parseInt(config.requestTimeout) : undefined,
-                cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined
+                cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined,
+                camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
             },
             pool: {
                 max: parseInt(config.pool),
                 min: 0,
-                idleTimeoutMillis: 3000
+                idleTimeoutMillis: 3000,
+                //log: (message, logLevel) => console.log(`POOL: [${logLevel}] ${message}`)
             }
         };
 
-        node.connectedNodes = [];
+        //config options seem to differ between pool and tedious connection
+        //so for compatibility I just repeat the ones that differ so they get picked up in _poolCreate ()
+        node.config.port = node.config.options.port;
+        node.config.connectionTimeout = node.config.options.connectTimeout;
+        node.config.requestTimeout = node.config.options.requestTimeout;
+        node.config.cancelTimeout = node.config.options.cancelTimeout;
+        node.config.encrypt = node.config.options.encrypt;
+
+        node.connectedNodes = [];   
+
+        node.connectionCleanup = function() {
+            try {
+                node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                node.pool.then(_ => _.close()).catch(e => { console.error(e); });
+            }
+            catch (error) {
+            }
+            try {
+                node.connectionPool.close();
+            }
+            catch (error) {
+            }
+            node.pool = null;
+        }
+
+        node.connectionPool = new sql.ConnectionPool(node.config)
+        node.connectionPool.on('error', err => {
+            node.error(err);
+            node.connectionCleanup(node);
+        }) 
+
         node.connect = function(){
-            if(node.pool)
+            if(node.pool){
                 return;
-            node.pool = new sql.ConnectionPool(node.config).connect()
+            }
+            node.pool = node.connectionPool.connect()
             .then(_ => { 
+                node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
                 return _ 
             }).catch(e => {
-                node.log(`Error connecting to MSSQL:- server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                node.error(e);
-                node.pool = null;
+                node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                throw e;
             });
         }
+
         node.execSql = function(sql, callback) {
             node.connect();
             node.pool.then(_ => {
-                return _.request().query(sql)
+                return _.request().query(sql);
             }).then(result => {
                 callback(null,result) 
             }).catch(e => { 
                 callback(e) 
-                node.pool = null;
+                //node.pool = null;
             })
         };
         node.disconnect = function (nodeId) {
@@ -64,11 +98,7 @@ module.exports = function (RED) {
                 node.connectedNodes.splice(index, 1);
             }
             if (node.connectedNodes.length === 0) {
-                if (node.pool) {
-                    node.log(`Disconnecting MSSQL:- server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
-                    node.pool.then(_ => _.close()).catch(e => console.error(e));
-                }
-                node.pool = null;
+                node.connectionCleanup();
             }
         }
     }
@@ -113,8 +143,26 @@ module.exports = function (RED) {
             let errMsg = "Error";
             if(typeof err == "string"){
                 errMsg = err;
+                msg.error = err;
             } else if(err && err.message) {
                 errMsg = err.message;
+                //Make an error object from the err.  NOTE: We cant just assign err to msg.error as a promise 
+                //rejection occurs when the node has 2 wires on the output. 
+                //(redUtil.cloneMessage(m) causes error "node-red Cannot assign to read only property 'originalError'")
+                msg.error = {
+                    class: err.class,
+                    code: err.code, 
+                    lineNumber: err.lineNumber, 
+                    message: err.message, 
+                    name: err.name, 
+                    number: err.number, 
+                    procName: err.procName, 
+                    serverName: err.serverName, 
+                    state: err.state, 
+                    toString: function(){
+                        return this.message;
+                    }
+                }
             }
             
             node.status({
@@ -124,9 +172,9 @@ module.exports = function (RED) {
             });
 
             if(node.throwErrors){
-                node.error(err,msg);
+                node.error(msg.error,msg);
             } else {
-                msg.error = err; 
+                node.log(err);
                 node.send(msg);
             }
         }    
@@ -149,7 +197,6 @@ module.exports = function (RED) {
             });
 
             try {
-
                 mssqlCN.execSql(msg.query, function (err, data) {
                     if (err) {
                         node.processError(err,msg)
