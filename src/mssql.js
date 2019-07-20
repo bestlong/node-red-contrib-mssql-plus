@@ -7,6 +7,11 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
+        //add mustache transformation to connection object
+        var configStr = JSON.stringify(config)
+        var transform = mustache.render(configStr, process.env);
+        config = JSON.parse(transform);
+
         node.config = {
             user: node.credentials.username,
             password: node.credentials.password,
@@ -29,12 +34,8 @@ module.exports = function (RED) {
             }
         };
 
-        //add mustache transformation to connection object
-        var configStr = JSON.stringify(node.config)
-        var transform = mustache.render(configStr, process.env);
-        node.config = JSON.parse(transform);
         node.connectedNodes = [];
-        node.connect = function(config){
+        node.connect = function(){
             if(node.pool)
                 return;
             node.pool = new sql.ConnectionPool(node.config).connect()
