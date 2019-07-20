@@ -180,8 +180,9 @@ module.exports = function (RED) {
         }    
 
         node.on('input', function (msg) {
-            //clear node status
-            node.status({}); 
+            
+            node.status({}); //clear node status
+            delete msg.error; //remove any error passed in from previous MSSQL
 
             //put query into msg object so user can inspect how mustache rendered it
             msg.query = mustache.render(node.query, msg);
