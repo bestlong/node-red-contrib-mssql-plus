@@ -210,58 +210,38 @@
       </div>
   </script>
   
-  <!-- <script type="text/x-red" data-help-name="MSSQL"> -->
-        <p>Node for Node-RED to MS SQL</p>
-        
-        <h3>Query...</h3>
-        <div style="padding-left: 5px;">
-            <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</p>
-            <p>Examples...
-                <ul>
-                    <li><code>SELECT TOP {{{payload.count}}} * FROM [MyTable] WHERE Name = '{{{payload.name}}}'</code></li>
-                    <li><code>INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{payload.name}}}', 1)</code></li>
-                    <li><code>UPDATE [MyTable] SET quantity = {{{payload.value}}} WHERE id = {{{payload.id}}}</code></li>
-                    <li><code>DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
-                </ul>
-            </p>
-            <div class="form-tips">TIP: If the query left blank, then <code>msg.payload</code> will be used as the query.</div>
-            <br>
-            <p>INFO: When the 'Result type' is set to 'Driver output'...
-                <ul>
-                    <li>Multiple results will be returned in the <code>recordsets</code> object if multiple queries are
-                        executed.</li>
-                    <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> array to confirm
-                        operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
-                </ul>
-            </p>
-        </div>
-        
-        <h3>Return options...</h3>
-        <div style="padding-left: 5px;">
-            <h4>Result to</h4>
-            <ul>
-                <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
-            </ul>
-            <h4>Result type</h4>
-            <ul>
-                <li><b>Original output</b>: The property specified by 'Result to' will be populated with a single result (if
-                    any). This is the same as previous version - for compatibility</li>
-                <li><b>Driver output</b>: The property specified by 'Result to' will be populated with the result of the query
-                    direct from the driver output. This format can return multiple record sets and other information. Add a
-                    debug node to see all available properties returned.</li>
-            </ul>
-        </div>
-        <h3>Error Handling...</h3>
-        <div style="padding-left: 5px;">
-            <ul>
-                <li><b>Send in msg.error</b>: Error will be written to <code>msg.error</code> and the msg will be sent in the
-                    output. Users should check the output msg for presence of <code>msg.error</code> after each MSSQL node (same
-                    functionality as previous version - for compatibility)</li>
-                <li><b>Throw error</b>: This will cause an error to be thrown instead of being sent in the output. Users can use the
-                    <code>catch</code> node to detect and handle errors</li>
-            </ul>
-        </div>
-  <!-- </script> -->
+  <script type="text/x-red" data-help-name="MSSQL">
+      <p>Node for Node-RED to MS SQL</p>
+      
+      <h3>Query...</h3>
+      <p>
+          Enter the query to execute.<br>
+          You can use the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</br>
+          Examples...
+          <ul>
+              <li><code>SELECT TOP {{{payload.count}}} * FROM Test WHERE Name = '{{{payload.name}}}'</code></li>
+              <li><code>UPDATE myTable SET [numberfield] = {{{payload.value}}} WHERE id = {{{payload.id}}}</code></li>
+          </ul>
+          NOTE: If the query left blank, then <code>msg.payload</code> will be used as the query.
+      </p>
+  
+      <h3>Return options...</h3>
+          <h4>Result to</h4>
+          <ul>
+              <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
+          </ul>    
+          <h4>Result type</h4>
+          <ul>
+              <li><b>Original output</b>: The propery specified by 'Result to' will be populated with a single result (if any). This is the same as previous version - for compatability</li>
+              <li><b>Driver output</b>: The propery specified by 'Result to' will be populated with the result of the query direct from the driver output. This format can return multiple record sets and other information. Add a debug node to see all avaiable properties returned.</li>
+          </ul>
+  
+      <h3>Error Handling...</h3>
+      <ul>
+          <li><b>Send in msg.error<b/>: Error will be written to <code>msg.error</code> and the msg will be sent in the output. Users should check the output msg for presence of <code>msg.error</code> after each MSSQL node (same functionality as previous version - for compatability)</li>
+          <li><b>Throw error</b>: This will cause an error to be thrown instead of being sent in the output. Users can use the <code>catch</code> node to detect and handle errors</li>
+      </ul>      
+  </script>
   
   <script type="text/javascript">
       RED.nodes.registerType('MSSQL', {
@@ -281,10 +261,10 @@
                   value: "payload"
               },
               returnType: {
-                  value: 0 //0=original (for compatibility), 1=driver output
+                  value: 0 //0=original (for compatability), 1=driver output
               },
               throwErrors: {
-                  value: 1 //0=original (for compatibility), 1=throw errors for catch node
+                  value: 1 //0=original (for compatability), 1=throw errors for catch node
               }
           },
           inputs: 1,
