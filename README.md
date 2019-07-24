@@ -18,6 +18,17 @@ Alternatively in your Node-RED user directory, typically ~/.node-red, run
 npm install node-red-contrib-mssql-plus
 ```
 
+## Usage
+Please refer to the built in help in the info panel in node red.
+
+## Sample flow
+``` json
+
+```
+
+## Screen shot
+![image](https://user-images.githubusercontent.com/44235289/61793815-c68b2780-ae17-11e9-8112-26767fe7a208.png)
+
 ## Other
 
 This node based on [node-red-contrib-mssql](https://github.com/redconnect-io/node-red-contrib-mssql).
