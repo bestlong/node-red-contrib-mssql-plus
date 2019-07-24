@@ -1,73 +1,104 @@
 module.exports = function (RED) {
     'use strict';
     var mustache = require('mustache');
-    var sql = require('mssql');
+    const sql = require('mssql');
 
     function connection(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        
-        this.config = {
+
+        //add mustache transformation to connection object
+        var configStr = JSON.stringify(config)
+        var transform = mustache.render(configStr, process.env);
+        config = JSON.parse(transform);
+
+        node.config = {
             user: node.credentials.username,
             password: node.credentials.password,
             domain: node.credentials.domain,
             server: config.server,
             database: config.database,
             options: {
-                port: config.port,
+                port: config.port ? parseInt(config.port) : undefined,
                 tdsVersion: config.tdsVersion,
                 encrypt: config.encyption,
                 useUTC: config.useUTC,
-                connectTimeout: config.connectTimeout,
-                requestTimeout: config.requestTimeout,
-                cancelTimeout: config.cancelTimeout
+                connectTimeout: config.connectTimeout ? parseInt(config.connectTimeout) : undefined,
+                requestTimeout: config.requestTimeout ? parseInt(config.requestTimeout) : undefined,
+                cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined,
+                camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
             },
             pool: {
-                max: config.pool,
+                max: parseInt(config.pool),
                 min: 0,
-                idleTimeoutMillis: 3000
+                idleTimeoutMillis: 3000,
+                //log: (message, logLevel) => console.log(`POOL: [${logLevel}] ${message}`)
             }
         };
 
-        //add mustache transformation to connection object
-        var configStr = JSON.stringify(this.config)
-        var transform = mustache.render(configStr, process.env);
-        this.config = JSON.parse(transform);
-        
-        this.connectedNodes = [];
+        //config options seem to differ between pool and tedious connection
+        //so for compatibility I just repeat the ones that differ so they get picked up in _poolCreate ()
+        node.config.port = node.config.options.port;
+        node.config.connectionTimeout = node.config.options.connectTimeout;
+        node.config.requestTimeout = node.config.options.requestTimeout;
+        node.config.cancelTimeout = node.config.options.cancelTimeout;
+        node.config.encrypt = node.config.options.encrypt;
 
-        this.connect = function (nodeId) {
-            if (node.connectedNodes.indexOf(nodeId) < 0) {
-                node.connectedNodes.push(nodeId);
+        node.connectedNodes = [];   
+
+        node.connectionCleanup = function() {
+            try {
+                node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                node.pool.then(_ => _.close()).catch(e => { console.error(e); });
             }
-            if (!node.connection) {
-                if (!node.connectPromise) {
-                    node.connectPromise = sql.connect(node.config).then(function () {
-                        node.log('Connected to SQL database');
-                        node.connection = sql;
-                    }).catch(function (error) {
-                        node.connectPromise = null;
-                        throw (error);
-                    });
-                }
-                return node.connectPromise;
-            } else {
-                return Promise.resolve();
+            catch (error) {
             }
+            try {
+                node.connectionPool.close();
+            }
+            catch (error) {
+            }
+            node.pool = null;
         }
 
-        this.disconnect = function (nodeId) {
+        node.connectionPool = new sql.ConnectionPool(node.config)
+        node.connectionPool.on('error', err => {
+            node.error(err);
+            node.connectionCleanup(node);
+        }) 
+
+        node.connect = function(){
+            if(node.pool){
+                return;
+            }
+            node.pool = node.connectionPool.connect()
+            .then(_ => { 
+                node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                return _ 
+            }).catch(e => {
+                node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                throw e;
+            });
+        }
+
+        node.execSql = function(sql, callback) {
+            node.connect();
+            node.pool.then(_ => {
+                return _.request().query(sql);
+            }).then(result => {
+                callback(null,result) 
+            }).catch(e => { 
+                callback(e) 
+                //node.pool = null;
+            })
+        };
+        node.disconnect = function (nodeId) {
             let index = node.connectedNodes.indexOf(nodeId);
             if (index >= 0) {
                 node.connectedNodes.splice(index, 1);
             }
             if (node.connectedNodes.length === 0) {
-                node.connectPromise = null;
-                if (node.connection) {
-                    node.log("Disconnecting SQL connection");
-                    node.connection.close();
-                    node.connection = null;
-                }
+                node.connectionCleanup();
             }
         }
     }
@@ -89,70 +120,100 @@ module.exports = function (RED) {
     function mssql(config) {
         RED.nodes.createNode(this, config);
         var mssqlCN = RED.nodes.getNode(config.mssqlCN);
-        this.query = config.query;
-        this.outField = config.outField;
-
         var node = this;
-        var b = node.outField.split('.');
-        var i = 0;
-        var r = null;
-        var m = null;
-        var rec = function (obj) {
-            i += 1;
-            if ((i < b.length) && (typeof obj[b[i - 1]] === 'object')) {
-                rec(obj[b[i - 1]]); // not there yet - carry on digging
-            } else {
-                if (i === b.length) { // we've finished so assign the value
-                    obj[b[i - 1]] = r;
-                    node.send(m);
-                    node.status({});
-                } else {
-                    obj[b[i - 1]] = {}; // needs to be a new object so create it
-                    rec(obj[b[i - 1]]); // and carry on digging
-                }
+
+        node.query = config.query;
+        node.outField = config.outField;
+        node.returnType = config.returnType;
+        node.throwErrors = !config.throwErrors || config.throwErrors == "0" ? false : true;
+
+        var setResult = function (msg, field, value, returnType = 0 ) {
+            const set = (obj, path, val) => { 
+                const keys = path.split('.');
+                const lastKey = keys.pop();
+                const lastObj = keys.reduce((obj, key) => 
+                    obj[key] = obj[key] || {}, 
+                    obj); 
+                lastObj[lastKey] = val;
             }
+            set(msg, field, returnType == 1 ? value : value.recordset);
         };
 
-        node.on('input', function (msg) {
-            mssqlCN.connect(node.id).then(() => {
-                node.status({
-                    fill: 'blue',
-                    shape: 'dot',
-                    text: 'requesting'
-                });
-
-                var query = mustache.render(node.query, msg);
-
-                if (!query || (query === '')) {
-                    query = msg.payload;
+        node.processError = function(err,msg){
+            let errMsg = "Error";
+            if(typeof err == "string"){
+                errMsg = err;
+                msg.error = err;
+            } else if(err && err.message) {
+                errMsg = err.message;
+                //Make an error object from the err.  NOTE: We cant just assign err to msg.error as a promise 
+                //rejection occurs when the node has 2 wires on the output. 
+                //(redUtil.cloneMessage(m) causes error "node-red Cannot assign to read only property 'originalError'")
+                msg.error = {
+                    class: err.class,
+                    code: err.code, 
+                    lineNumber: err.lineNumber, 
+                    message: err.message, 
+                    name: err.name, 
+                    number: err.number, 
+                    procName: err.procName, 
+                    serverName: err.serverName, 
+                    state: err.state, 
+                    toString: function(){
+                        return this.message;
+                    }
                 }
-
-                var request = new mssqlCN.connection.Request();
-                request.query(query).then(function (rows) {
-                    i = 0;
-                    r = rows;
-                    m = msg;
-                    rec(msg);
-                }).catch(function (error) {
-                    node.error(error);
-                    node.status({
-                        fill: 'red',
-                        shape: 'ring',
-                        text: 'Error'
-                    });
-                    msg.error = error;
-                    node.send(msg);
-                });
-            }).catch(function (error) {
-                node.error(error);
-                node.status({
-                    fill: 'red',
-                    shape: 'ring',
-                    text: 'Error'
-                });
-                msg.error = error;
-                node.send(msg);
+            }
+            
+            node.status({
+                fill: 'red',
+                shape: 'ring',
+                text: errMsg
             });
+
+            if(node.throwErrors){
+                node.error(msg.error,msg);
+            } else {
+                node.log(err);
+                node.send(msg);
+            }
+        }    
+
+        node.on('input', function (msg) {
+            
+            node.status({}); //clear node status
+            delete msg.error; //remove any error passed in from previous MSSQL
+
+            //put query into msg object so user can inspect how mustache rendered it
+            msg.query = mustache.render(node.query, msg);
+
+            if (!msg.query || (msg.query === '')) {
+                msg.query = msg.payload;
+            }
+
+            node.status({
+                fill: 'blue',
+                shape: 'dot',
+                text: 'requesting'
+            });
+
+            try {
+                mssqlCN.execSql(msg.query, function (err, data) {
+                    if (err) {
+                        node.processError(err,msg)
+                    } else {
+                        node.status({
+                            fill: 'green',
+                            shape: 'dot',
+                            text: 'done'
+                        });
+                        setResult(msg, node.outField, data, node.returnType);
+                        node.send(msg);
+                    }
+                });
+            } catch (err) {
+                node.processError(err,msg)
+            }
         });
 
         node.on('close', function () {

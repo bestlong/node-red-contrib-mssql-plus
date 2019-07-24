@@ -1,228 +1,326 @@
+<!--
+  Copyright 2013, 2016 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <script type="text/x-red" data-help-name="MSSQL-CN">
-  <p>Config node for Node-RED to MS SQL</p>
-  <h4>Connection setup</h4>
-  <p>
-      You can use environment variables in any connection field, using
-      <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i>
-      format.
-  </p>
-  <p>
-      Example: <i>{{{environment variable name}}}</i>; or<br />
-      Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
-  </p>
-</script>
-
-<script type="text/x-red" data-template-name="MSSQL-CN">
-    <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-config-input-name" placeholder="Connection Name">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-server"><i class="fa fa-server"></i> Server</label>
-        <input type="text" id="node-config-input-server" placeholder="Server name or IP">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-port"><i class="fa fa-random"></i> Port</label>
-        <input type="text" id="node-config-input-port" placeholder="Port">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
-        <input type="text" id="node-config-input-username">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
-        <input type="password" id="node-config-input-password">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-domain"><i class="fa fa-user"></i> Domain</label>
-        <input type="text" id="node-config-input-domain">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-database"><i class="fa fa-database"></i> Database</label>
-        <input type="text" id="node-config-input-database">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-tdsVersion"><i class="fa fa-list"></i> TDS Version</label>
-        <select id="node-config-input-tdsVersion">
-            <option value="7_4">7_4 (SQL Server 2012/2014)</option>
-            <option value="7_3_B">7_3_B (SQL Server 2008R2)</option>
-            <option value="7_3_A">7_3_A (SQL Server 2008)</option>
-            <option value="7_2">7_2 (SQL Server 2005)</option>
-            <option value="7_1">7_1 (SQL Server 2000)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-encyption"><i class="fa fa-lock"></i> Use Encryption?</label>
-        <input type="checkbox" id="node-config-input-encyption">
-        <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
-        <input type="checkbox" id="node-config-input-useUTC">
-        <div class="form-tips">Pass time values in UTC or local time.</div>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> Connect Timeout</label>
-        <input type="text" id="node-config-input-connectTimeout">
-        <div class="form-tips">The number of milliseconds before the attempt to connect is considered failed.</div>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> Request Timeout</label>
-        <input type="text" id="node-config-input-requestTimeout">
-        <div class="form-tips">The number of milliseconds before a request is considered failed, or 0 for no timeout.</div>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> Cancel Timeout</label>
-        <input type="text" id="node-config-input-cancelTimeout">
-        <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
-        <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
-    </div>
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('MSSQL-CN', {
-        category: 'config',
-        defaults: {
-            tdsVersion: {
-                value: "7_4"
-            },
-            name: {
-                value: ""
-            },
-            server: {
-                value: "",
-                required: true
-            },
-            port: {
-                value: ""
-            },
-            encyption: {
-                value: true
-            },
-            database: {
-                value: "",
-                required: true
-            },
-            useUTC: {
-                value: true
-            },
-            connectTimeout: {
-                value: "15000"
-            },
-            requestTimeout: {
-                value: "15000"
-            },
-            cancelTimeout: {
-                value: "5000"
-            },
-            pool: {
-                value: "5"
-            }
-        },
-        inputs: 0,
-        outputs: 0,
-        credentials: {
-            username: {
-                type: "text"
-            },
-            password: {
-                type: "password"
-            },
-            domain: {
-                type: "text"
-            }
-        },
-        label: function () {
-            return this.name || "MSSQL-CN";
-        }
-    });
-</script>
-
-<script type="text/x-red" data-template-name="MSSQL">
-    <div class="form-row">
-        <label for="node-input-mssqlCN"><i class="icon-tag"></i> Connection</label>
-        <input type="text" id="node-input-mssqlCN">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row" style="margin-bottom: 0px;">
-        <label for="node-input-query" style="width: 100% !important;"><i class="fa fa-comments"></i> Query</label>
-        <input type="hidden" id="node-input-query" autofocus="autofocus">
-    </div>
-    <div class="form-row node-text-editor-row">
-        <div style="height: 250px;" class="node-text-editor" id="node-input-query-editor" ></div>
-    </div>
-    <div class="form-tips">Tip: You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</div>
-    <div class="form-row">
-        <label for="node-input-outField"><i class="fa fa-edit"></i> Result to</label>
-        msg.<input type="text" id="node-input-outField" placeholder="payload" style="width: 64%;">
-    </div>
-</script>
-
-<script type="text/x-red" data-help-name="MSSQL">
-    <p>Node for Node-RED to MS SQL</p>
-    <h4>Query</h4>
-    <p>You can uses the <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</br>
-    Example: <i>SELECT * FROM Test WHERE Name = {{{payload.name}}}</i></p>
-
-    If no query is specified, the msg.payload value is used as the query.
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('MSSQL', {
-        category: 'storage',
-        color: "#C0DEED",
-        defaults: {
-            mssqlCN: {
-                type: "MSSQL-CN"
-            },
-            name: {
-                value: ""
-            },
-            query: {
-                value: ""
-            },
-            outField: {
-                value: "payload"
-            }
-        },
-        inputs: 1,
-        outputs: 1,
-        icon: "db.png",
-        label: function () {
-            return this.name || "";
-        },
-        labelStyle: function () {
-            return this.name ? "node_label_italic" : "";
-        },
-        oneditprepare: function () {
-            var that = this;
-            this.editor = RED.editor.createEditor({
-                id: 'node-input-query-editor',
-                mode: 'ace/mode/sql',
-                value: $("#node-input-query").val()
-            });
-            this.editor.focus();
-        },
-        oneditsave: function () {
-            $("#node-input-query").val(this.editor.getValue());
-            delete this.editor;
-        },
-        oneditresize: function (size) {
-            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-            var height = $("#dialog-form").height();
-            for (var i = 0; i < rows.size(); i++) {
-                height -= $(rows[i]).outerHeight(true);
-            }
-            var editorRow = $("#dialog-form>div.node-text-editor-row");
-            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-            $(".node-text-editor").css("height", height + "px");
-            this.editor.resize();
-        }
-    });
-</script>
+    <p>Config node for Node-RED to MS SQL</p>
+    <h4>Connection setup</h4>
+    <p>
+        You can use environment variables in any connection field, using
+        <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i>
+        format.
+    </p>
+    <p>
+        Example: <i>{{{environment variable name}}}</i>; or<br />
+        Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
+    </p>
+  </script>
+  
+  <script type="text/x-red" data-template-name="MSSQL-CN">
+      <div class="form-row">
+          <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+          <input type="text" id="node-config-input-name" placeholder="Connection Name">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-server"><i class="fa fa-server"></i> Server</label>
+          <input type="text" id="node-config-input-server" placeholder="Server name or IP">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-port"><i class="fa fa-random"></i> Port</label>
+          <input type="text" id="node-config-input-port" placeholder="Port">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
+          <input type="text" id="node-config-input-username">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+          <input type="password" id="node-config-input-password">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-domain"><i class="fa fa-user"></i> Domain</label>
+          <input type="text" id="node-config-input-domain">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-database"><i class="fa fa-database"></i> Database</label>
+          <input type="text" id="node-config-input-database">
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-tdsVersion"><i class="fa fa-list"></i> TDS Version</label>
+          <select id="node-config-input-tdsVersion">
+              <option value="7_4">7_4 (SQL Server 2012/2014)</option>
+              <option value="7_3_B">7_3_B (SQL Server 2008R2)</option>
+              <option value="7_3_A">7_3_A (SQL Server 2008)</option>
+              <option value="7_2">7_2 (SQL Server 2005)</option>
+              <option value="7_1">7_1 (SQL Server 2000)</option>
+          </select>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-encyption"><i class="fa fa-lock"></i> Use Encryption?</label>
+          <input type="checkbox" id="node-config-input-encyption">
+          <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
+          <input type="checkbox" id="node-config-input-useUTC">
+          <div class="form-tips">Pass time values in UTC or local time.</div>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> Connect Timeout</label>
+          <input type="text" id="node-config-input-connectTimeout">
+          <div class="form-tips">The number of milliseconds before the attempt to connect is considered failed.</div>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> Request Timeout</label>
+          <input type="text" id="node-config-input-requestTimeout">
+          <div class="form-tips">The number of milliseconds before a request is considered failed, or 0 for no timeout.</div>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> Cancel Timeout</label>
+          <input type="text" id="node-config-input-cancelTimeout">
+          <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
+      </div>
+      <div class="form-row">
+          <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
+          <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
+      </div>
+  </script>
+  
+  <script type="text/javascript">
+      RED.nodes.registerType('MSSQL-CN', {
+          category: 'config',
+          defaults: {
+              tdsVersion: {
+                  value: "7_4"
+              },
+              name: {
+                  value: ""
+              },
+              server: {
+                  value: "",
+                  required: true
+              },
+              port: {
+                  value: "1433",
+                  required: true
+              },
+              encyption: {
+                  value: true
+              },
+              database: {
+                  value: "",
+                  required: true
+              },
+              useUTC: {
+                  value: true
+              },
+              connectTimeout: {
+                  value: "15000"
+              },
+              requestTimeout: {
+                  value: "15000"
+              },
+              cancelTimeout: {
+                  value: "5000"
+              },
+              pool: {
+                  value: "5"
+              }
+          },
+          inputs: 0,
+          outputs: 0,
+          credentials: {
+              username: {
+                  type: "text"
+              },
+              password: {
+                  type: "password"
+              },
+              domain: {
+                  type: "text"
+              }
+          },
+          label: function () {
+              if(this.name){
+                  return this.name
+              }
+              let n = "MSSQL-CN";
+              if(this.server){
+                  n = this.server;
+                  if(this.database){
+                      n += "." + this.database;
+                  }
+              }
+              return n;
+          }
+      });
+  </script>
+  
+  
+  
+  <script type="text/x-red" data-template-name="MSSQL">
+      <div class="form-row">
+          <label for="node-input-mssqlCN"><i class="icon-tag"></i> Connection</label>
+          <input type="text" id="node-input-mssqlCN">
+      </div>
+      <div class="form-row">
+          <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+          <input type="text" id="node-input-name" placeholder="Name">
+      </div>
+      <div class="form-row" style="margin-bottom: 0px;">
+          <label for="node-input-query" style="width: 100% !important;"><i class="fa fa-comments"></i> Query</label>
+          <input type="hidden" id="node-input-query" autofocus="autofocus">
+      </div>
+      <div class="form-row node-text-editor-row">
+          <div style="height: 250px;" class="node-text-editor" id="node-input-query-editor" ></div>
+      </div>
+      <div class="form-row">
+          <label for="node-input-outField"><i class="fa fa-edit"></i> Result to</label>
+          <div style="display: inline-block; position: relative; width: 70%; height: 22px;">
+              <div style="position: absolute; left: 0px;line-height: 34px;">msg.</div>
+              <div style="position: absolute; left: 34px; right: 0px;"> 
+                  <input type="text" id="node-input-outField" placeholder="payload" style="width:100%" dir=""> 
+              </div>
+          </div>
+      </div>
+      <div class="form-row">
+          <label for="node-input-returnType"><i class="fa fa-code"></i> Result type</label>
+          <select id="node-input-returnType" style="width: 70%">
+              <option value="0">Original output</option>
+              <option value="1">Driver output</option>
+          </select>
+      </div>
+      <div class="form-row">
+              <label for="node-input-throwErrors"><i class="fa fa-exclamation"></i> Error Handling</label>
+              <select id="node-input-throwErrors" style="width: 70%">
+                  <option value="0">Send in msg.error</option>
+                  <option value="1">Throw error</option>
+              </select>
+      </div>
+  </script>
+  
+  <script type="text/x-red" data-help-name="MSSQL">
+        <p>Node for Node-RED to MS SQL</p>
+        <h3>Query...</h3>
+        <div style="padding-left: 15px;">
+            <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</p>
+            <p>Examples...
+                <ul>
+                    <li><code style="white-space: normal;">SELECT TOP {{{payload.count}}} * FROM [MyTable] WHERE Name = '{{{payload.name}}}'</code></li>
+                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{payload.name}}}', 1)</code></li>
+                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{payload.value}}} WHERE id = {{{payload.id}}}</code></li>
+                    <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+                </ul>
+            </p>
+            <div class="form-tips" style="white-space: nowrap">TIP: If the query is left blank, then <code>msg.payload</code> will be used as the query.</div>
+            <br>
+            <p>INFO: When the 'Result type' is set to 'Driver output'...
+                <ul>
+                    <li>Multiple results will be returned in the <code>recordsets</code> array if multiple queries are
+                        executed.</li>
+                    <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> array to confirm
+                        operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
+                </ul>
+            </p>
+        </div>
+        
+        <h3>Return options...</h3>
+        <div style="padding-left: 15px;">
+            <h4>Result to</h4>
+            <ul>
+                <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
+            </ul>
+            <h4>Result type</h4>
+            <ul>
+                <li><b>Original output</b>: The property specified by 'Result to' will be populated with a single result (if
+                    any). This is the same as previous version - for compatibility</li>
+                <li><b>Driver output</b>: The property specified by 'Result to' will be populated with the result of the query
+                    direct from the driver output. This format can return multiple recordsets and other information. Add a
+                    debug node to see all available properties returned.</li>
+            </ul>
+        </div>
+        <h3>Error Handling...</h3>
+        <div style="padding-left: 15px;">
+            <ul>
+                <li><b>Send in msg.error</b>: Error will be written to <code>msg.error</code> and the msg will be sent in the
+                    output. Users should check the output msg for presence of <code>msg.error</code> after each MSSQL node (same
+                    functionality as previous version - for compatibility)</li>
+                <li><b>Throw error</b>: This will cause an error to be thrown instead of being sent in the output. Users can use the
+                    <code>catch</code> node to detect and handle errors</li>
+            </ul>
+        </div>
+  </script>
+  
+  <script type="text/javascript">
+      RED.nodes.registerType('MSSQL', {
+          category: 'storage',
+          color: "#C0DEED",
+          defaults: {
+              mssqlCN: {
+                  type: "MSSQL-CN"
+              },
+              name: {
+                  value: ""
+              },
+              query: {
+                  value: ""
+              },
+              outField: {
+                  value: "payload"
+              },
+              returnType: {
+                  value: 0 //0=original (for compatibility), 1=driver output
+              },
+              throwErrors: {
+                  value: 1 //0=original (for compatibility), 1=throw errors for catch node
+              }
+          },
+          inputs: 1,
+          outputs: 1,
+          icon: "db.png",
+          label: function () {
+              return this.name || "MSSQL";
+          },
+          labelStyle: function () {
+              return this.name ? "node_label_italic" : "";
+          },
+          oneditprepare: function () {
+              var that = this;
+              this.editor = RED.editor.createEditor({
+                  id: 'node-input-query-editor',
+                  mode: 'ace/mode/sql',
+                  value: $("#node-input-query").val()
+              });
+              this.editor.focus();
+              $("#node-input-returnType")[0].selectedIndex = this.returnType ? this.returnType : 0;
+              $("#node-input-throwErrors")[0].selectedIndex = this.throwErrors ? this.throwErrors : 0;
+          },
+          oneditsave: function () {
+              $("#node-input-query").val(this.editor.getValue());
+              delete this.editor;
+          },
+          oneditresize: function (size) {
+              var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+              var height = $("#dialog-form").height();
+              for (var i = 0; i < rows.size(); i++) {
+                  height -= $(rows[i]).outerHeight(true);
+              }
+              var editorRow = $("#dialog-form>div.node-text-editor-row");
+              height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+              $(".node-text-editor").css("height", height + "px");
+              this.editor.resize();
+          }
+      });
+  </script>
+  
