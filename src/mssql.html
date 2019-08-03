@@ -214,12 +214,12 @@
         <p>Node for Node-RED to MS SQL</p>
         <h3>Query...</h3>
         <div style="padding-left: 15px;">
-            <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format.</p>
+            <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
             <p>Examples...
                 <ul>
-                    <li><code style="white-space: normal;">SELECT TOP {{{payload.count}}} * FROM [MyTable] WHERE Name = '{{{payload.name}}}'</code></li>
-                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{payload.name}}}', 1)</code></li>
-                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{payload.value}}} WHERE id = {{{payload.id}}}</code></li>
+                    <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
+                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
+                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
                     <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
                 </ul>
             </p>
