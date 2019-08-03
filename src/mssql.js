@@ -3,6 +3,88 @@ module.exports = function (RED) {
     var mustache = require('mustache');
     const sql = require('mssql');
 
+    /**
+     * extractTokens - borrowed from @0node-red/nodes/core/core/80-template.js
+     */
+    function extractTokens(tokens,set) {
+        set = set || new Set();
+        tokens.forEach(function(token) {
+            if (token[0] !== 'text') {
+                set.add(token[1]);
+                if (token.length > 4) {
+                    extractTokens(token[4],set);
+                }
+            }
+        });
+        return set;
+    }
+
+    /**
+     * parseContext - borrowed from @0node-red/nodes/core/core/80-template.js
+     */
+    function parseContext(key) {
+        var match = /^(flow|global)(\[(\w+)\])?\.(.+)/.exec(key);
+        if (match) {
+            var parts = {};
+            parts.type = match[1];
+            parts.store = (match[3] === '') ? "default" : match[3];
+            parts.field = match[4];
+            return parts;
+        }
+        return undefined;
+    }
+
+
+    /**
+     * NodeContext - borrowed from @0node-red/nodes/core/core/80-template.js
+     */
+    function NodeContext(msg, nodeContext, parent, escapeStrings, cachedContextTokens) {
+        this.msgContext = new mustache.Context(msg,parent);
+        this.nodeContext = nodeContext;
+        this.escapeStrings = escapeStrings;
+        this.cachedContextTokens = cachedContextTokens;
+    }
+
+    NodeContext.prototype = new mustache.Context();
+
+    NodeContext.prototype.lookup = function (name) {
+        // try message first:
+        try {
+            var value = this.msgContext.lookup(name);
+            if (value !== undefined) {
+                if (this.escapeStrings && typeof value === "string") {
+                    value = value.replace(/\\/g, "\\\\");
+                    value = value.replace(/\n/g, "\\n");
+                    value = value.replace(/\t/g, "\\t");
+                    value = value.replace(/\r/g, "\\r");
+                    value = value.replace(/\f/g, "\\f");
+                    value = value.replace(/[\b]/g, "\\b");
+                }
+                return value;
+            }
+
+            // try flow/global context:
+            var context = parseContext(name);
+            if (context) {
+                var type = context.type;
+                var store = context.store;
+                var field = context.field;
+                var target = this.nodeContext[type];
+                if (target) {
+                    return this.cachedContextTokens[name];
+                }
+            }
+            return '';
+        }
+        catch(err) {
+            throw err;
+        }
+    }
+
+    NodeContext.prototype.push = function push (view) {
+        return new NodeContext(view, this.nodeContext, this.msgContext, undefined, this.cachedContextTokens);
+    };
+
     function connection(config) {
         RED.nodes.createNode(this, config);
         var node = this;
@@ -182,15 +264,46 @@ module.exports = function (RED) {
         node.on('input', function (msg) {
             
             node.status({}); //clear node status
-            delete msg.error; //remove any error passed in from previous MSSQL
+            delete msg.error; //remove any .error property passed in from previous node
+            msg.query = node.query || msg.payload;
 
-            //put query into msg object so user can inspect how mustache rendered it
-            msg.query = mustache.render(node.query, msg);
+            var promises = [];
+            var tokens = extractTokens(mustache.parse(msg.query));
+            var resolvedTokens = {};
+            tokens.forEach(function(name) {
+                var context = parseContext(name);
+                if (context) {
+                    var type = context.type;
+                    var store = context.store;
+                    var field = context.field;
+                    var target = node.context()[type];
+                    if (target) {
+                        var promise = new Promise((resolve, reject) => {
+                            target.get(field, store, (err, val) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolvedTokens[name] = val;
+                                    resolve();
+                                }
+                            });
+                        });
+                        promises.push(promise);
+                        return;
+                    }
+                }
+            });
 
-            if (!msg.query || (msg.query === '')) {
-                msg.query = msg.payload;
-            }
-
+            Promise.all(promises).then(function() {
+                var value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
+                msg.query = value;
+                doSQL(node, msg);
+            }).catch(function (err) {
+                node.processError(err,msg)
+            });           
+        });
+   
+        function doSQL(node, msg){
             node.status({
                 fill: 'blue',
                 shape: 'dot',
@@ -214,8 +327,7 @@ module.exports = function (RED) {
             } catch (err) {
                 node.processError(err,msg)
             }
-        });
-
+        }
         node.on('close', function () {
             mssqlCN.disconnect(node.id);
         });
