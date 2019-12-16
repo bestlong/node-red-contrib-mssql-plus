@@ -93,6 +93,11 @@ module.exports = function (RED) {
         var configStr = JSON.stringify(config)
         var transform = mustache.render(configStr, process.env);
         config = JSON.parse(transform);
+        
+        //add mustache transformation to credentials object
+        var credStr = JSON.stringify(node.credentials)
+        var transform = mustache.render(credStr, process.env);
+        node.credentials = JSON.parse(transform);
 
         node.config = {
             user: node.credentials.username,
