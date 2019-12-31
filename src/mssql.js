@@ -114,6 +114,7 @@ module.exports = function (RED) {
                 requestTimeout: config.requestTimeout ? parseInt(config.requestTimeout) : undefined,
                 cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined,
                 camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
+                parseJSON: config.parseJSON,
             },
             pool: {
                 max: parseInt(config.pool),

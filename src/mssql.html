@@ -80,7 +80,11 @@
           <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
           <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
       </div>
-  </script>
+    <div class="form-row">
+        <label for="node-config-input-parseJSON"><i class="fa fa-file-o"></i> JSON Support?</label>
+        <input type="checkbox" id="node-config-input-parseJSON">
+    </div>
+</script>
   
   <script type="text/javascript">
       RED.nodes.registerType('MSSQL-CN', {
@@ -121,6 +125,9 @@
               },
               pool: {
                   value: "5"
+              },
+              parseJSON: {
+                  value: false
               }
           },
           inputs: 0,
