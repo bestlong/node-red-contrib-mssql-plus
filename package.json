@@ -7,6 +7,12 @@
     "mssql": "^5.1.0",
     "mustache": "^3.1.0"
   },
+  "devDependencies": {
+    "mocha": "^7.0.0",
+    "node-red": "^1.0.3",
+    "node-red-node-test-helper": "^0.2.3",
+    "should": "^13.2.3"
+  },
   "node-red": {
     "nodes": {
       "mssql": "src/mssql.js"
@@ -16,7 +22,7 @@
     "src/"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha \"test/**/*_spec.js\"",
     "release": "npm version patch && git push --tags",
     "postrelease": "npm publish . && git push"
   },
