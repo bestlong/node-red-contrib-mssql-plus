@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+
+  nodered:
+    image: nodered/node-red
+    ports:
+      - 1880:1880
+    depends_on:
+      - mssql
+
+  # https://hub.docker.com/_/microsoft-mssql-server
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - "SA_PASSWORD=P@ssw0rdP@ssw0rd"
+      - MSSQL_PID=Express
+    ports:
+      - 1433:1433
