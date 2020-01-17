@@ -1,6 +1,14 @@
 # Dev notes
 
-## Requirement `mocha`
+## Requirement
+
+### np
+
+```shell
+npm install -g np
+```
+
+### `mocha`
 
 ```shell
 npm install mocha --save-dev
