@@ -124,6 +124,8 @@ install plugin and import flow code
 ]
 ```
 
+setup connection node Username and Password and deploy.
+
 Stop and remove containers, networks
 
 ```shell
