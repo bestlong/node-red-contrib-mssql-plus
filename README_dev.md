@@ -33,6 +33,12 @@ run node-red and mssql use docker
 docker-compose up -d
 ```
 
+view node-red container log output
+
+```shell
+docker-compose logs -f node-red
+```
+
 Open `http://127.0.0.1:1880`
 
 install plugin and import flow code
