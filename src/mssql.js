@@ -234,6 +234,12 @@ module.exports = function (RED) {
                 msg.error = err;
             } else if(err && err.message) {
                 errMsg = err.message;
+
+		if (err.precedingErrors !== undefined 
+			&& err.precedingErrors[0].originalError !== undefined 
+			&& err.precedingErrors[0].originalError.info !== null
+			&& err.precedingErrors[0].originalError.info.message !== null)
+			errMsg += ' ('+err.precedingErrors[0].originalError.info.message+')';
                 //Make an error object from the err.  NOTE: We cant just assign err to msg.error as a promise 
                 //rejection occurs when the node has 2 wires on the output. 
                 //(redUtil.cloneMessage(m) causes error "node-red Cannot assign to read only property 'originalError'")
@@ -242,6 +248,7 @@ module.exports = function (RED) {
                     code: err.code, 
                     lineNumber: err.lineNumber, 
                     message: err.message, 
+					details: errMsg, 									 
                     name: err.name, 
                     number: err.number, 
                     procName: err.procName, 
