@@ -36,7 +36,8 @@
     "mssql",
     "sql",
     "Microsoft",
-    "database"
+    "database",
+    "sql-server"
   ],
   "author": "Redconnect.io",
   "contributors": [
