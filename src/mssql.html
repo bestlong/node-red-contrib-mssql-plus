@@ -207,7 +207,11 @@
         <h3>Query...</h3>
         <div style="padding-left: 15px;">
             <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
-            <p>Examples...
+            <div class="form-tips" style="width: 100%">
+                TIP: If the query is left blank, then <code>msg.payload</code> will be used as the query.
+            </div>
+            <br>
+            <p>Query Examples (with mustache)...
                 <ul>
                     <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
                     <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
@@ -215,7 +219,18 @@
                     <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
                 </ul>
             </p>
-            <div class="form-tips" style="white-space: nowrap">TIP: If the query is left blank, then <code>msg.payload</code> will be used as the query.</div>
+            <div class="form-tips" style="width: 100%">TIPS...
+                <ul>
+                    <li>To access <code>msg</code> properties, just use the variable name. e.g.
+                        <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
+                    <li>To access <code>flow</code> and <code>global</code> properties,
+                        specify them in the mustache e.g. 
+                        <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
+                    <li>To prevent certain characters being escaped, use triple curly brackets. e.g. 
+                        <code>{{{flow.my_string}}}</code> </li>
+                </ul>
+            </div>
+
             <br>
             <p>INFO: When the 'Result type' is set to 'Driver output'...
                 <ul>
