@@ -4,8 +4,8 @@
   "description": "Node for node-red to connect to a Microsoft MS SQL Database",
   "main": "odbc.js",
   "dependencies": {
-    "mssql": "^6.0.0",
-    "mustache": "^3.1.0"
+    "mssql": "^6.2.0",
+    "mustache": "^4.0.1"
   },
   "devDependencies": {
     "mocha": "^7.0.0",
