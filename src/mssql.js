@@ -34,6 +34,32 @@ module.exports = function (RED) {
         return undefined;
     }
 
+    /**
+     * checks if `n` is a valid number.
+     * @param {string | number} n 
+     */
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    /**
+     * Parse a string or number into an integer and return it.
+     * If `n` cannot be parsed, `defaultValue` is returned instead.
+     * @param {string | number} n 
+     * @param {boolean} defaultValue - the value to return if `n` is not a valid number
+     * @returns {integer} `n` parsed to an integer or `defaultValue` if `n` is invalid
+     */
+    function safeParseInt(n, defaultValue){
+        try {
+            var x = parseInt(n);
+            if(isNumber(x)){
+                return x;
+            }    
+        } catch (error) { 
+            //do nothing
+        }
+        return defaultValue;
+    }
 
     /**
      * NodeContext - borrowed from @0node-red/nodes/core/core/80-template.js
@@ -95,29 +121,34 @@ module.exports = function (RED) {
         config = JSON.parse(transform);
         
         //add mustache transformation to credentials object
-        var credStr = JSON.stringify(node.credentials)
-        var transform = mustache.render(credStr, process.env);
-        node.credentials = JSON.parse(transform);
+        try {
+            var credStr = JSON.stringify(node.credentials)
+            var transform = mustache.render(credStr, process.env);
+            node.credentials = JSON.parse(transform);
+        } catch (error) {
+            console.error(error);
+        }
+        
 
         node.config = {
-            user: node.credentials.username,
-            password: node.credentials.password,
-            domain: node.credentials.domain,
+            user: node.credentials ? node.credentials.username : "",
+            password: node.credentials ? node.credentials.password : "",
+            domain: node.credentials ? node.credentials.domain : "",
             server: config.server,
             database: config.database,
             options: {
-                port: config.port ? parseInt(config.port) : undefined,
-                tdsVersion: config.tdsVersion,
+                port: config.port ? safeParseInt(config.port, 1433) : undefined,
+                tdsVersion: config.tdsVersion || "7_4",
                 encrypt: config.encyption,
                 useUTC: config.useUTC,
-                connectTimeout: config.connectTimeout ? parseInt(config.connectTimeout) : undefined,
-                requestTimeout: config.requestTimeout ? parseInt(config.requestTimeout) : undefined,
-                cancelTimeout: config.cancelTimeout ? parseInt(config.cancelTimeout) : undefined,
+                connectTimeout: config.connectTimeout ? safeParseInt(config.connectTimeout, 15000) : undefined,
+                requestTimeout: config.requestTimeout ? safeParseInt(config.requestTimeout, 15000) : undefined,
+                cancelTimeout: config.cancelTimeout ? safeParseInt(config.cancelTimeout, 5000) : undefined,
                 camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
                 parseJSON: config.parseJSON,
             },
             pool: {
-                max: parseInt(config.pool),
+                max: safeParseInt(config.pool, 5),
                 min: 0,
                 idleTimeoutMillis: 3000,
                 //log: (message, logLevel) => console.log(`POOL: [${logLevel}] ${message}`)
