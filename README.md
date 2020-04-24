@@ -5,12 +5,16 @@ A [Node-RED](http://nodered.org) node for connecting to Microsoft MS SQL Databas
 Importantly, this package comes with pre-built linux drivers for communicating with the Azure & MS SQL services (using TDS protocol), removing the need to set-up environment level MSSQL (or similar) drivers.
 
 ## Features include...
-* Connect to multiple SQL Servers from SQL2000 ~ latest
+* Connect to multiple SQL Servers from SQL2000 ~ 2019
 * Perform multiple queries in one go & get back multiple recordsets (depends on the queries sent)
+* Supports stored procedures
+* Use env vars in the config node for all fields (including credentials). e.g...
+  * Server `{{{SQL_IP}}}`
+  * Password `{{{SQL_PW}}}`
 * Use mustache in your SQL queries including msg, flow and global context. e.g...
-  * `SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}`
-  * Access the mustache rendered query in `msg.query` to understanding what happened to your {{{mustache}}} parameters 
-* Chose between throwing an error to the catch node or outputting an error property in the output msg.
+  * `SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity <= {{{global.maxQty}}}`
+  * View the final query (mustache rendered into values) in `msg.query` to understanding what happened to your {{{mustache}}} parameters 
+* Choose between throwing an error to the catch node or outputting an error property in `msg.error`
 * Additional properties are in the msg object (use a debug node with "complete msg object" set to see whats available)
 
 ## Install
