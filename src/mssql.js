@@ -167,29 +167,41 @@ module.exports = function (RED) {
 
         node.connectionCleanup = function() {
             try {
-                node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
-                node.pool.then(_ => _.close()).catch(e => { console.error(e); });
+                if(node.pool){
+                    node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                    node.pool.then(_ => _.close()).catch(e => { console.error(e); });    
+                }
             }
             catch (error) {
             }
             try {
-                node.connectionPool.close();
+                if(node.connectionPool) node.connectionPool.close();
             }
             catch (error) {
             }
+            node.status({
+                fill: 'grey',
+                shape: 'dot',
+                text: 'disconnected'
+            });
             node.pool = null;
         }
 
         node.connectionPool = new sql.ConnectionPool(node.config)
         node.connectionPool.on('error', err => {
             node.error(err);
-            node.connectionCleanup(node);
+            node.connectionCleanup();
         }) 
 
         node.connect = function(){
             if(node.pool){
                 return;
             }
+            node.status({
+                fill: 'yellow',
+                shape: 'dot',
+                text: 'connecting'
+            });
             node.pool = node.connectionPool.connect()
             .then(_ => { 
                 node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
@@ -205,10 +217,11 @@ module.exports = function (RED) {
             node.pool.then(_ => {
                 return _.request().query(sql);
             }).then(result => {
-                callback(null,result) 
+                callback(null,result);
             }).catch(e => { 
-                callback(e) 
-                //node.pool = null;
+                console.error(e)
+                node.pool = null;
+                callback(e); 
             })
         };
         node.disconnect = function (nodeId) {
@@ -247,6 +260,8 @@ module.exports = function (RED) {
         node.throwErrors = !config.throwErrors || config.throwErrors == "0" ? false : true;
 
         var setResult = function (msg, field, value, returnType = 0 ) {
+            let setValue = returnType == 1 ? value : value && value.recordset;
+            if(!setValue) return;
             const set = (obj, path, val) => { 
                 const keys = path.split('.');
                 const lastKey = keys.pop();
@@ -255,7 +270,7 @@ module.exports = function (RED) {
                     obj); 
                 lastObj[lastKey] = val;
             }
-            set(msg, field, returnType == 1 ? value : value.recordset);
+            set(msg, field, setValue);
         };
 
         node.processError = function(err,msg){
@@ -359,6 +374,7 @@ module.exports = function (RED) {
             try {
                 mssqlCN.execSql(msg.query, function (err, data) {
                     if (err) {
+                        if(err.name = "")
                         node.processError(err,msg)
                     } else {
                         node.status({
