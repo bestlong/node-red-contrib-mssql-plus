@@ -374,7 +374,6 @@ module.exports = function (RED) {
             try {
                 mssqlCN.execSql(msg.query, function (err, data) {
                     if (err) {
-                        if(err.name = "")
                         node.processError(err,msg)
                     } else {
                         node.status({
