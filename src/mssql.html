@@ -179,8 +179,8 @@
           <input type="hidden" id="node-input-query" autofocus="autofocus">
       </div>
 
-      <div class="form-row node-text-editor-row" style="min-height: 200px">
-          <div style="height: 250px;"  class="node-text-editor" id="node-input-query-editor" ></div>
+      <div class="form-row node-text-editor-row" style="min-height: 120px">
+          <div style="height: 120px;"  class="node-text-editor" id="node-input-query-editor" ></div>
       </div>
 
     <div class="form-row mssql-plus-form-row" style="margin-bottom: 0px;">
@@ -518,7 +518,8 @@
               }
               var editorRow = $("#dialog-form>div.node-text-editor-row");
               height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-              $(".node-text-editor").css("height", height + "px");
+              var h = Math.max(height, 120);
+              $(".node-text-editor").css("height", h + "px");
               this.editor.resize();
           }
       });
