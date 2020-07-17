@@ -256,6 +256,53 @@
             </p>
         </div>
         
+        <h3>Parameters...</h3>
+        <div style="padding-left: 15px;">
+            <p>Input and Output Parameters can be specified to include in the query.</p>
+            <div class="form-tips" style="width: 100%">
+                TIP: If the parameter list is left blank, then parameters can be sent in <code>msg.sqlParams</code> in the format...<br>
+                <code><pre style="white-space: pre;">[
+    {
+        "output": false,
+        "name": "parameter name",
+        "type": "parameter type",
+        "value": "parameter value"
+    },
+    {
+        "output": true,
+        "name": "parameter name",
+        "type": "parameter type"
+    }
+]</pre></code>
+            </div>
+            <br>
+            <p>Query Examples (with parameters)...
+                <div style="padding-left: 15px;">
+                    <div style="font-weight@ bold;">Query</code>
+                    <div style="padding-left: 15px;">
+                        <code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= @minQty</code>
+                    </div>
+                </div>
+                <div style="padding-left: 15px;">
+                    <div style="font-weight@ bold;">Parameters</code>
+                    <ul>               
+                        <li>
+                            <span>In/Out </span><code style="white-space: normal;">input</code> 
+                            <span>, Name </span><code style="white-space: normal;">@name</code>
+                            <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
+                            <span>, Value </span><code style="white-space: normal;">stephen</code>
+                        </li>
+                        <li>
+                            <span>In/Out </span><code style="white-space: normal;">input</code> 
+                            <span>, Name </span><code style="white-space: normal;">@minQty</code>
+                            <span>, Type </span><code style="white-space: normal;">int</code>
+                            <span>, Value </span><code style="white-space: normal;">5</code>
+                        </li>
+                    </ul>
+                </div>
+            </p>
+        </div>
+        
         <h3>Output options...</h3>
         <div style="padding-left: 15px;">
             <h4>Output property</h4>
