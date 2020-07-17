@@ -261,7 +261,7 @@ module.exports = function (RED) {
 
         var setResult = function (msg, field, value, returnType = 0 ) {
             let setValue = returnType == 1 ? value : value && value.recordset;
-            if(!setValue) return;
+            // if(!setValue) return;
             const set = (obj, path, val) => { 
                 const keys = path.split('.');
                 const lastKey = keys.pop();
