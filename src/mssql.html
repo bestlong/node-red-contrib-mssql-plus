@@ -160,6 +160,16 @@
   </script>
   
   <style>
+    .mssql-plus-form-row > .radio-label  > .radio-input {
+        width: unset !important;
+        margin-bottom: 2px;
+        margin-top: 0px;
+        margin-right: 4px;
+    }
+    .mssql-plus-form-row > .radio-label {
+        width: unset !important;
+        margin-right: 12px;
+    }
     .mssql-plus-form-row > label {
         width: 120px !important;
     }
@@ -174,12 +184,19 @@
           <label for="node-input-name"><i class="icon-tag"></i> Name</label>
           <input type="text" id="node-input-name" placeholder="Name">
       </div>
+
       <div class="form-row mssql-plus-form-row" style="margin-bottom: 0px;">
-          <label for="node-input-query" style="width: 100% !important;"><i class="fa fa-comments"></i> Query</label>
-          <input type="hidden" id="node-input-query" autofocus="autofocus">
+        <label for="node-input-query" style="width: 120px !important;"><i class="fa fa-comments"></i> Query</label>
+        <label class="radio-label">
+            <input class="radio-input query-mode" type="radio" name="node-input-queryMode" value="query" checked>SQL Query
+        </label>
+        <label class="radio-label">
+            <input class="radio-input query-mode" type="radio" name="node-input-queryMode" value="execute">Execute Procedure
+        </label>
       </div>
 
       <div class="form-row node-text-editor-row" style="min-height: 120px">
+          <input type="hidden" id="node-input-query" autofocus="autofocus">
           <div style="height: 120px;"  class="node-text-editor" id="node-input-query-editor" ></div>
       </div>
 
@@ -353,6 +370,9 @@
               throwErrors: {
                   value: 1 //0=original (for compatibility), 1=throw errors for catch node
               },
+              queryMode: {
+                  value: "query" //query=original (for compatibility), execute=new mode
+              },
               params: {
                   value:[]
               }
@@ -374,9 +394,12 @@
                   value: $("#node-input-query").val()
               });
               this.editor.focus();
+              
               $("#node-input-returnType")[0].selectedIndex = this.returnType ? this.returnType : 0;
               $("#node-input-throwErrors")[0].selectedIndex = this.throwErrors ? this.throwErrors : 0;
-
+              var queryModeExecute = this.queryMode == 'execute' ? true : false;
+              $(".query-mode[value=query]").prop('checked', !queryModeExecute);
+              $(".query-mode[value=execute]").prop('checked', queryModeExecute);
 
               $('#node-input-params-container').css('min-height','120px').css('min-width','520px').editableList({
                 addItem: function(container,i,opt) {
@@ -486,7 +509,7 @@
                 removable: true,
                 sortable: true
             });
-            debugger
+            
             for (var i=0; i<this.params.length; i++) {
                 var item = this.params[i];
                 $("#node-input-params-container").editableList('addItem',item);
@@ -495,10 +518,17 @@
 
           },
           oneditsave: function () {
-            debugger
-            var items = $("#node-input-params-container").editableList('items');
             var node = this;
             node.params = [];
+
+            var queryModeExecute = $(".query-mode[value=execute]").prop('checked');
+            if(queryModeExecute){
+                node.queryMode = "execute";
+            } else {
+                node.queryMode = "query";
+            }
+
+            var items = $("#node-input-params-container").editableList('items');
             items.each(function(i) {
                 var rule = $(this);
                 var r = {};
@@ -514,8 +544,8 @@
                 node.params.push(r);
             });
 
-              $("#node-input-query").val(this.editor.getValue());
-              delete this.editor;
+            $("#node-input-query").val(this.editor.getValue());
+            delete this.editor;
           },
           oneditresize: function (size) {
               var rows = $("#dialog-form>div:not(.node-text-editor-row)");

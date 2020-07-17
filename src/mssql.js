@@ -277,7 +277,7 @@ module.exports = function (RED) {
             });
         }
 
-        node.execSql = function(sql, params, callback) {
+        node.execSql = function(queryMode, sqlQuery, params, callback) {
             node.connect();
             var _info = [];
             node.pool.then(_ => {
@@ -296,7 +296,22 @@ module.exports = function (RED) {
                                 req.output(p.name);
                             }
                         } else {
-                            if(p.type) {
+                            //if the data is a vtp/udt, coerce the type from string into sql.type
+                            if(  (p.type.name == "UDT" || p.type.name == "TVP" || (p.type.type && p.type.type.name == "TVP")) 
+                                && typeof p.value == "object"
+                                && p.value.columns && p.value.rows ){
+                                let table = new sql.Table()
+                                for (let index = 0; index < p.value.columns.length; index++) {
+                                    let col = p.value.columns[index];
+                                    table.columns.add(col.name, coerceType(col.type))
+                                }
+                                for (let index = 0; index < p.value.rows.length; index++) {
+                                    let row = p.value.rows[index];
+                                    table.rows.add(row)
+                                }
+                                req.input(p.name, table);
+                            }
+                            else if(p.type) {
                                 req.input(p.name, p.type, p.value);
                             } else {
                                 req.input(p.name, p.value);
@@ -304,8 +319,12 @@ module.exports = function (RED) {
                         }
                     }
                 }
-                return req.query(sql);
-  
+                if(queryMode == "execute"){
+                    return req.execute(sqlQuery);
+                } else {
+                    return req.query(sqlQuery);
+                }
+
             }).then(result => {
                 callback(null,result,_info);
             }).catch(e => { 
@@ -349,6 +368,7 @@ module.exports = function (RED) {
         node.returnType = config.returnType;
         node.throwErrors = !config.throwErrors || config.throwErrors == "0" ? false : true;
         node.params = config.params;
+        node.queryMode = config.queryMode;
 
         var setResult = function (msg, field, value, returnType = 0 ) {
             let setValue = returnType == 1 ? value : value && value.recordset;
@@ -495,7 +515,7 @@ module.exports = function (RED) {
             });
 
             try {
-                mssqlCN.execSql(msg.query, msg.sqlParams, function (err, data, info) {
+                mssqlCN.execSql(node.queryMode, msg.query, msg.sqlParams, function (err, data, info) {
                     if (err) {
                         node.processError(err,msg)
                     } else {
