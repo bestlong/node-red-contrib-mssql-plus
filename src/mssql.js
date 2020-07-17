@@ -19,6 +19,64 @@ module.exports = function (RED) {
         return set;
     }
 
+    function coerceType(sqlType){
+        var ts = sqlType.toLowerCase().trim().split("(");
+        var t = ts[0];
+        var p, n;
+        if(ts.length > 1){
+            try {
+                p = ts[1].slice(0,-1);//remove trailing bracket
+                if(p) t += "*";
+                n = parseInt(p);
+            } catch (error) {}
+        }
+        
+        return {
+            "varchar" : sql.VarChar,
+            "varchar*" : sql.VarChar(n),
+            "nvarchar" : sql.NVarChar,
+            "nvarchar*" : sql.NVarChar(n),
+            "text" : sql.Text,
+            "int" : sql.Int,
+            "bigint" : sql.BigInt,
+            "tinyint" : sql.TinyInt,
+            "smallint" : sql.SmallInt,
+            "bit" : sql.Bit,
+            "float" : sql.Float,
+            "numeric" : sql.Numeric,
+            "decimal" : sql.Decimal,
+            "real" : sql.Real,
+            "date" : sql.Date,
+            "datetime" : sql.DateTime,
+            "datetime2" : sql.DateTime2,
+            "datetime2*" : sql.DateTime2(n),
+            "datetimeoffset" : sql.DateTimeOffset,
+            "datetimeoffset*" : sql.DateTimeOffset(n),
+            "smalldatetime" : sql.SmallDateTime,
+            "time" : sql.Time,
+            "time*" : sql.Time(n),
+            "uniqueidentifier" : sql.UniqueIdentifier,
+            "smallmoney" : sql.SmallMoney,
+            "money" : sql.Money,
+            "binary" : sql.Binary,
+            "varbinary" : sql.VarBinary,
+            "varbinary*" : sql.VarBinary(n),
+            "image" : sql.Image,
+            "xml" : sql.Xml,
+            "char" : sql.Char,
+            "char*" : sql.Char(n),
+            "nchar" : sql.NChar,
+            "nchar*" : sql.NChar(n),
+            "ntext" : sql.NText,
+            "tvp" : sql.TVP,
+            "tvp*" : sql.TVP(p),
+            "udt" : sql.UDT,
+            "geography" : sql.Geography,
+            "geometry" : sql.Geometry,
+            "variant" : sql.Variant,
+        }[t]
+    }
+
     /**
      * parseContext - borrowed from @0node-red/nodes/core/core/80-template.js
      */
@@ -212,12 +270,37 @@ module.exports = function (RED) {
             });
         }
 
-        node.execSql = function(sql, callback) {
+        node.execSql = function(sql, params, callback) {
             node.connect();
+            var _info = [];
             node.pool.then(_ => {
-                return _.request().query(sql);
+
+                let req = _.request();
+                req.on('info', info => {
+                    _info.push(info)
+                })
+                if(params && params.length){
+                    for (let index = 0; index < params.length; index++) {
+                        let p = params[index];
+                        if(p.output == true){
+                            if(p.type) {
+                                req.output(p.name, p.type);
+                            } else {
+                                req.output(p.name);
+                            }
+                        } else {
+                            if(p.type) {
+                                req.input(p.name, p.type, p.value);
+                            } else {
+                                req.input(p.name, p.value);
+                            }
+                        }
+                    }
+                }
+                return req.query(sql);
+  
             }).then(result => {
-                callback(null,result);
+                callback(null,result,_info);
             }).catch(e => { 
                 console.error(e)
                 node.pool = null;
@@ -258,6 +341,7 @@ module.exports = function (RED) {
         node.outField = config.outField;
         node.returnType = config.returnType;
         node.throwErrors = !config.throwErrors || config.throwErrors == "0" ? false : true;
+        node.params = config.params;
 
         var setResult = function (msg, field, value, returnType = 0 ) {
             let setValue = returnType == 1 ? value : value && value.recordset;
@@ -272,6 +356,16 @@ module.exports = function (RED) {
             }
             set(msg, field, setValue);
         };
+
+        var updateOutputParams = function(params, data){
+            if(!params || !params.length) return;
+            if(!data || !data.output) return;
+            var outputParams = params.filter(e => e.output);
+            for (let index = 0; index < outputParams.length; index++) {
+                let param = outputParams[index];
+                param.value = data.output[param.name];
+            }
+        }
 
         node.processError = function(err,msg){
             let errMsg = "Error";
@@ -327,6 +421,28 @@ module.exports = function (RED) {
             node.status({}); //clear node status
             delete msg.error; //remove any .error property passed in from previous node
             msg.query = node.query || msg.payload;
+            msg.sqlParams = [];
+            var params = [...(node.params && node.params.length ? node.params :  msg.sqlParams) || []];
+            for (let iParam = 0; iParam < params.length; iParam++) {
+                let p = RED.util.cloneMessage(params[iParam]);
+                msg.sqlParams.push(p);
+            }
+            for (let index = 0; index < msg.sqlParams.length; index++) {
+                let param = msg.sqlParams[index];
+                param.type = coerceType(param.type);
+                // param.output = param.inout == "output";
+                RED.util.evaluateNodeProperty(param.value,param.valueType,node,msg,(err,value) => {
+                    if (err) {
+                        let errmsg = `Unable to evaluate value for parameter named '${param.name}'`
+                        node.error(errmsg,msg);
+                        node.status({fill:"red",shape:"ring",text:errmsg});
+                        return;//halt flow!
+                    } else {
+                        param.value = value;
+                    }
+                }); 
+                delete param.valueType;
+            }
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));
@@ -372,7 +488,7 @@ module.exports = function (RED) {
             });
 
             try {
-                mssqlCN.execSql(msg.query, function (err, data) {
+                mssqlCN.execSql(msg.query, msg.sqlParams, function (err, data, info) {
                     if (err) {
                         node.processError(err,msg)
                     } else {
@@ -381,6 +497,8 @@ module.exports = function (RED) {
                             shape: 'dot',
                             text: 'done'
                         });
+                        msg.sqlInfo = info;
+                        updateOutputParams(msg.sqlParams, data);
                         setResult(msg, node.outField, data, node.returnType);
                         node.send(msg);
                     }

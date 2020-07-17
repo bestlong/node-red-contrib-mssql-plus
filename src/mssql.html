@@ -174,9 +174,19 @@
           <label for="node-input-query" style="width: 100% !important;"><i class="fa fa-comments"></i> Query</label>
           <input type="hidden" id="node-input-query" autofocus="autofocus">
       </div>
-      <div class="form-row node-text-editor-row">
-          <div style="height: 250px;" class="node-text-editor" id="node-input-query-editor" ></div>
+
+      <div class="form-row node-text-editor-row" style="min-height: 200px">
+          <div style="height: 250px;"  class="node-text-editor" id="node-input-query-editor" ></div>
       </div>
+
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label style="width: 100% !important;"><i class="fa fa-list-alt"></i> Parameters</label>
+    </div>
+
+    <div class="form-row node-input-params-container-row" >
+        <ol id="node-input-params-container"></ol>
+    </div>
+
       <div class="form-row">
           <label for="node-input-outField"><i class="fa fa-edit"></i> Result to</label>
           <div style="display: inline-block; position: relative; width: 70%; height: 22px;">
@@ -291,6 +301,9 @@
               },
               throwErrors: {
                   value: 1 //0=original (for compatibility), 1=throw errors for catch node
+              },
+              params: {
+                  value:[]
               }
           },
           inputs: 1,
@@ -312,8 +325,137 @@
               this.editor.focus();
               $("#node-input-returnType")[0].selectedIndex = this.returnType ? this.returnType : 0;
               $("#node-input-throwErrors")[0].selectedIndex = this.throwErrors ? this.throwErrors : 0;
+
+
+              $('#node-input-params-container').css('min-height','120px').css('min-width','520px').editableList({
+                addItem: function(container,i,opt) {
+                    var rule = opt;
+                    if (!rule.hasOwnProperty('type') || !rule.hasOwnProperty('name')) {
+                        rule = {type:"int",name:"param"+(i+1),value:0,valueType:"num", output: false };
+                    }
+                  
+                    container.css({
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    });
+                    let fragment = document.createDocumentFragment();
+                    var row1 = $('<div/>',{style:"display:flex;",class:"buffer-parser-row"}).appendTo(fragment);
+                   
+                    let row1_0 = $('<div/>', {style:"display:flex;", class:"buffer-parser-row-item"}).appendTo(row1);
+                    let inoutField = $('<input/>',{class:"node-input-item-property-inout",type:"text", width:"72px"})
+                        .appendTo(row1_0)
+                        .typedInput({types:[{label:"Input", value:"input", hasValue: false},{label:"Output", value:"output", hasValue: false}]})
+                        
+                    let row1_1 = $('<div/>', {style:"display:flex;", class:"buffer-parser-row-item"}).appendTo(row1);
+                    let nameField = $('<input/>',{class:"node-input-item-property-name",type:"text", width:"112px"})
+                        .appendTo(row1_1)
+                        .typedInput({types:[{label:"Name", value:"str"}]})
+                    
+                    let row1_2 = $('<div/>', {style:"display:flex;", class:"buffer-parser-row-item"}).appendTo(row1);
+                    let typeField = $('<input/>',{class:"node-input-item-property-type",type:"text", width:"120px"})
+                        .appendTo(row1_2)
+                        .typedInput({types:[{label:"Type", value:"str"}]})
+
+                    let row1_3 = $('<div/>', {style:"display:flex;", class:"buffer-parser-row-item"}).appendTo(row1);
+                    let valueField = $('<input/>',{class:"node-input-item-property-value",type:"text", width:"140px"})
+                        .appendTo(row1_3)
+                        .typedInput({types:['str','num','json','bin','msg','flow','global'], default:'num'})
+                    
+                    inoutField.on("change", function(o){
+                        var t = $(this).typedInput("type");
+                        if(t == "output"){
+                            valueField.typedInput("hide");
+                        } else {
+                            valueField.typedInput("show");
+                        }  
+                    })
+
+                    var typeInput = row1_2.find("input[type!=hidden]");
+                    var sqlTypes = [
+                        "VarChar",
+                        "NVarChar",
+                        "Text",
+                        "Int",
+                        "BigInt",
+                        "TinyInt",
+                        "SmallInt",
+                        "Bit",
+                        "Float",
+                        "Numeric",
+                        "Decimal",
+                        "Real",
+                        "Date",
+                        "DateTime",
+                        "DateTime2",
+                        "DateTimeOffset",
+                        "SmallDateTime",
+                        "Time",
+                        "Time",
+                        "UniqueIdentifier",
+                        "SmallMoney",
+                        "Money",
+                        "Binary",
+                        "VarBinary",
+                        "VarBinary",
+                        "Image",
+                        "Xml",
+                        "Char",
+                        "NChar",
+                        "NText",
+                        "TVP",
+                        "UDT",
+                        "Geography",
+                        "Geometry",
+                        "Variant",
+                    ];
+                    $( typeInput ).autocomplete({
+                        source: sqlTypes
+                    });
+
+                    nameField.typedInput('type',"str");
+                    nameField.typedInput('value',rule.name || ("param" + (i+1)));
+                    
+                    typeField.typedInput('type',"str");
+                    typeField.typedInput('value',rule.type || "int");
+                    
+                    valueField.typedInput('type',rule.valueType || "num");
+                    valueField.typedInput('value',rule.value || 0);
+
+                    inoutField.typedInput('type', (rule.output == "true" || rule.output == true) ? "output" : "input");
+
+                    container[0].appendChild(fragment);
+                },
+                removable: true,
+                sortable: true
+            });
+            debugger
+            for (var i=0; i<this.params.length; i++) {
+                var item = this.params[i];
+                $("#node-input-params-container").editableList('addItem',item);
+            }
+
+
           },
           oneditsave: function () {
+            debugger
+            var items = $("#node-input-params-container").editableList('items');
+            var node = this;
+            node.params = [];
+            items.each(function(i) {
+                var rule = $(this);
+                var r = {};
+                r.output = rule.find(".node-input-item-property-inout").typedInput("type") == "output";
+                r.name = rule.find(".node-input-item-property-name").val() || "param" + (i+1);
+                r.type = rule.find(".node-input-item-property-type").val() || "int";
+                if(r.output){
+                    //exclude value
+                } else {
+                    r.valueType = rule.find(".node-input-item-property-value").typedInput("type") || "num";
+                    r.value = rule.find(".node-input-item-property-value").typedInput("value") || 0;
+                }
+                node.params.push(r);
+            });
+
               $("#node-input-query").val(this.editor.getValue());
               delete this.editor;
           },
