@@ -20,22 +20,28 @@ module.exports = function (RED) {
     }
 
     function coerceType(sqlType){
-        var ts = sqlType.toLowerCase().trim().split("(");
-        var t = ts[0];
-        var p, n;
-        if(ts.length > 1){
+        var s = sqlType.toLowerCase().trim();
+        var bp = s.indexOf("(");
+        var t, p, n;
+        if(bp > -1){
+            t = s.slice(0,bp);
+            p = s.slice(bp+1,-1);
+        } else {
+            t = s;
+        }
+
+        if(p){
             try {
-                p = ts[1].slice(0,-1);//remove trailing bracket
-                if(p) t += "*";
+                if(p) t += "(?)";
                 n = parseInt(p);
             } catch (error) {}
         }
         
-        return {
+        var r = {
             "varchar" : sql.VarChar,
-            "varchar*" : sql.VarChar(n),
+            "varchar(?)" : sql.VarChar(n),
             "nvarchar" : sql.NVarChar,
-            "nvarchar*" : sql.NVarChar(n),
+            "nvarchar(?)" : sql.NVarChar(n),
             "text" : sql.Text,
             "int" : sql.Int,
             "bigint" : sql.BigInt,
@@ -49,32 +55,33 @@ module.exports = function (RED) {
             "date" : sql.Date,
             "datetime" : sql.DateTime,
             "datetime2" : sql.DateTime2,
-            "datetime2*" : sql.DateTime2(n),
+            "datetime2(?)" : sql.DateTime2(n),
             "datetimeoffset" : sql.DateTimeOffset,
-            "datetimeoffset*" : sql.DateTimeOffset(n),
+            "datetimeoffset(?)" : sql.DateTimeOffset(n),
             "smalldatetime" : sql.SmallDateTime,
             "time" : sql.Time,
-            "time*" : sql.Time(n),
+            "time(?)" : sql.Time(n),
             "uniqueidentifier" : sql.UniqueIdentifier,
             "smallmoney" : sql.SmallMoney,
             "money" : sql.Money,
             "binary" : sql.Binary,
             "varbinary" : sql.VarBinary,
-            "varbinary*" : sql.VarBinary(n),
+            "varbinary(?)" : sql.VarBinary(n),
             "image" : sql.Image,
             "xml" : sql.Xml,
             "char" : sql.Char,
-            "char*" : sql.Char(n),
+            "char(?)" : sql.Char(n),
             "nchar" : sql.NChar,
-            "nchar*" : sql.NChar(n),
+            "nchar(?)" : sql.NChar(n),
             "ntext" : sql.NText,
             "tvp" : sql.TVP,
-            "tvp*" : sql.TVP(p),
+            "tvp(?)" : sql.TVP(p),
             "udt" : sql.UDT,
             "geography" : sql.Geography,
             "geometry" : sql.Geometry,
             "variant" : sql.Variant,
-        }[t]
+        }[t];
+        return r;
     }
 
     /**
