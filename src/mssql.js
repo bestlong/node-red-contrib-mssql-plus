@@ -308,7 +308,10 @@ module.exports = function (RED) {
                                 }
                                 for (let index = 0; index < p.value.rows.length; index++) {
                                     let row = p.value.rows[index];
-                                    table.rows.add(row)
+                                    if(Array.isArray(row)){
+                                        table.rows.add(...row);
+                                    } else {
+                                        table.rows.add(row);
                                 }
                             }
                                 req.input(p.name,p.type, table);
