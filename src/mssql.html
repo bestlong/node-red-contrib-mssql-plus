@@ -239,9 +239,12 @@
         <p>Node for Node-RED to MS SQL</p>
         <h3>Query...</h3>
         <div style="padding-left: 15px;">
-            <p>Enter the query to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
+            <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
             <div class="form-tips" style="width: 100%">
                 TIP: If the query is left blank, then <code>msg.payload</code> will be used as the query.
+            </div>
+            <div class="form-tips" style="width: 100%">
+                TIP: You can override the query mode by sending "query" or "execute" in <code>msg.queryMode</code>.
             </div>
             <br>
             <p>Query Examples (with mustache)...
@@ -279,7 +282,7 @@
         <div style="padding-left: 15px;">
             <p>Input and Output Parameters can be specified to include in the query.</p>
             <div class="form-tips" style="width: 100%">
-                TIP: If the parameter list is left blank, then parameters can be sent in <code>msg.sqlParams</code> in the format...<br>
+                TIP: If the parameter list is left blank, then parameters can be sent in <code>msg.queryParams</code> in the format...<br>
                 <code><pre style="white-space: pre;">[
     {
         "output": false,

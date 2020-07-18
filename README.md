@@ -14,10 +14,10 @@ Importantly, this package comes with pre-built linux drivers for communicating w
 * Use mustache in your SQL queries including msg, flow and global context. e.g...
   * `SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity <= {{{global.maxQty}}}`
   * View the final query (mustache rendered into values) in `msg.query` to understanding what happened to your {{{mustache}}} parameters 
-* Enter parameters in the UI or send parameters in via `msg.sqlParams` for use in your SQL queries e.g...
+* Enter parameters in the UI or send parameters in via `msg.queryParams` for use in your SQL queries e.g...
   * `SELECT * FROM [MyTable] WHERE Name = @name AND quantity <= @maxQty`
-  * View the final parameters (rendered with final values) in `msg.sqlParams` that were used in the query to aid debugging 
-  * View output parameters values in `msg.sqlParams` after the query has executed 
+  * View the final parameters (rendered with final values) in `msg.queryParams` that were used in the query to aid debugging 
+  * View output parameters values in `msg.queryParams` after the query has executed 
 * Choose between throwing an error to the catch node or outputting an error property in `msg.error`
 * Additional properties are in the msg object (use a debug node with "complete msg object" set to see whats available)
 
