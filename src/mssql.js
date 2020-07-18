@@ -309,7 +309,8 @@ module.exports = function (RED) {
                                     let row = p.value.rows[index];
                                     table.rows.add(row)
                                 }
-                                req.input(p.name, table);
+                            }
+                                req.input(p.name,p.type, table);
                             }
                             else if (p.type) {
                                 req.input(p.name, p.type, p.value);
