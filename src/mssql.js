@@ -6,80 +6,80 @@ module.exports = function (RED) {
     /**
      * extractTokens - borrowed from @0node-red/nodes/core/core/80-template.js
      */
-    function extractTokens(tokens,set) {
+    function extractTokens(tokens, set) {
         set = set || new Set();
-        tokens.forEach(function(token) {
+        tokens.forEach(function (token) {
             if (token[0] !== 'text') {
                 set.add(token[1]);
                 if (token.length > 4) {
-                    extractTokens(token[4],set);
+                    extractTokens(token[4], set);
                 }
             }
         });
         return set;
     }
 
-    function coerceType(sqlType){
+    function coerceType(sqlType) {
         var s = sqlType.toLowerCase().trim();
         var bp = s.indexOf("(");
         var t, p, n;
-        if(bp > -1){
-            t = s.slice(0,bp);
-            p = s.slice(bp+1,-1);
+        if (bp > -1) {
+            t = s.slice(0, bp);
+            p = s.slice(bp + 1, -1);
         } else {
             t = s;
         }
 
-        if(p){
+        if (p) {
             try {
-                if(p) t += "(?)";
+                if (p) t += "(?)";
                 n = parseInt(p);
-            } catch (error) {}
+            } catch (error) { }
         }
-        
+
         var r = {
-            "varchar" : sql.VarChar,
-            "varchar(?)" : sql.VarChar(n),
-            "nvarchar" : sql.NVarChar,
-            "nvarchar(?)" : sql.NVarChar(n),
-            "text" : sql.Text,
-            "int" : sql.Int,
-            "bigint" : sql.BigInt,
-            "tinyint" : sql.TinyInt,
-            "smallint" : sql.SmallInt,
-            "bit" : sql.Bit,
-            "float" : sql.Float,
-            "numeric" : sql.Numeric,
-            "decimal" : sql.Decimal,
-            "real" : sql.Real,
-            "date" : sql.Date,
-            "datetime" : sql.DateTime,
-            "datetime2" : sql.DateTime2,
-            "datetime2(?)" : sql.DateTime2(n),
-            "datetimeoffset" : sql.DateTimeOffset,
-            "datetimeoffset(?)" : sql.DateTimeOffset(n),
-            "smalldatetime" : sql.SmallDateTime,
-            "time" : sql.Time,
-            "time(?)" : sql.Time(n),
-            "uniqueidentifier" : sql.UniqueIdentifier,
-            "smallmoney" : sql.SmallMoney,
-            "money" : sql.Money,
-            "binary" : sql.Binary,
-            "varbinary" : sql.VarBinary,
-            "varbinary(?)" : sql.VarBinary(n),
-            "image" : sql.Image,
-            "xml" : sql.Xml,
-            "char" : sql.Char,
-            "char(?)" : sql.Char(n),
-            "nchar" : sql.NChar,
-            "nchar(?)" : sql.NChar(n),
-            "ntext" : sql.NText,
-            "tvp" : sql.TVP,
-            "tvp(?)" : sql.TVP(p),
-            "udt" : sql.UDT,
-            "geography" : sql.Geography,
-            "geometry" : sql.Geometry,
-            "variant" : sql.Variant,
+            "varchar": sql.VarChar,
+            "varchar(?)": sql.VarChar(n),
+            "nvarchar": sql.NVarChar,
+            "nvarchar(?)": sql.NVarChar(n),
+            "text": sql.Text,
+            "int": sql.Int,
+            "bigint": sql.BigInt,
+            "tinyint": sql.TinyInt,
+            "smallint": sql.SmallInt,
+            "bit": sql.Bit,
+            "float": sql.Float,
+            "numeric": sql.Numeric,
+            "decimal": sql.Decimal,
+            "real": sql.Real,
+            "date": sql.Date,
+            "datetime": sql.DateTime,
+            "datetime2": sql.DateTime2,
+            "datetime2(?)": sql.DateTime2(n),
+            "datetimeoffset": sql.DateTimeOffset,
+            "datetimeoffset(?)": sql.DateTimeOffset(n),
+            "smalldatetime": sql.SmallDateTime,
+            "time": sql.Time,
+            "time(?)": sql.Time(n),
+            "uniqueidentifier": sql.UniqueIdentifier,
+            "smallmoney": sql.SmallMoney,
+            "money": sql.Money,
+            "binary": sql.Binary,
+            "varbinary": sql.VarBinary,
+            "varbinary(?)": sql.VarBinary(n),
+            "image": sql.Image,
+            "xml": sql.Xml,
+            "char": sql.Char,
+            "char(?)": sql.Char(n),
+            "nchar": sql.NChar,
+            "nchar(?)": sql.NChar(n),
+            "ntext": sql.NText,
+            "tvp": sql.TVP,
+            "tvp(?)": sql.TVP(p),
+            "udt": sql.UDT,
+            "geography": sql.Geography,
+            "geometry": sql.Geometry,
+            "variant": sql.Variant,
         }[t];
         return r;
     }
@@ -114,13 +114,13 @@ module.exports = function (RED) {
      * @param {boolean} defaultValue - the value to return if `n` is not a valid number
      * @returns {integer} `n` parsed to an integer or `defaultValue` if `n` is invalid
      */
-    function safeParseInt(n, defaultValue){
+    function safeParseInt(n, defaultValue) {
         try {
             var x = parseInt(n);
-            if(isNumber(x)){
+            if (isNumber(x)) {
                 return x;
-            }    
-        } catch (error) { 
+            }
+        } catch (error) {
             //do nothing
         }
         return defaultValue;
@@ -130,7 +130,7 @@ module.exports = function (RED) {
      * NodeContext - borrowed from @0node-red/nodes/core/core/80-template.js
      */
     function NodeContext(msg, nodeContext, parent, escapeStrings, cachedContextTokens) {
-        this.msgContext = new mustache.Context(msg,parent);
+        this.msgContext = new mustache.Context(msg, parent);
         this.nodeContext = nodeContext;
         this.escapeStrings = escapeStrings;
         this.cachedContextTokens = cachedContextTokens;
@@ -167,12 +167,12 @@ module.exports = function (RED) {
             }
             return '';
         }
-        catch(err) {
+        catch (err) {
             throw err;
         }
     }
 
-    NodeContext.prototype.push = function push (view) {
+    NodeContext.prototype.push = function push(view) {
         return new NodeContext(view, this.nodeContext, this.msgContext, undefined, this.cachedContextTokens);
     };
 
@@ -184,7 +184,7 @@ module.exports = function (RED) {
         var configStr = JSON.stringify(config)
         var transform = mustache.render(configStr, process.env);
         config = JSON.parse(transform);
-        
+
         //add mustache transformation to credentials object
         try {
             var credStr = JSON.stringify(node.credentials)
@@ -193,7 +193,7 @@ module.exports = function (RED) {
         } catch (error) {
             console.error(error);
         }
-        
+
 
         node.config = {
             user: node.credentials ? node.credentials.username : "",
@@ -228,19 +228,19 @@ module.exports = function (RED) {
         node.config.cancelTimeout = node.config.options.cancelTimeout;
         node.config.encrypt = node.config.options.encrypt;
 
-        node.connectedNodes = [];   
+        node.connectedNodes = [];
 
-        node.connectionCleanup = function() {
+        node.connectionCleanup = function () {
             try {
-                if(node.pool){
+                if (node.pool) {
                     node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
-                    node.pool.then(_ => _.close()).catch(e => { console.error(e); });    
+                    node.pool.then(_ => _.close()).catch(e => { console.error(e); });
                 }
             }
             catch (error) {
             }
             try {
-                if(node.connectionPool) node.connectionPool.close();
+                if (node.connectionPool) node.connectionPool.close();
             }
             catch (error) {
             }
@@ -256,10 +256,10 @@ module.exports = function (RED) {
         node.connectionPool.on('error', err => {
             node.error(err);
             node.connectionCleanup();
-        }) 
+        })
 
-        node.connect = function(){
-            if(node.pool){
+        node.connect = function () {
+            if (node.pool) {
                 return;
             }
             node.status({
@@ -268,16 +268,16 @@ module.exports = function (RED) {
                 text: 'connecting'
             });
             node.pool = node.connectionPool.connect()
-            .then(_ => { 
-                node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                return _ 
-            }).catch(e => {
-                node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                throw e;
-            });
+                .then(_ => {
+                    node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                    return _
+                }).catch(e => {
+                    node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                    throw e;
+                });
         }
 
-        node.execSql = function(queryMode, sqlQuery, params, callback) {
+        node.execSql = function (queryMode, sqlQuery, params, callback) {
             node.connect();
             var _info = [];
             node.pool.then(_ => {
@@ -286,20 +286,20 @@ module.exports = function (RED) {
                 req.on('info', info => {
                     _info.push(info)
                 })
-                if(params && params.length){
+                if (params && params.length) {
                     for (let index = 0; index < params.length; index++) {
                         let p = params[index];
-                        if(p.output == true){
-                            if(p.type) {
+                        if (p.output == true) {
+                            if (p.type) {
                                 req.output(p.name, p.type);
                             } else {
                                 req.output(p.name);
                             }
                         } else {
                             //if the data is a vtp/udt, coerce the type from string into sql.type
-                            if(  (p.type.name == "UDT" || p.type.name == "TVP" || (p.type.type && p.type.type.name == "TVP")) 
+                            if ((p.type.name == "UDT" || p.type.name == "TVP" || (p.type.type && p.type.type.name == "TVP"))
                                 && typeof p.value == "object"
-                                && p.value.columns && p.value.rows ){
+                                && p.value.columns && p.value.rows) {
                                 let table = new sql.Table()
                                 for (let index = 0; index < p.value.columns.length; index++) {
                                     let col = p.value.columns[index];
@@ -311,7 +311,7 @@ module.exports = function (RED) {
                                 }
                                 req.input(p.name, table);
                             }
-                            else if(p.type) {
+                            else if (p.type) {
                                 req.input(p.name, p.type, p.value);
                             } else {
                                 req.input(p.name, p.value);
@@ -319,18 +319,18 @@ module.exports = function (RED) {
                         }
                     }
                 }
-                if(queryMode == "execute"){
+                if (queryMode == "execute") {
                     return req.execute(sqlQuery);
                 } else {
                     return req.query(sqlQuery);
                 }
 
             }).then(result => {
-                callback(null,result,_info);
-            }).catch(e => { 
+                callback(null, result, _info);
+            }).catch(e => {
                 console.error(e)
                 node.pool = null;
-                callback(e); 
+                callback(e);
             })
         };
         node.disconnect = function (nodeId) {
@@ -370,23 +370,23 @@ module.exports = function (RED) {
         node.params = config.params;
         node.queryMode = config.queryMode;
 
-        var setResult = function (msg, field, value, returnType = 0 ) {
+        var setResult = function (msg, field, value, returnType = 0) {
             let setValue = returnType == 1 ? value : value && value.recordset;
             // if(!setValue) return;
-            const set = (obj, path, val) => { 
+            const set = (obj, path, val) => {
                 const keys = path.split('.');
                 const lastKey = keys.pop();
-                const lastObj = keys.reduce((obj, key) => 
-                    obj[key] = obj[key] || {}, 
-                    obj); 
+                const lastObj = keys.reduce((obj, key) =>
+                    obj[key] = obj[key] || {},
+                    obj);
                 lastObj[lastKey] = val;
             }
             set(msg, field, setValue);
         };
 
-        var updateOutputParams = function(params, data){
-            if(!params || !params.length) return;
-            if(!data || !data.output) return;
+        var updateOutputParams = function (params, data) {
+            if (!params || !params.length) return;
+            if (!data || !data.output) return;
             var outputParams = params.filter(e => e.output);
             for (let index = 0; index < outputParams.length; index++) {
                 let param = outputParams[index];
@@ -394,62 +394,62 @@ module.exports = function (RED) {
             }
         }
 
-        node.processError = function(err,msg){
+        node.processError = function (err, msg) {
             let errMsg = "Error";
-            if(typeof err == "string"){
+            if (typeof err == "string") {
                 errMsg = err;
                 msg.error = err;
-            } else if(err && err.message) {
+            } else if (err && err.message) {
                 errMsg = err.message;
 
-                if (err.precedingErrors !== undefined 
+                if (err.precedingErrors !== undefined
                     && err.precedingErrors.length
-                    && err.precedingErrors[0].originalError !== undefined 
+                    && err.precedingErrors[0].originalError !== undefined
                     && err.precedingErrors[0].originalError.info !== null
-                    && err.precedingErrors[0].originalError.info.message !== null){
-                    errMsg += ' ('+err.precedingErrors[0].originalError.info.message+')';
+                    && err.precedingErrors[0].originalError.info.message !== null) {
+                    errMsg += ' (' + err.precedingErrors[0].originalError.info.message + ')';
                 }
                 //Make an error object from the err.  NOTE: We cant just assign err to msg.error as a promise 
                 //rejection occurs when the node has 2 wires on the output. 
                 //(redUtil.cloneMessage(m) causes error "node-red Cannot assign to read only property 'originalError'")
                 msg.error = {
                     class: err.class,
-                    code: err.code, 
-                    lineNumber: err.lineNumber, 
-                    message: err.message, 
-					details: errMsg, 									 
-                    name: err.name, 
-                    number: err.number, 
-                    procName: err.procName, 
-                    serverName: err.serverName, 
-                    state: err.state, 
-                    toString: function(){
+                    code: err.code,
+                    lineNumber: err.lineNumber,
+                    message: err.message,
+                    details: errMsg,
+                    name: err.name,
+                    number: err.number,
+                    procName: err.procName,
+                    serverName: err.serverName,
+                    state: err.state,
+                    toString: function () {
                         return this.message;
                     }
                 }
             }
-            
+
             node.status({
                 fill: 'red',
                 shape: 'ring',
                 text: errMsg
             });
 
-            if(node.throwErrors){
-                node.error(msg.error,msg);
+            if (node.throwErrors) {
+                node.error(msg.error, msg);
             } else {
                 node.log(err);
                 node.send(msg);
             }
-        }    
+        }
 
         node.on('input', function (msg) {
-            
+
             node.status({}); //clear node status
             delete msg.error; //remove any .error property passed in from previous node
             msg.query = node.query || msg.payload;
             msg.sqlParams = [];
-            var params = [...(node.params && node.params.length ? node.params :  msg.sqlParams) || []];
+            var params = [...(node.params && node.params.length ? node.params : msg.sqlParams) || []];
             for (let iParam = 0; iParam < params.length; iParam++) {
                 let p = RED.util.cloneMessage(params[iParam]);
                 msg.sqlParams.push(p);
@@ -458,23 +458,23 @@ module.exports = function (RED) {
                 let param = msg.sqlParams[index];
                 param.type = coerceType(param.type);
                 // param.output = param.inout == "output";
-                RED.util.evaluateNodeProperty(param.value,param.valueType,node,msg,(err,value) => {
+                RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
                     if (err) {
                         let errmsg = `Unable to evaluate value for parameter named '${param.name}'`
-                        node.error(errmsg,msg);
-                        node.status({fill:"red",shape:"ring",text:errmsg});
+                        node.error(errmsg, msg);
+                        node.status({ fill: "red", shape: "ring", text: errmsg });
                         return;//halt flow!
                     } else {
                         param.value = value;
                     }
-                }); 
+                });
                 delete param.valueType;
             }
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));
             var resolvedTokens = {};
-            tokens.forEach(function(name) {
+            tokens.forEach(function (name) {
                 var context = parseContext(name);
                 if (context) {
                     var type = context.type;
@@ -498,16 +498,16 @@ module.exports = function (RED) {
                 }
             });
 
-            Promise.all(promises).then(function() {
+            Promise.all(promises).then(function () {
                 var value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
                 msg.query = value;
                 doSQL(node, msg);
             }).catch(function (err) {
-                node.processError(err,msg)
-            });           
+                node.processError(err, msg)
+            });
         });
-   
-        function doSQL(node, msg){
+
+        function doSQL(node, msg) {
             node.status({
                 fill: 'blue',
                 shape: 'dot',
@@ -517,7 +517,7 @@ module.exports = function (RED) {
             try {
                 mssqlCN.execSql(node.queryMode, msg.query, msg.sqlParams, function (err, data, info) {
                     if (err) {
-                        node.processError(err,msg)
+                        node.processError(err, msg)
                     } else {
                         node.status({
                             fill: 'green',
@@ -531,7 +531,7 @@ module.exports = function (RED) {
                     }
                 });
             } catch (err) {
-                node.processError(err,msg)
+                node.processError(err, msg)
             }
         }
         node.on('close', function () {
