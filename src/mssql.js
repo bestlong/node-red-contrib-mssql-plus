@@ -20,14 +20,15 @@ module.exports = function (RED) {
     }
 
     function coerceType(sqlType) {
-        var s = sqlType.toLowerCase().trim();
-        var bp = s.indexOf("(");
+        var st = sqlType.trim();
+        var sl = st.toLowerCase();
+        var bp = sl.indexOf("(");
         var t, p, n;
         if (bp > -1) {
-            t = s.slice(0, bp);
-            p = s.slice(bp + 1, -1);
+            t = sl.slice(0, bp);
+            p = st.slice(bp + 1, -1);
         } else {
-            t = s;
+            t = sl;
         }
 
         if (p) {
