@@ -14,7 +14,7 @@ Importantly, this package comes with pre-built linux drivers for communicating w
 * Use mustache in your SQL queries including msg, flow and global context. e.g...
   * `SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity <= {{{global.maxQty}}}`
   * View the final query (mustache rendered into values) in `msg.query` to understanding what happened to your {{{mustache}}} parameters 
-* Enter parameters in the UI or send parameters in via `msg.queryParams` for use in your SQL queries e.g...
+* Enter parameters in the UI or send parameters in via `msg`, `flow` or `global` variables for use in your SQL queries e.g...
   * `SELECT * FROM [MyTable] WHERE Name = @name AND quantity <= @maxQty`
   * View the final parameters (rendered with final values) in `msg.queryParams` that were used in the query to aid debugging 
   * View output parameters values in `msg.queryParams` after the query has executed 
@@ -65,11 +65,11 @@ Demonstrating mustache rendering, input parameters, mutliple queries, print info
 
 flow...
 ``` json
-[{"id":"61625aaf.479d84","type":"inject","z":"595a5dd5.a963a4","name":"{\"count\": 5, \"age\": 35}","topic":"","payload":"{\"count\": 5, \"age\": 35}","payloadType":"json","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":400,"y":320,"wires":[["6e09980a.127878"]]},{"id":"babb6d0.5ae7e9","type":"debug","z":"595a5dd5.a963a4","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","x":450,"y":440,"wires":[]},{"id":"6e09980a.127878","type":"MSSQL","z":"595a5dd5.a963a4","mssqlCN":"a51e405c.10f64","name":"","query":"PRINT @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Name = @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Age = @age\n\nPRINT 'complete'","outField":"payload","returnType":"1","throwErrors":"0","params":[{"output":false,"name":"name","type":"VarChar(20)","valueType":"str","value":"stephen"},{"output":false,"name":"age","type":"int","valueType":"msg","value":"payload.age"}],"x":440,"y":380,"wires":[["babb6d0.5ae7e9"]]},{"id":"a51e405c.10f64","type":"MSSQL-CN","z":"","tdsVersion":"7_4","name":"Local SQL","server":"192.168.1.38","port":"1433","encyption":false,"database":"","useUTC":false,"connectTimeout":"15000","requestTimeout":"15000","cancelTimeout":"5000","pool":"5","parseJSON":false}]
+[{"id":"61625aaf.479d84","type":"inject","z":"595a5dd5.a963a4","name":"{\"count\": 5, \"age\": 35}","topic":"","payload":"{\"count\": 5, \"age\": 35}","payloadType":"json","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":220,"y":320,"wires":[["6e09980a.127878"]]},{"id":"6e09980a.127878","type":"MSSQL","z":"595a5dd5.a963a4","mssqlCN":"a51e405c.10f64","name":"","outField":"payload","returnType":"1","throwErrors":"0","query":"PRINT @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Name = @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Age = @age\n\nPRINT 'complete'","modeOpt":"","modeOptType":"query","queryOpt":"","queryOptType":"editor","paramsOpt":"","paramsOptType":"editor","params":[{"output":false,"name":"name","type":"VarChar(20)","valueType":"str","value":"stephen"},{"output":false,"name":"age","type":"int","valueType":"msg","value":"payload.age"}],"x":260,"y":380,"wires":[["babb6d0.5ae7e9"]]},{"id":"babb6d0.5ae7e9","type":"debug","z":"595a5dd5.a963a4","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","x":270,"y":440,"wires":[]},{"id":"a51e405c.10f64","type":"MSSQL-CN","z":"","tdsVersion":"7_4","name":"My SQL Server","server":"192.168.1.38","port":"1433","encyption":false,"database":"testdb","useUTC":false,"connectTimeout":"15000","requestTimeout":"15000","cancelTimeout":"5000","pool":"5","parseJSON":false}]
 ```
 
 ## Screen shot
-![image](https://user-images.githubusercontent.com/44235289/87775292-c43a8e00-c81d-11ea-8329-d7d7385c37d6.png)
+![image](https://user-images.githubusercontent.com/44235289/87884584-14287900-ca07-11ea-8825-0030943f3c4a.png)
 
 ## Other
 

@@ -375,6 +375,13 @@ module.exports = function (RED) {
         node.params = config.params;
         node.queryMode = config.queryMode;
 
+        node.modeOpt = config.modeOpt;
+        node.modeOptType = config.modeOptType || "query";
+        node.queryOpt = config.queryOpt;
+        node.queryOptType = config.queryOptType || "editor";
+        node.paramsOpt = config.paramsOpt;
+        node.paramsOptType = config.paramsOptType || "editor";
+
         var setResult = function (msg, field, value, returnType = 0) {
             let setValue = returnType == 1 ? value : value && value.recordset;
             // if(!setValue) return;
@@ -408,7 +415,7 @@ module.exports = function (RED) {
                 throw new Error("Parameter does not have a valid name propery");
             }
             if(!p.output && !('value' in p)) {
-                throw new Error("Input parameter does not have a value propery");
+                throw new Error("Input parameter '" + p.name + "' does not have a value propery");
             }
             return true;
         }
@@ -461,58 +468,102 @@ module.exports = function (RED) {
                 node.send(msg);
             }
         }
-
+        
         node.on('input', function (msg) {
             node.status({}); //clear node status
             delete msg.error; //remove any .error property passed in from previous node
-            msg.query = node.query || msg.payload;
-            msg.queryMode = msg.queryMode || node.queryMode || "query";
-            if(!["query","execute"].includes(msg.queryMode)){
-                node.processError("queryMode is not valid. Supported options are 'query' and 'execute'.", msg);
-                return null;
+
+            //evaluate UI typedInput settings...
+            var queryMode;
+            if(node.modeOptType == "query" || node.modeOptType=="execute") {
+                queryMode = node.modeOptType;
+            } else {
+                RED.util.evaluateNodeProperty(node.modeOpt, node.modeOptType, node, msg, (err, value) => {
+                    if (err) {
+                        let errmsg = `Unable to evaluate query mode choice`
+                        node.processError(errmsg, msg);
+                        return;//halt flow!
+                    } else {
+                        queryMode = value || "query";
+                    }
+                });
             }
-            if(node.params && node.params.length) {
-                msg.queryParams = [];
-                for (let iParam = 0; iParam < node.params.length; iParam++) {
-                    let p = RED.util.cloneMessage(node.params[iParam]);
-                    msg.queryParams.push(p);
+
+            if(!["query","execute"].includes(queryMode)){
+                node.processError("Query mode is not valid. Supported options are 'query' and 'execute'.", msg);
+                return null;//halt flow
+            }
+
+            var query;
+            if(!node.paramsOptType || node.queryOptType == "editor") {
+                query = node.query || msg.payload; //legacy
+            } else {
+                RED.util.evaluateNodeProperty(node.queryOpt, node.queryOptType, node, msg, (err, value) => {
+                    if (err) {
+                        let errmsg = `Unable to evaluate query choice`
+                        node.processError(errmsg, msg);
+                        return;//halt flow!
+                    } else {
+                        query = value;
+                    }
+                });
+            }
+
+            var queryParams = [];
+            if(!node.paramsOptType || node.queryOptType == "editor") {
+                let _params = node.params || [];
+                for (let iParam = 0; iParam < _params.length; iParam++) {
+                    let param = RED.util.cloneMessage(_params[iParam]);
+                    if(param.output == false) {
+                        RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
+                            if (err) {
+                                let errmsg = `Unable to evaluate value for parameter at index [${iParam}] named '${param.name}'`
+                                node.processError(errmsg, msg);
+                                return;//halt flow!
+                            } else {
+                                param.value = value;
+                            }
+                        });                    
+                    } 
+                    queryParams.push(param);
                 }
-            } else if(Array.isArray(msg.queryParams) && msg.queryParams.length){
-                //check format of params passed in msg.queryParams
+            } else {
+                RED.util.evaluateNodeProperty(node.paramsOpt, node.paramsOptType, node, msg, (err, value) => {
+                    if (err) {
+                        let errmsg = `Unable to evaluate paramater choice`
+                        node.processError(errmsg, msg);
+                        return;//halt flow!
+                    } else {
+                        let _params = value || [];
+                        for (let iParam = 0; iParam < _params.length; iParam++) {
+                            let param = RED.util.cloneMessage(_params[iParam]);
+                            delete param.valueType;
+                            queryParams.push(param);
+                        }
+                        
+                    }
+                });
+            }
+
+            msg.query = query;
+            msg.queryMode = queryMode;
+            msg.queryParams = queryParams || [];
+
+            //now validate params, remove superflous properties & coerce type into sql.type
+            if(msg.queryParams && msg.queryParams.length){
                 for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
+                    let param = msg.queryParams[iParam];
                     try {
-                        validateQueryParam(msg.queryParams[iParam])
+                        validateQueryParam(param)
+                        param.type = coerceType(param.type);
+                        if(param.output) delete param.value;
+                        delete param.valueType;
                     } catch (error) {
-                        node.processError(`msg.queryParams[${iParam}] is not valid. ${error.message}.`, msg);
+                        node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg);
                         return null;
                     }
                 }
-            } else {
-                msg.queryParams = [];
-            }
-
-            //now loop through parameters ...
-            // * coerce the type from a string into an actual sql.type
-            // * evaluate input parameters .value from msg/global/flow/json value as setup by user
-            for (let index = 0; index < msg.queryParams.length; index++) {
-                let param = msg.queryParams[index];
-                param.type = coerceType(param.type);
-                if(param.output == false) {
-                    RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
-                        if (err) {
-                            let errmsg = `Unable to evaluate value for parameter named '${param.name}'`
-                            node.processError(errmsg, msg);
-                            return;//halt flow!
-                        } else {
-                            param.value = value;
-                        }
-                    });                    
-                } else {
-                    //output doesnt require .value...
-                    delete param.value;
-                }                
-                delete param.valueType;
-            }
+            }          
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));

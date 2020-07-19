@@ -160,91 +160,78 @@
 </script>
 
 <style>
-    .mssql-plus-form-row>.radio-label>.radio-input {
-        width: unset !important;
-        margin-bottom: 2px;
-        margin-top: 0px;
-        margin-right: 4px;
-    }
-
-    .mssql-plus-form-row>.radio-label {
-        width: unset !important;
-        margin-right: 12px;
-    }
-
     .mssql-plus-form-row>label {
         width: 120px !important;
     }
 </style>
 
 <script type="text/html" data-template-name="MSSQL">
-      <div class="form-row mssql-plus-form-row">
-          <label for="node-input-mssqlCN"><i class="icon-tag"></i> Connection</label>
-          <input type="text" id="node-input-mssqlCN">
-      </div>
-      <div class="form-row mssql-plus-form-row">
-          <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-          <input type="text" id="node-input-name" placeholder="Name">
-      </div>
-
-      <div class="form-row mssql-plus-form-row" style="margin-bottom: 0px;">
-        <label for="node-input-query" style="width: 120px !important;"><i class="fa fa-comments"></i> Query</label>
-        <label class="radio-label">
-            <input class="radio-input query-mode" type="radio" name="node-input-queryMode" value="query" checked>SQL Query
-        </label>
-        <label class="radio-label">
-            <input class="radio-input query-mode" type="radio" name="node-input-queryMode" value="execute">Execute Procedure
-        </label>
-      </div>
-
-      <div class="form-row node-text-editor-row" style="min-height: 60px">
-          <input type="hidden" id="node-input-query" autofocus="autofocus">
-          <div style="height: 60px;"  class="node-text-editor" id="node-input-query-editor" ></div>
-      </div>
-
-    <div class="form-row mssql-plus-form-row" style="margin-bottom: 0px;">
-        <label style="width: 100% !important;"><i class="fa fa-list-alt"></i> Parameters</label>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-mssqlCN"><i class="fa fa-globe"></i> Connection</label>
+        <input type="text" id="node-input-mssqlCN">
     </div>
-
-    <div class="form-row node-input-params-container-row" >
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-data"><i class="fa fa-list-ul"></i> Query mode</label>
+        <input type="hidden" id="node-input-modeOptType">
+        <input type="text" id="node-input-modeOpt" style="width: 70%" placeholder="queryMode">
+    </div>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-queryOpt"><i class="fa fa-comments"></i> Query</label>
+        <input type="hidden" id="node-input-queryOptType">
+        <input type="text" id="node-input-queryOpt" style="width: 70%" placeholder="payload">
+    </div>
+    <div class="form-row node-text-editor-row" style="min-height: 60px; margin-top: -6px;">
+        <div style="height: 60px;"  class="node-text-editor" id="node-sql-query-editor" ></div>
+    </div>
+    <div class="form-row mssql-plus-form-row">
+        <label><i class="fa fa-list-alt"></i> Parameters</label>
+        <input type="hidden" id="node-input-paramsOptType">
+        <input type="text" id="node-input-paramsOpt" style="width: 70%" placeholder="queryParams">
+    </div>
+    <div class="form-row node-input-params-container-row" style="margin-top: -6px;">
         <ol id="node-input-params-container"></ol>
     </div>
-
-      <div class="form-row mssql-plus-form-row">
-          <label for="node-input-outField"><i class="fa fa-sign-out"></i> Output property</label>
-          <div style="display: inline-block; position: relative; width: 70%; height: 22px;">
-              <div style="position: absolute; left: 0px;line-height: 34px;">msg.</div>
-              <div style="position: absolute; left: 34px; right: 0px;"> 
-                  <input type="text" id="node-input-outField" placeholder="payload" style="width:100%" dir=""> 
-              </div>
-          </div>
-      </div>
-      <div class="form-row mssql-plus-form-row">
-          <label for="node-input-returnType"><i class="fa fa-sign-out"></i> Output type</label>
-          <select id="node-input-returnType" style="width: 70%">
-              <option value="0">Original output</option>
-              <option value="1">Driver output</option>
-          </select>
-      </div>
-      <div class="form-row mssql-plus-form-row">
-            <label for="node-input-throwErrors"><i class="fa fa-exclamation"></i> Error Handling</label>
-            <select id="node-input-throwErrors" style="width: 70%">
-                <option value="0">Send in msg.error</option>
-                <option value="1">Throw error</option>
-            </select>
-      </div>
-  </script>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-outField"><i class="fa fa-sign-out"></i> Output property</label>
+        <input type="text" id="node-input-outField" placeholder="payload" style="width: 70%" dir=""> 
+    </div>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-returnType"><i class="fa fa-sign-out"></i> Output type</label>
+        <select id="node-input-returnType" style="width: 70%">
+            <option value="0">Original output</option>
+            <option value="1">Driver output</option>
+        </select>
+    </div>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-throwErrors"><i class="fa fa-exclamation"></i> Error Handling</label>
+        <select id="node-input-throwErrors" style="width: 70%">
+            <option value="0">Send in msg.error</option>
+            <option value="1">Throw error</option>
+        </select>
+    </div>
+</script>
 
 <script type="text/html" data-help-name="MSSQL">
         <p>Node for Node-RED to MS SQL</p>
+        <h3>Query Mode...</h3>
+        <div style="padding-left: 15px;">
+            <p>Select the execution mode, this can be "Query" or "Stored procedure"</p>
+            <div class="form-tips" style="width: 100%">
+                TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query" or "execute"
+            </div>
+            <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
+            </p>
+        </div>
+         
         <h3>Query...</h3>
         <div style="padding-left: 15px;">
             <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
             <div class="form-tips" style="width: 100%">
-                TIP: If the query is left blank, then <code>msg.payload</code> will be used as the query.
-            </div>
-            <div class="form-tips" style="width: 100%">
-                TIP: You can override the query mode by sending "query" or "execute" in <code>msg.queryMode</code>.
+                TIP: Query can be set in the UI or dynamically via msg, flow, global or env. The value sent can also contain mustache items.
             </div>
             <br>
             <p>Query Examples (with mustache)...
@@ -280,9 +267,9 @@
         
         <h3>Parameters...</h3>
         <div style="padding-left: 15px;">
-            <p>Input and Output Parameters can be specified to include in the query.</p>
+            <p>Input and Output Parameters can be specified for the query.</p>
             <div class="form-tips" style="width: 100%">
-                TIP: If the parameter list is left blank, then parameters can be sent in <code>msg.queryParams</code> in the format...<br>
+                TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
                 <code><pre style="white-space: pre;">[
     {
         "output": false,
@@ -300,23 +287,23 @@
             <br>
             <p>Query Examples (with parameters)...
                 <div style="padding-left: 15px;">
-                    <div style="font-weight@ bold;">Query</code>
+                    <code style="font-weight@ bold;">Query</code>
                     <div style="padding-left: 15px;">
                         <code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= @minQty</code>
                     </div>
                 </div>
                 <div style="padding-left: 15px;">
-                    <div style="font-weight@ bold;">Parameters</code>
+                    <code style="font-weight@ bold;">Parameters</code>
                     <ul>               
                         <li>
                             <span>In/Out </span><code style="white-space: normal;">input</code> 
-                            <span>, Name </span><code style="white-space: normal;">@name</code>
+                            <span>, Name </span><code style="white-space: normal;">name</code>
                             <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
                             <span>, Value </span><code style="white-space: normal;">stephen</code>
                         </li>
                         <li>
                             <span>In/Out </span><code style="white-space: normal;">input</code> 
-                            <span>, Name </span><code style="white-space: normal;">@minQty</code>
+                            <span>, Name </span><code style="white-space: normal;">minQty</code>
                             <span>, Type </span><code style="white-space: normal;">int</code>
                             <span>, Value </span><code style="white-space: normal;">5</code>
                         </li>
@@ -363,9 +350,6 @@
             name: {
                 value: ""
             },
-            query: {
-                value: ""
-            },
             outField: {
                 value: "payload"
             },
@@ -375,8 +359,26 @@
             throwErrors: {
                 value: 1 //0=original (for compatibility), 1=throw errors for catch node
             },
-            queryMode: {
+            query: {
+                value: ""
+            },
+            modeOpt: {
+                value: "queryMode" 
+            },
+            modeOptType: {
                 value: "query" //query=original (for compatibility), execute=new mode
+            },
+            queryOpt: {
+                value: "payload" //compatibility
+            },
+            queryOptType: {
+                value: "editor" //compatibility
+            },
+            paramsOpt: {
+                value: "queryParams"
+            },
+            paramsOptType: {
+                value: "editor"
             },
             params: {
                 value: []
@@ -386,27 +388,94 @@
         outputs: 1,
         icon: "db.png",
         label: function () {
-            return this.name || "MSSQL";
+            return this.name || "MSSQL-PLUS";
         },
         labelStyle: function () {
             return this.name ? "node_label_italic" : "";
         },
         oneditprepare: function () {
-            //   console.log("mssql-plus -> oneditprepare()")
-            var that = this;
+            console.log("mssql-plus -> oneditprepare()")
+            var node = this;
+            //ensure node.query is a string otherwise editor wont initialise
+            if(typeof node.query != "string") node.query = ""
+            //create the query editor
             this.editor = RED.editor.createEditor({
-                id: 'node-input-query-editor',
+                id: 'node-sql-query-editor',
                 mode: 'ace/mode/sql',
-                value: $("#node-input-query").val()
+                value: node.query // $("#node-input-query").val()
             });
-            this.editor.focus();
+            //create typedInput widgets
+            var modeField = $("#node-input-modeOpt").typedInput(
+                {
+                    types:[
+                        { value:"query", label: "Query",  hasValue:false },
+                        { value:"execute", label: "Execute Procedure",  hasValue:false },
+                        'msg', 'flow', 'global', 'env'            
+                    ],
+                    typeField: $("#node-input-modeOptType"),
+                    default:"query"
+                });
+            var queryField =$("#node-input-queryOpt").typedInput(
+                {
+                    types:[
+                        { value:"editor", label: "Editor",  hasValue:false },
+                        'msg', 'flow', 'global', 'env'            
+                    ],
+                    typeField: $("#node-input-queryOptType"),
+                    default:"editor"
+                });
+            var paramsField =$("#node-input-paramsOpt").typedInput(
+                {
+                    types:[
+                        { value:"editor", label: "Editor",  hasValue:false },
+                        'msg', 'flow', 'global'/*, 'env'*/
+                    ],
+                    typeField: $("#node-input-paramsOptType"),
+                    default:"editor"
+                });
+            var outField =$("#node-input-outField").typedInput(
+                {
+                    types:[
+                        { value:"str", label: "msg." }          
+                    ],
+                    default:"str"
+                });
+            //show/hide editor depending on query source
+            queryField.on("change", function() {
+                var type = $(this).typedInput("type");
+                if(type == "editor")
+                    $(".form-row.node-text-editor-row").show();
+                else
+                    $(".form-row.node-text-editor-row").hide();                            
+            });
+            //show/hide parameter list depending on queryMode
+            paramsField.on("change", function() {
+                var type = $(this).typedInput("type");
+                if(type == "editor")
+                    $(".form-row.node-input-params-container-row").show();
+                else
+                    $(".form-row.node-input-params-container-row").hide();                            
+            });
+
+            // *** compatibility defaults ***
+            //if node.query is empty, the user would probably have been sending the  
+            //      query in via msg.payload - so, lets set the typedInput to msg.payload;
+            //NOTE: as queryOpt and queryOptType are new properties, first time here they will be == "undefined"
+            //      if they have any other value, the user must have been in and operated the Done 
+            //      button (thus accepting the .queryOpt setting - i.e. leave as is!)
+            if(!node.query && typeof node.queryOpt == "undefined" && typeof node.queryOptType == "undefined") {
+                queryField.typedInput("type","msg");
+                queryField.typedInput("value","payload");
+            }
+            if((!node.params || !node.params.length) && typeof node.paramsOpt == "undefined" && typeof node.paramsOptType == "undefined") {
+                paramsField.typedInput("type","msg");
+                paramsField.typedInput("value","queryParams");
+            }
 
             $("#node-input-returnType")[0].selectedIndex = this.returnType ? this.returnType : 0;
             $("#node-input-throwErrors")[0].selectedIndex = this.throwErrors ? this.throwErrors : 0;
-            var queryModeExecute = this.queryMode == 'execute' ? true : false;
-            $(".query-mode[value=query]").prop('checked', !queryModeExecute);
-            $(".query-mode[value=execute]").prop('checked', queryModeExecute);
 
+            //Parameters Editor...
             $('#node-input-params-container').css('min-height', '120px').css('min-width', '520px').editableList({
                 addItem: function (container, i, opt) {
                     var rule = opt;
@@ -520,19 +589,10 @@
                 var item = this.params[i];
                 $("#node-input-params-container").editableList('addItem', item);
             }
-
-
         },
         oneditsave: function () {
             var node = this;
             node.params = [];
-
-            var queryModeExecute = $(".query-mode[value=execute]").prop('checked');
-            if (queryModeExecute) {
-                node.queryMode = "execute";
-            } else {
-                node.queryMode = "query";
-            }
 
             var items = $("#node-input-params-container").editableList('items');
             items.each(function (i) {
@@ -550,7 +610,7 @@
                 node.params.push(r);
             });
 
-            $("#node-input-query").val(this.editor.getValue());
+            node.query = this.editor.getValue();
             delete this.editor;
         },
         oneditresize: function (size) {
@@ -573,7 +633,6 @@
             $(".node-input-item-property-name").typedInput("width", Math.round(p1));
             $(".node-input-item-property-type").typedInput("width", Math.round(p2));
             $(".node-input-item-property-value").typedInput("width", Math.round(p3));
-
         }
     });
 </script>
