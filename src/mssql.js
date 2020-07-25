@@ -131,8 +131,8 @@ module.exports = function (RED) {
         
 
         node.config = {
-            user: node.credentials ? node.credentials.username : "",
-            password: node.credentials ? node.credentials.password : "",
+            user: (node.credentials ? node.credentials.username : "") || "",
+            password: (node.credentials ? node.credentials.password : "")  || "",
             domain: node.credentials ? node.credentials.domain : "",
             server: config.server,
             database: config.database,
