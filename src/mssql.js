@@ -146,7 +146,7 @@ module.exports = function (RED) {
                 cancelTimeout: config.cancelTimeout ? safeParseInt(config.cancelTimeout, 5000) : undefined,
                 camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
                 parseJSON: config.parseJSON,
-                enableArithAbort: true, //consider adding UI option
+                enableArithAbort: config.enableArithAbort == "false" ? false : true, //defaults to true. consider adding UI option
             },
             pool: {
                 max: safeParseInt(config.pool, 5),
