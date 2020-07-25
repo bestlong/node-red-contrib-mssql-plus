@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-mssql-plus",
   "version": "0.5.0-beta.1",
-  "description": "Node for node-red to connect to a Microsoft MS SQL Database",
+  "description": "A node-red node to connect to Microsoft MS SQL Server and Azure Databases",
   "main": "odbc.js",
   "dependencies": {
     "mssql": "^6.2.0",

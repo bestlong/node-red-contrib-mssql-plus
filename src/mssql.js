@@ -197,8 +197,8 @@ module.exports = function (RED) {
 
 
         node.config = {
-            user: node.credentials ? node.credentials.username : "",
-            password: node.credentials ? node.credentials.password : "",
+            user: (node.credentials ? node.credentials.username : "") || "",
+            password: (node.credentials ? node.credentials.password : "")  || "",
             domain: node.credentials ? node.credentials.domain : "",
             server: config.server,
             database: config.database,
@@ -212,6 +212,7 @@ module.exports = function (RED) {
                 cancelTimeout: config.cancelTimeout ? safeParseInt(config.cancelTimeout, 5000) : undefined,
                 camelCaseColumns: config.camelCaseColumns == "true" ? true : undefined,
                 parseJSON: config.parseJSON,
+                enableArithAbort: config.enableArithAbort == "false" ? false : true, //defaults to true. consider adding UI option
             },
             pool: {
                 max: safeParseInt(config.pool, 5),
