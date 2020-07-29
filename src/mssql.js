@@ -210,6 +210,8 @@ module.exports = function (RED) {
                 connectTimeout: config.connectTimeout ? safeParseInt(config.connectTimeout, 15000) : undefined,
                 requestTimeout: config.requestTimeout ? safeParseInt(config.requestTimeout, 15000) : undefined,
                 cancelTimeout: config.cancelTimeout ? safeParseInt(config.cancelTimeout, 5000) : undefined,
+                camelCaseColumns: (config.camelCaseColumns === "true" || config.camelCaseColumns === true) ? true : undefined, //defaults to undefined. 
+                parseJSON: (config.parseJSON === "true" || config.parseJSON === true) ? true : false, //defaults to true. 
                 enableArithAbort: (config.enableArithAbort === "false" || config.enableArithAbort === false) ? false : true, //defaults to true. 
             },
             pool: {
