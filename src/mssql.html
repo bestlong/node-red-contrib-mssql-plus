@@ -1,3 +1,15 @@
+<style>
+    .mssql-plus-form-row>label {
+        width: 125px !important;
+    }
+    .mssql-plus-form-row>select {
+        width: 70% !important;
+    }
+    div.form-row.mssql-plus-form-row input[type="checkbox"]{
+        width: unset;
+    }
+</style>
+
 <script type="text/html" data-help-name="MSSQL-CN">
     <p>Config node for Node-RED to MS SQL</p>
     <h4>Connection setup</h4>
@@ -13,35 +25,35 @@
   </script>
 
 <script type="text/html" data-template-name="MSSQL-CN">
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
           <input type="text" id="node-config-input-name" placeholder="Connection Name">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-server"><i class="fa fa-server"></i> Server</label>
           <input type="text" id="node-config-input-server" placeholder="Server name or IP">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-port"><i class="fa fa-random"></i> Port</label>
           <input type="text" id="node-config-input-port" placeholder="Port">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
           <input type="text" id="node-config-input-username">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
           <input type="password" id="node-config-input-password">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-domain"><i class="fa fa-user"></i> Domain</label>
           <input type="text" id="node-config-input-domain">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-database"><i class="fa fa-database"></i> Database</label>
           <input type="text" id="node-config-input-database">
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-tdsVersion"><i class="fa fa-list"></i> TDS Version</label>
           <select id="node-config-input-tdsVersion">
               <option value="7_4">7_4 (SQL Server 2012 ~ 2019)</option>
@@ -51,36 +63,36 @@
               <option value="7_1">7_1 (SQL Server 2000)</option>
           </select>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-encyption"><i class="fa fa-lock"></i> Use Encryption?</label>
           <input type="checkbox" id="node-config-input-encyption">
           <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
           <input type="checkbox" id="node-config-input-useUTC">
           <div class="form-tips">Pass time values in UTC or local time.</div>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> Connect Timeout</label>
           <input type="text" id="node-config-input-connectTimeout">
           <div class="form-tips">The number of milliseconds before the attempt to connect is considered failed.</div>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> Request Timeout</label>
           <input type="text" id="node-config-input-requestTimeout">
           <div class="form-tips">The number of milliseconds before a request is considered failed, or 0 for no timeout.</div>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> Cancel Timeout</label>
           <input type="text" id="node-config-input-cancelTimeout">
           <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
       </div>
-      <div class="form-row">
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
           <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
       </div>
-    <div class="form-row">
+    <div class="form-row mssql-plus-form-row">
         <label for="node-config-input-parseJSON"><i class="fa fa-file-o"></i> JSON Support?</label>
         <input type="checkbox" id="node-config-input-parseJSON">
     </div>
