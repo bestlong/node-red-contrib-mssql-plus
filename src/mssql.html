@@ -355,6 +355,17 @@
 
 <script type="text/javascript">
 (function(){
+    var paramsHeight = 120;
+    function resizeParameters(){
+        var paramsWidth = $('#node-input-params-container').width();
+        paramsWidth -= (28 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28);//remove outer padding, margins & input/output width
+        var p1 = Math.max(((paramsWidth / 3) -20), 80);
+        var p2 = Math.max(p1 - 20, 80);
+        var p3 = Math.max(paramsWidth - (p1 + p2), 80);
+        $("#node-input-params-container .node-input-item-property-name").typedInput("width", Math.round(p1));
+        $("#node-input-params-container .node-input-item-property-type").typedInput("width", Math.round(p2));
+        $("#node-input-params-container .node-input-item-property-value").typedInput("width", Math.round(p3));
+    }
     RED.nodes.registerType('MSSQL', {
         category: 'storage',
         color: "#C0DEED",
@@ -493,9 +504,10 @@
             //Parameters Editor...
             $('#node-input-params-container').css('min-height', '120px').css('min-width', '520px').editableList({
                 addItem: function (container, i, opt) {
-                    var rule = opt;
-                    if (!rule.hasOwnProperty('type') || !rule.hasOwnProperty('name')) {
+                    var rule = opt, isNew = false;
+                    if (!rule.hasOwnProperty('type') && !rule.hasOwnProperty('name')) {
                         rule = { type: "int", name: "param" + (i + 1), value: 0, valueType: "num", output: false };
+                        isNew = true;
                     }
 
                     container.css({
@@ -595,6 +607,8 @@
                     inoutField.typedInput('type', (rule.output == "true" || rule.output == true) ? "output" : "input");
 
                     container[0].appendChild(fragment);
+                    
+                    if(isNew) resizeParameters();//cause newly added row to size correctly.
                 },
                 removable: true,
                 sortable: true
@@ -604,11 +618,20 @@
                 var item = this.params[i];
                 $("#node-input-params-container").editableList('addItem', item);
             }
+
+            //try to maintain user set height for parameters window
+            var paramsContainer = $("#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container");
+            paramsContainer.css("resize","vertical");
+            paramsContainer.css("min-height",120);
+            paramsHeight = Math.max(120,paramsHeight);
+            paramsContainer.css("height",paramsHeight);
+            resizeParameters();
         },
         oneditsave: function () {
             var node = this;
             node.params = [];
-
+            var paramsContainer = $("#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container");
+            paramsHeight = Math.max(120,paramsContainer.height());
             var items = $("#node-input-params-container").editableList('items');
             items.each(function (i) {
                 var rule = $(this);
@@ -639,15 +662,7 @@
             var h = Math.max(height, 60);
             $(".node-text-editor").css("height", h + "px");
             this.editor.resize();
-
-            var paramsWidth = $('#node-input-params-container').width();
-            paramsWidth -= (22 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28);//remove outer padding, margins & input/output width
-            var p1 = paramsWidth / 3
-            var p2 = p1;
-            var p3 = paramsWidth - (p1 + p2)
-            $(".node-input-item-property-name").typedInput("width", Math.round(p1));
-            $(".node-input-item-property-type").typedInput("width", Math.round(p2));
-            $(".node-input-item-property-value").typedInput("width", Math.round(p3));
+            resizeParameters();
         }
     });
 })()    
