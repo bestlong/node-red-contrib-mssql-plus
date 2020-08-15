@@ -1,13 +1,17 @@
 # node-red-contrib-mssql-plus
 
-A [Node-RED](http://nodered.org) node for connecting to Microsoft MS SQL Databases.
+A [Node-RED](http://nodered.org) to execute queries and stored procedures in Microsoft MS SQL Server and Azure Databases SQL2000 ~ SQL2019.
 
 Importantly, this package comes with pre-built linux drivers for communicating with the Azure & MS SQL services (using TDS protocol), removing the need to set-up environment level MSSQL (or similar) drivers.
 
+## Screen shot
+![image](https://user-images.githubusercontent.com/44235289/87884584-14287900-ca07-11ea-8825-0030943f3c4a.png)
+
+
 ## Features include...
-* Connect to multiple SQL Servers from SQL2000 ~ 2019
+* Connect to multiple SQL Servers and Azure databases from SQL2000 ~ 2019
 * Perform multiple queries in one go & get back multiple recordsets (depends on the queries sent)
-* Supports stored procedures
+* Supports stored procedure execute
 * Use env vars in the config node for all fields (including credentials). e.g...
   * Server `{{{SQL_IP}}}`
   * Password `{{{SQL_PW}}}`
@@ -67,9 +71,6 @@ flow...
 ``` json
 [{"id":"61625aaf.479d84","type":"inject","z":"595a5dd5.a963a4","name":"{\"count\": 5, \"age\": 35}","topic":"","payload":"{\"count\": 5, \"age\": 35}","payloadType":"json","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":220,"y":320,"wires":[["6e09980a.127878"]]},{"id":"6e09980a.127878","type":"MSSQL","z":"595a5dd5.a963a4","mssqlCN":"a51e405c.10f64","name":"","outField":"payload","returnType":"1","throwErrors":"0","query":"PRINT @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Name = @name\n\nSELECT TOP {{{payload.count}}} * \nFROM testdb.dbo.[MyTable] WHERE Age = @age\n\nPRINT 'complete'","modeOpt":"","modeOptType":"query","queryOpt":"","queryOptType":"editor","paramsOpt":"","paramsOptType":"editor","params":[{"output":false,"name":"name","type":"VarChar(20)","valueType":"str","value":"stephen"},{"output":false,"name":"age","type":"int","valueType":"msg","value":"payload.age"}],"x":260,"y":380,"wires":[["babb6d0.5ae7e9"]]},{"id":"babb6d0.5ae7e9","type":"debug","z":"595a5dd5.a963a4","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","x":270,"y":440,"wires":[]},{"id":"a51e405c.10f64","type":"MSSQL-CN","z":"","tdsVersion":"7_4","name":"My SQL Server","server":"192.168.1.38","port":"1433","encyption":false,"database":"testdb","useUTC":false,"connectTimeout":"15000","requestTimeout":"15000","cancelTimeout":"5000","pool":"5","parseJSON":false}]
 ```
-
-## Screen shot
-![image](https://user-images.githubusercontent.com/44235289/87884584-14287900-ca07-11ea-8825-0030943f3c4a.png)
 
 ## Other
 
