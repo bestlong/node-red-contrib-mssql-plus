@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-mssql-plus",
-  "version": "0.5.0-beta.2",
-  "description": "A node-red node to connect to Microsoft MS SQL Server and Azure Databases",
+  "version": "0.5.0",
+  "description": "A node-red node to execute queries and stored procedures in Microsoft MS SQL Server and Azure Databases SQL2000 ~ SQL2019",
   "main": "odbc.js",
   "dependencies": {
     "mssql": "^6.2.1",
@@ -37,7 +37,8 @@
     "sql",
     "Microsoft",
     "database",
-    "sql-server"
+    "sql-server",
+    "azure"
   ],
   "author": "Redconnect.io",
   "contributors": [
