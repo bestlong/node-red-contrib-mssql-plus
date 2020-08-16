@@ -1,0 +1,59 @@
+{
+    "mssql": {
+        "common": {
+            "editor": "Editor",
+            "query": "Query",
+            "execute_procedure": "Execute Procedure"            
+        },
+        "node": {
+            "label": {
+                "name": "Name",
+                "connection": "Connection",
+                "query_mode": "Query mode",
+                "query": "Query",
+                "parameters": "Parameters",
+                "output_property": "Output property",
+                "output_type": "Output type",
+                "output_type_original": "Original output",
+                "output_type_driver": "Driver output",
+                "error_handling": "Error Handling",
+                "error_handling_send_in_msg": "Send in msg.error",
+                "error_handling_throw": "Throw error"
+            }
+        },
+        "connection": {
+            "label": {
+                "name": "Name",
+                "name_ph": "Connection Name",
+                "server": "Server",
+                "server_ph": "Server name or IP",
+                "port": "Port",
+                "username": "Username",
+                "password": "Password",
+                "domain": "Domain",
+                "database": "Database",
+                "tds": {
+                    "title": "TDS Version",
+                    "v7_4": "7_4 (SQL Server 2012 ~ 2019)",
+                    "v7_3_b": "7_3_B (SQL Server 2008R2)",
+                    "v7_3_a": "7_3_A (SQL Server 2008)",
+                    "v7_2": "7_2 (SQL Server 2005)",
+                    "v7_1": "7_1 (SQL Server 2000)"
+                },
+                "encryption": "Use Encryption?",
+                "encryption_tip": "SQL Databases hosted on Azure will need this checked.",
+                "utc": "Assume UTC?",
+                "utc_tip": "Pass time values in UTC or local time.",
+                "connect_timeout": "Connect Timeout",
+                "connect_timeout_tip": "The number of milliseconds before the attempt to connect is considered failed.",
+                "request_timeout": "Request Timeout",
+                "request_timeout_tip": "The number of milliseconds before a request is considered failed, or 0 for no timeout.",
+                "cancel_timeout": "Cancel Timeout",
+                "cancel_timeout_tip": "The number of milliseconds before the cancel (abort) of a request is considered failed.",
+                "max_pool_size": "Max Pool Size",
+                "arith_abort": "ARITHABORT?",
+                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."
+            }
+        }
+    }
+}
