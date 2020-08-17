@@ -1,6 +1,6 @@
 # node-red-contrib-mssql-plus
 
-A [Node-RED](http://nodered.org) to execute queries and stored procedures in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019.
+A [Node-RED](http://nodered.org) node to execute queries and stored procedures in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019.
 
 Importantly, this package comes with pre-built linux drivers for communicating with the Azure & MS SQL services (using TDS protocol), removing the need to set-up environment level MSSQL (or similar) drivers.
 
