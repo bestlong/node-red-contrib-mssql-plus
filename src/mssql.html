@@ -197,7 +197,10 @@
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-queryOpt"><i class="fa fa-comments"></i> Query</label>
         <input type="hidden" id="node-input-queryOptType">
-        <input type="text" id="node-input-queryOpt" style="width: 70%" placeholder="payload">
+        <input type="text" id="node-input-queryOpt" style="width: calc(70% - 20px)" placeholder="payload">
+        <div style="float: right;position: relative;margin-top: 14px;">
+            <button id="node-query-expand" class="editor-button editor-button-small" title="Expand query editor"><i class="fa fa-expand"></i></button>
+        </div>
     </div>
     <div class="form-row node-text-editor-row" style="min-height: 60px; margin-top: -6px;">
         <div style="height: 60px;"  class="node-text-editor" id="node-sql-query-editor" ></div>
@@ -405,7 +408,7 @@
                 value: "queryParams"
             },
             paramsOptType: {
-                value: "editor"
+                value: "none"
             },
             params: {
                 value: []
@@ -454,11 +457,12 @@
             var paramsField =$("#node-input-paramsOpt").typedInput(
                 {
                     types:[
+                        { value:"none", label: "None",  hasValue:false },
                         { value:"editor", label: "Editor",  hasValue:false },
                         'msg', 'flow', 'global'/*, 'env'*/
                     ],
                     typeField: $("#node-input-paramsOptType"),
-                    default:"editor"
+                    default:"none"
                 });
             var outField =$("#node-input-outField").typedInput(
                 {
@@ -473,7 +477,13 @@
                 if(type == "editor")
                     $(".form-row.node-text-editor-row").show();
                 else
-                    $(".form-row.node-text-editor-row").hide();                            
+                    $(".form-row.node-text-editor-row").hide();
+                RED.tray.resize(); 
+                if(type == "editor") {
+                    $("#node-query-expand").show();
+                } else {
+                    $("#node-query-expand").hide();
+                }
             });
             //show/hide parameter list depending on queryMode
             paramsField.on("change", function() {
@@ -481,9 +491,30 @@
                 if(type == "editor")
                     $(".form-row.node-input-params-container-row").show();
                 else
-                    $(".form-row.node-input-params-container-row").hide();                            
+                    $(".form-row.node-input-params-container-row").hide();
+                RED.tray.resize();                      
             });
 
+            $("#node-query-expand").click(function(e) {
+                e.preventDefault();
+                var value = node.editor.getValue();
+                RED.editor.editJavaScript({
+                    title: "Edit SQL Query",
+                    value: value,
+                    width: "Infinity",
+                    cursor: node.editor.getCursorPosition(),
+                    mode: "ace/mode/sql",
+                    complete: function(v,cursor) {
+                        node.editor.setValue(v, -1);
+                        node.editor.gotoLine(cursor.row+1,cursor.column,false);
+                        setTimeout(function() {
+                            node.editor.focus();
+                        },300);
+                    }
+                })
+            })
+
+            
             // *** compatibility defaults ***
             //if node.query is empty, the user would probably have been sending the  
             //      query in via msg.payload - so, lets set the typedInput to msg.payload;
@@ -653,10 +684,14 @@
             delete this.editor;
         },
         oneditresize: function (size) {
+            console.log("mssql-onresize")
             var rows = $("#dialog-form>div:not(.node-text-editor-row)");
             var height = $("#dialog-form").height();
+            var row;
             for (var i = 0; i < rows.size(); i++) {
-                height -= $(rows[i]).outerHeight(true);
+                row = $(rows[i]);
+                if(row && row.is(":hidden")) continue;
+                height -= row.outerHeight(true);
             }
             var editorRow = $("#dialog-form>div.node-text-editor-row");
             height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));

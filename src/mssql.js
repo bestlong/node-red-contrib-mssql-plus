@@ -381,7 +381,7 @@ module.exports = function (RED) {
         node.queryOpt = config.queryOpt;
         node.queryOptType = config.queryOptType || "editor";
         node.paramsOpt = config.paramsOpt;
-        node.paramsOptType = config.paramsOptType || "editor";
+        node.paramsOptType = config.paramsOptType || "none";
 
         var setResult = function (msg, field, value, returnType = 0) {
             let setValue = returnType == 1 ? value : value && value.recordset;
@@ -511,7 +511,9 @@ module.exports = function (RED) {
             }
 
             var queryParams = [];
-            if(!node.paramsOptType || node.queryOptType == "editor") {
+            if(node.paramsOptType == "none") { 
+                //no params
+            } else if(!node.paramsOptType || node.queryOptType == "editor") {
                 let _params = node.params || [];
                 for (let iParam = 0; iParam < _params.length; iParam++) {
                     let param = RED.util.cloneMessage(_params[iParam]);
@@ -545,7 +547,7 @@ module.exports = function (RED) {
                     }
                 });
             }
-
+            
             msg.query = query;
             msg.queryMode = queryMode;
             msg.queryParams = queryParams || [];
