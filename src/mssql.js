@@ -206,6 +206,7 @@ module.exports = function (RED) {
                 port: config.port ? safeParseInt(config.port, 1433) : undefined,
                 tdsVersion: config.tdsVersion || "7_4",
                 encrypt: config.encyption,
+                trustServerCertificate: config.trustServerCertificate,
                 useUTC: config.useUTC,
                 connectTimeout: config.connectTimeout ? safeParseInt(config.connectTimeout, 15000) : undefined,
                 requestTimeout: config.requestTimeout ? safeParseInt(config.requestTimeout, 15000) : undefined,

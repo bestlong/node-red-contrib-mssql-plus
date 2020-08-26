@@ -69,6 +69,11 @@
           <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
       </div>
       <div class="form-row mssql-plus-form-row">
+        <label for="node-config-input-trustServerCertificate"><i class="fa fa-lock"></i> Trust Server Certificate?</label>
+        <input type="checkbox" id="node-config-input-trustServerCertificate">
+        <div class="form-tips">Permits connecting to a server that presents an otherwise untrusted certificate</div>
+    </div>
+      <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
           <input type="checkbox" id="node-config-input-useUTC">
           <div class="form-tips">Pass time values in UTC or local time.</div>
@@ -123,6 +128,9 @@
             },
             encyption: {
                 value: true
+            },
+            trustServerCertificate: {
+                value: false
             },
             database: {
                 value: "",
