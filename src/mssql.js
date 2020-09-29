@@ -3,6 +3,51 @@ module.exports = function (RED) {
     var mustache = require('mustache');
     const sql = require('mssql');
 
+    const UUID = (function(){
+        const crypto = require('crypto');
+        //isValid routine developed based on \tedious\lib\guid-parser.js
+        //checking the guid in this node BEFORE calling pool.query() 
+        //prevents an exception that I cannot catch in tedious
+        const CHARCODEMAP = {};
+        const hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'].map(d => d.charCodeAt(0));
+        for (let i = 0; i < hexDigits.length; i++) {
+          const map = CHARCODEMAP[hexDigits[i]] = {};
+          for (let j = 0; j < hexDigits.length; j++) {
+            const hex = String.fromCharCode(hexDigits[i], hexDigits[j]);
+            const value = parseInt(hex, 16);
+            map[hexDigits[j]] = value;
+          }
+        }
+        return {
+            /**
+             * Tests a string to ensude it is a valid RFC4122 UUID. 
+             * @param {string} guid  
+             * @returns {boolean} true if valid
+             */
+            isValid: function (guid) {
+                try {
+                    return Array.isArray( [CHARCODEMAP[guid.charCodeAt(6)][guid.charCodeAt(7)], CHARCODEMAP[guid.charCodeAt(4)][guid.charCodeAt(5)], CHARCODEMAP[guid.charCodeAt(2)][guid.charCodeAt(3)], CHARCODEMAP[guid.charCodeAt(0)][guid.charCodeAt(1)], CHARCODEMAP[guid.charCodeAt(11)][guid.charCodeAt(12)], CHARCODEMAP[guid.charCodeAt(9)][guid.charCodeAt(10)], CHARCODEMAP[guid.charCodeAt(16)][guid.charCodeAt(17)], CHARCODEMAP[guid.charCodeAt(14)][guid.charCodeAt(15)], CHARCODEMAP[guid.charCodeAt(19)][guid.charCodeAt(20)], CHARCODEMAP[guid.charCodeAt(21)][guid.charCodeAt(22)], CHARCODEMAP[guid.charCodeAt(24)][guid.charCodeAt(25)], CHARCODEMAP[guid.charCodeAt(26)][guid.charCodeAt(27)], CHARCODEMAP[guid.charCodeAt(28)][guid.charCodeAt(29)], CHARCODEMAP[guid.charCodeAt(30)][guid.charCodeAt(31)], CHARCODEMAP[guid.charCodeAt(32)][guid.charCodeAt(33)], CHARCODEMAP[guid.charCodeAt(34)][guid.charCodeAt(35)]]);
+                } catch (error) {
+                    return false
+                }
+            },
+            /**
+             * Generates a V4 RFC4122 UUID.  
+             * @returns {string} UUID
+             */
+            v4 : function() {
+                var buf = crypto.randomBytes(32);
+                var idx = 0;
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = buf[idx++]&0xf;
+                    var v = c == 'x' ? r : (r&0x3|0x8);
+                    return v.toString(16);
+                });
+            }      
+        }
+    })();
+    
+    
     /**
      * extractTokens - borrowed from @0node-red/nodes/core/core/80-template.js
      */
@@ -326,11 +371,10 @@ module.exports = function (RED) {
                     }
                 }
                 if (queryMode == "execute") {
-                    return req.execute(sqlQuery);
+                    return req.execute(sqlQuery);                        
                 } else {
                     return req.query(sqlQuery);
                 }
-
             }).then(result => {
                 callback(null, result, _info);
             }).catch(e => {
@@ -417,6 +461,11 @@ module.exports = function (RED) {
             }
             if(!p.output && !('value' in p)) {
                 throw new Error("Input parameter '" + p.name + "' does not have a value propery");
+            }
+            if(p.type && p.type.toLowerCase() == "uniqueidentifier") {
+                if(!UUID.isValid(p.value)) {
+                    throw new Error("Uniqueidentifier is not valid")
+                }
             }
             return true;
         }
@@ -518,15 +567,25 @@ module.exports = function (RED) {
                 for (let iParam = 0; iParam < _params.length; iParam++) {
                     let param = RED.util.cloneMessage(_params[iParam]);
                     if(param.output == false) {
-                        RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
-                            if (err) {
-                                let errmsg = `Unable to evaluate value for parameter at index [${iParam}] named '${param.name}'`
-                                node.processError(errmsg, msg);
-                                return;//halt flow!
-                            } else {
-                                param.value = value;
-                            }
-                        });                    
+                        if(param.valueType === "jsEpoch") {
+                            param.value = Date.now();
+                        } else if(param.valueType === "unixEpoch") {
+                            param.value = Math.floor(Date.now() / 1000);
+                        } else if(param.valueType === "datetime") {
+                            param.value = new Date();
+                        } else if(param.valueType === "uuidv4") {
+                            param.value = UUID.v4();
+                        } else {
+                            RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
+                                if (err) {
+                                    let errmsg = `Unable to evaluate value for parameter at index [${iParam}] named '${param.name}'`
+                                    node.processError(errmsg, msg);
+                                    return;//halt flow!
+                                } else {
+                                    param.value = value;
+                                }
+                            });
+                        }
                     } 
                     queryParams.push(param);
                 }

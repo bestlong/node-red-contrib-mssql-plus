@@ -566,7 +566,28 @@
                     let row1_3 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row-item" }).appendTo(row1);
                     let valueField = $('<input/>', { class: "node-input-item-property-value", type: "text", width: "140px" })
                         .appendTo(row1_3)
-                        .typedInput({ types: ['str', 'num', 'json', 'bin', 'msg', 'flow', 'global'], default: 'num' })
+                        .typedInput({ types: ['msg', 'flow', 'global', 'str', 'num', 'bool', 'json', 'bin', 'jsonata', "env", 
+                        {
+                                icon: "fa fa-clock-o",
+                                value:"jsEpoch",
+                                label:"Epoch (JS)",
+                                hasValue: false 
+                            },{
+                                icon: "fa fa-clock-o",
+                                value:"unixEpoch",
+                                label:"Epoch (Unix)",
+                                hasValue: false 
+                            },{
+                                icon: "fa fa-clock-o",
+                                value:"datetime",
+                                label:"Datetime (now)",
+                                hasValue: false 
+                            },{
+                                icon: "fa fa-asterisk",
+                                value:"uuidv4",
+                                label:"uuid (v4)",
+                                hasValue: false 
+                            }], default: 'num' })
 
                     inoutField.on("change", function (o) {
                         var t = $(this).typedInput("type");
