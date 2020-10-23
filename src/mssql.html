@@ -612,7 +612,9 @@
                         "Bit",
                         "Float",
                         "Numeric",
+                        "Numeric(?,?)",
                         "Decimal",
+                        "Decimal(?,?)",
                         "Real",
                         "Date",
                         "DateTime",
@@ -651,7 +653,7 @@
                     nameField.typedInput('value', rule.name || ("param" + (i + 1)));
 
                     typeField.typedInput('type', "str");
-                    typeField.typedInput('value', rule.type || "int");
+                    typeField.typedInput('value', rule.type || "");
 
                     valueField.typedInput('type', rule.valueType || "num");
                     valueField.typedInput('value', rule.value || 0);
@@ -690,7 +692,7 @@
                 var r = {};
                 r.output = rule.find(".node-input-item-property-inout").typedInput("type") == "output";
                 r.name = rule.find(".node-input-item-property-name").val() || "param" + (i + 1);
-                r.type = rule.find(".node-input-item-property-type").val() || "int";
+                r.type = rule.find(".node-input-item-property-type").val() || "";
                 if (r.output) {
                     //exclude value
                 } else {
