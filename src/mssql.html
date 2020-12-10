@@ -278,9 +278,9 @@
         <p>Node for Node-RED to MS SQL</p>
         <h3>Query Mode...</h3>
         <div style="padding-left: 15px;">
-            <p>Select the execution mode, this can be "Query" or "Stored procedure"</p>
+            <p>Select the execution mode, this can be "Query", "Stored procedure" or "Bulk Insert"</p>
             <div class="form-tips" style="width: 100%">
-                TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query" or "execute"
+                TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query", "execute" or "bulk"
             </div>
             <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
             </p>
@@ -301,7 +301,7 @@
                     <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
                 </ul>
             </p>
-            <div class="form-tips" style="width: 100%">TIPS...
+            <div class="form-tips" style="width: 100%">Query mode tips...
                 <ul>
                     <li>To access <code>msg</code> properties, just use the variable name. e.g.
                         <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
@@ -310,6 +310,18 @@
                         <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
                     <li>To prevent certain characters being escaped, use triple curly brackets. e.g. 
                         <code>{{{flow.my_string}}}</code> </li>
+                </ul>
+            </div>
+            <div class="form-tips" style="width: 100%">Execute tips...
+                <ul>
+                    <li>The query should be just the name of the stored procedure (don't include <code>exec</code>)</li>
+                    <li>Parameters can be entered in the query but are not necessary. Just Enter the matching parameter name in the <code>Parameters</code> list </li>
+                </ul>
+            </div>
+            <div class="form-tips" style="width: 100%">Bulk Insert tips...
+                <ul>
+                    <li>The query should be just the name table to bulk insert into</li>
+                    <li>Data to bulk insert must be provided in <code>rows</code> and must be an array of arrays e.g. <code>[ [row1_col1, row1_col2], [row2_col1, row2_col2] ]</code></li>
                 </ul>
             </div>
 
@@ -326,7 +338,7 @@
         
         <h3>Parameters...</h3>
         <div style="padding-left: 15px;">
-            <p>Input and Output Parameters can be specified for the query.</p>
+            <p>Input and Output Parameters can be specified for a query or procedure. In bulk mode, the parameters represent the columns of the table</p>
             <div class="form-tips" style="width: 100%">
                 TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
                 <code><pre style="white-space: pre;">[
