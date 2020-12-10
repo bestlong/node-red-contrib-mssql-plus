@@ -242,12 +242,17 @@
         <div style="height: 60px;"  class="node-text-editor" id="node-sql-query-editor" ></div>
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label><i class="fa fa-list-alt"></i> Parameters</label>
+        <label><i class="fa fa-list-alt"></i> <span id="mssql-plus-params-label">Parameters</span></label>
         <input type="hidden" id="node-input-paramsOptType">
         <input type="text" id="node-input-paramsOpt" style="width: 70%" placeholder="queryParams">
     </div>
     <div class="form-row node-input-params-container-row" style="margin-top: -6px;">
         <ol id="node-input-params-container"></ol>
+    </div>
+    <div class="form-row mssql-plus-form-row bulk-data-input-row">
+        <label for="node-input-rows"><i class="fa fa-table"></i> Rows (bulk data)</label>
+        <input type="hidden" id="node-input-rowsType">
+        <input type="text" id="node-input-rows" placeholder="rows" style="width: 70%" dir=""> 
     </div>
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-outField"><i class="fa fa-sign-out"></i> Output property</label>
@@ -398,13 +403,20 @@
     var paramsHeight = 120;
     function resizeParameters(){
         var paramsWidth = $('#node-input-params-container').width();
+        var queryMode = $("#node-input-modeOpt").typedInput("type");
+        var hideVal = queryMode == "bulk";
         paramsWidth -= (28 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28);//remove outer padding, margins & input/output width
         var p1 = Math.max(((paramsWidth / 3) -20), 80);
         var p2 = Math.max(p1 - 20, 80);
         var p3 = Math.max(paramsWidth - (p1 + p2), 80);
+        if(hideVal) {
+            p1 += (p3/2);
+            p2 += (p3/2);
+        } else {
+            $("#node-input-params-container .node-input-item-property-value").typedInput("width", Math.round(p3));
+        }
         $("#node-input-params-container .node-input-item-property-name").typedInput("width", Math.round(p1));
         $("#node-input-params-container .node-input-item-property-type").typedInput("width", Math.round(p2));
-        $("#node-input-params-container .node-input-item-property-value").typedInput("width", Math.round(p3));
     }
     RED.nodes.registerType('MSSQL', {
         category: 'storage',
@@ -446,6 +458,12 @@
             paramsOptType: {
                 value: "none"
             },
+            rows: {
+                value: "rows"
+            },
+            rowsType: {
+                value: "msg"
+            },
             params: {
                 value: []
             }
@@ -471,42 +489,64 @@
                 value: node.query // $("#node-input-query").val()
             });
             //create typedInput widgets
-            var modeField = $("#node-input-modeOpt").typedInput(
-                {
-                    types:[
-                        { value:"query", label: "Query",  hasValue:false },
-                        { value:"execute", label: "Execute Procedure",  hasValue:false },
-                        'msg', 'flow', 'global', 'env'            
-                    ],
-                    typeField: $("#node-input-modeOptType"),
-                    default:"query"
-                });
-            var queryField =$("#node-input-queryOpt").typedInput(
-                {
-                    types:[
-                        { value:"editor", label: "Editor",  hasValue:false },
-                        'msg', 'flow', 'global', 'env'            
-                    ],
-                    typeField: $("#node-input-queryOptType"),
-                    default:"editor"
-                });
-            var paramsField =$("#node-input-paramsOpt").typedInput(
-                {
-                    types:[
-                        { value:"none", label: "None",  hasValue:false },
-                        { value:"editor", label: "Editor",  hasValue:false },
-                        'msg', 'flow', 'global'/*, 'env'*/
-                    ],
-                    typeField: $("#node-input-paramsOptType"),
-                    default:"none"
-                });
-            var outField =$("#node-input-outField").typedInput(
-                {
-                    types:[
-                        { value:"str", label: "msg." }          
-                    ],
-                    default:"str"
-                });
+            var modeField = $("#node-input-modeOpt").typedInput({
+                types:[
+                    { value:"query", label: "Query",  hasValue:false },
+                    { value:"execute", label: "Execute Procedure",  hasValue:false },
+                    //FUTURE: { value:"prepared", label: "Prepared Statement",  hasValue:false },
+                    { value:"bulk", label: "Bulk Insert",  hasValue:false },
+                    'msg', 'flow', 'global', 'env'
+                ],
+                typeField: $("#node-input-modeOptType"),
+                default:"query"
+            });
+
+            var queryField =$("#node-input-queryOpt").typedInput({
+                types:[
+                    { value:"editor", label: "Editor",  hasValue:false },
+                    'msg', 'flow', 'global', 'env'            
+                ],
+                typeField: $("#node-input-queryOptType"),
+                default:"editor"
+            });
+            var paramsField =$("#node-input-paramsOpt").typedInput({
+                types:[
+                    { value:"none", label: "None",  hasValue:false },
+                    { value:"editor", label: "Editor",  hasValue:false },
+                    'msg', 'flow', 'global'/*, 'env'*/
+                ],
+                typeField: $("#node-input-paramsOptType"),
+                default:"none"
+            });
+            var rowsField = $("#node-input-rows").typedInput({
+                types:['msg', 'flow', 'global', 'json', 'jsonata'],
+                typeField: $("#node-input-rowsType"),
+                default:"msg"
+            });            
+            var outField =$("#node-input-outField").typedInput({
+                types:[
+                    { value:"str", label: "msg." }
+                ],
+                default:"str"
+            });
+            //show/hide rows field depending on query type
+            modeField.on("change", function() {
+                var queryMode = $(this).typedInput("type");
+                if (queryMode == "bulk") {
+                    $("#mssql-plus-params-label").text("Columns");
+                    $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").show();
+                    $("#node-input-params-container .node-input-item-property-value").typedInput("hide");
+                } else if (queryMode == "query" || queryMode == "execute") {
+                    $("#mssql-plus-params-label").text("Parameters");
+                    $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").hide();
+                    $("#node-input-params-container .node-input-item-property-value").typedInput("show");
+                } else {
+                    $("#mssql-plus-params-label").text("Params/Cols");
+                    $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").show();
+                    $("#node-input-params-container .node-input-item-property-value").typedInput("show");
+                }
+                RED.tray.resize(); 
+            });
             //show/hide editor depending on query source
             queryField.on("change", function() {
                 var type = $(this).typedInput("type");
@@ -572,6 +612,7 @@
             //Parameters Editor...
             $('#node-input-params-container').css('min-height', '120px').css('min-width', '520px').editableList({
                 addItem: function (container, i, opt) {
+                    var queryMode = modeField.typedInput("type");
                     var rule = opt, isNew = false;
                     if (!rule.hasOwnProperty('type') && !rule.hasOwnProperty('name')) {
                         rule = { type: "int", name: "param" + (i + 1), value: 0, valueType: "num", output: false };
@@ -625,6 +666,7 @@
                                 label:"uuid (v4)",
                                 hasValue: false 
                             }], default: 'num' })
+                    valueField.typedInput(queryMode == "bulk" ? "hide" : "show");
 
                     inoutField.on("change", function (o) {
                         var t = $(this).typedInput("type");

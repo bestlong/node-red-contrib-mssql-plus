@@ -278,36 +278,33 @@ module.exports = function (RED) {
 
         node.connectedNodes = [];
 
-        node.connectionCleanup = function () {
+        node.connectionCleanup = function (quiet) {
+            var updateStatusAndLog = !quiet;
             try {
-                if (node.pool) {
-                    node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
-                    node.pool.then(_ => _.close()).catch(e => { console.error(e); });
+                if (node.poolConnect) {
+                    if (updateStatusAndLog) node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                    node.poolConnect.then(_ => _.close()).catch(e => { console.error(e); });
                 }
             }
             catch (error) {
             }
             try {
-                if (node.connectionPool) node.connectionPool.close();
+                if (node.pool) node.pool.close();
             }
             catch (error) {
             }
-            node.status({
-                fill: 'grey',
-                shape: 'dot',
-                text: 'disconnected'
-            });
-            node.pool = null;
+            if (updateStatusAndLog)  node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' });
+            node.poolConnect = null;
         }
 
-        node.connectionPool = new sql.ConnectionPool(node.config)
-        node.connectionPool.on('error', err => {
+        node.pool = new sql.ConnectionPool(node.config)
+        node.pool.on('error', err => {
             node.error(err);
             node.connectionCleanup();
         })
 
         node.connect = function () {
-            if (node.pool) {
+            if (node.poolConnect) {
                 return;
             }
             node.status({
@@ -315,28 +312,39 @@ module.exports = function (RED) {
                 shape: 'dot',
                 text: 'connecting'
             });
-            node.pool = node.connectionPool.connect()
-                .then(_ => {
-                    node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                    return _
-                }).catch(e => {
-                    node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                    throw e;
-                });
+            node.poolConnect = node.pool.connect();
+            return node.poolConnect;
         }
 
-        node.execSql = function (queryMode, sqlQuery, params, callback) {
-            node.connect();
-            var _info = [];
-            node.pool.then(_ => {
+        node.execSql = async function (queryMode, sqlQuery, params, paramValues, callback) {
+            const _info = [];
+            try {
+                var showConnected = !!node.poolConnect;
+                await node.connect();
+                if(showConnected & !!node.poolConnect) node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
+                
+                //FUTURE: let req =  queryMode == "prepared" ? new sql.PreparedStatement(node.pool) :  node.pool.request();
+                let req =  node.pool.request();
 
-                let req = _.request();
                 req.on('info', info => {
                     _info.push(info)
                 })
+                //If bulk mode, create a table & populate the rows
+                if (queryMode == "bulk") {
+                    var bulkTable = new sql.Table(sqlQuery);
+                    bulkTable.create = true;//table must be present
+                    for(let rx = 0; rx < paramValues.length; rx++) {
+                        bulkTable.rows.push(paramValues[rx]);
+                    }
+                }               
+                //setup params/columns
                 if (params && params.length) {
                     for (let index = 0; index < params.length; index++) {
                         let p = params[index];
+                        if (queryMode == "bulk") {
+                            bulkTable.columns.add(p.name, p.type);
+                            continue;
+                        }
                         if (p.output == true) {
                             if (p.type) {
                                 req.output(p.name, p.type);
@@ -371,18 +379,33 @@ module.exports = function (RED) {
                         }
                     }
                 }
-                if (queryMode == "execute") {
-                    return req.execute(sqlQuery);                        
-                } else {
-                    return req.query(sqlQuery);
+                let result;
+                switch (queryMode) {
+                    case "bulk":
+                        result = await req.bulk(bulkTable);                        
+                        break;
+                    case "execute":
+                        result = await req.execute(sqlQuery);                        
+                        break;
+                    // case "prepared": //FUTURE
+                    //     await req.prepare(sqlQuery);
+                    //     result = await req.execute(paramValues);
+                    //     await req.unprepare();
+                    //     break;
+                    default:
+                        result = await req.query(sqlQuery);
+                        break;
                 }
-            }).then(result => {
+
                 callback(null, result, _info);
-            }).catch(e => {
+
+            } catch (e) {
+                node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
                 console.error(e)
-                node.pool = null;
+                node.poolConnect = null;
                 callback(e);
-            })
+            }
+
         };
         node.disconnect = function (nodeId) {
             let index = node.connectedNodes.indexOf(nodeId);
@@ -427,6 +450,8 @@ module.exports = function (RED) {
         node.queryOptType = config.queryOptType || "editor";
         node.paramsOpt = config.paramsOpt;
         node.paramsOptType = config.paramsOptType || "none";
+        node.rows = config.rows || "rows";
+        node.rowsType = config.rowsType || "msg";
 
         var setResult = function (msg, field, value, returnType = 0) {
             let setValue = returnType == 1 ? value : value && value.recordset;
@@ -526,7 +551,7 @@ module.exports = function (RED) {
 
             //evaluate UI typedInput settings...
             var queryMode;
-            if(node.modeOptType == "query" || node.modeOptType=="execute") {
+            if (["query","execute",/*"prepared",*/"bulk"].includes(node.modeOptType)) {
                 queryMode = node.modeOptType;
             } else {
                 RED.util.evaluateNodeProperty(node.modeOpt, node.modeOptType, node, msg, (err, value) => {
@@ -540,8 +565,8 @@ module.exports = function (RED) {
                 });
             }
 
-            if(!["query","execute"].includes(queryMode)){
-                node.processError("Query mode is not valid. Supported options are 'query' and 'execute'.", msg);
+            if(!["query","execute",/*"prepared",*/"bulk"].includes(queryMode)){
+                node.processError("Query mode is not valid. Supported options are 'query', 'execute', 'bulk'.", msg);
                 return null;//halt flow
             }
 
@@ -560,7 +585,29 @@ module.exports = function (RED) {
                 });
             }
 
+            var rows = null;
+            if (queryMode == "bulk") {
+                if (node.paramsOptType == "none") {
+                    node.processError(`Columns must be provided in bulk mode`, msg);
+                    return;//halt flow!
+                }
+                RED.util.evaluateNodeProperty(node.rows, node.rowsType, node, msg, (err, value) => {
+                    if (err) {
+                        let errmsg = `Unable to evaluate rows field`
+                        node.processError(errmsg, msg);
+                        return;//halt flow!
+                    } else {
+                        rows = value;
+                    }
+                });
+                if (!rows || !Array.isArray(rows) || !rows.length || !Array.isArray(rows[0])) {
+                    node.processError(`In bulk mode, rows must be an array of arrays`, msg);
+                    return;//halt flow!
+                }
+            }
+
             var queryParams = [];
+            var queryParamValues = {};
             if(node.paramsOptType == "none") { 
                 //no params
             } else if(!node.paramsOptType || node.queryOptType == "editor") {
@@ -599,8 +646,7 @@ module.exports = function (RED) {
                     } else {
                         let _params = value || [];
                         for (let iParam = 0; iParam < _params.length; iParam++) {
-                            let param = RED.util.cloneMessage(_params[iParam]);
-                            delete param.valueType;
+                            let param = RED.util.cloneMessage(_params[iParam]);                 
                             queryParams.push(param);
                         }
                         
@@ -612,21 +658,29 @@ module.exports = function (RED) {
             msg.queryMode = queryMode;
             msg.queryParams = queryParams || [];
 
-            //now validate params, remove superflous properties & coerce type into sql.type
+            //now validate params, remove superfluous properties & coerce type into sql.type
             if(msg.queryParams && msg.queryParams.length){
                 for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
                     let param = msg.queryParams[iParam];
                     try {
                         validateQueryParam(param)
                         param.type = coerceType(param.type);
-                        if(param.output) delete param.value;
+                        if(param.output) {
+                            if (queryMode == "bulk") {
+                                node.processError(`Parameter at index [${iParam}] is not valid. Output parameter is not valid for bulk insert mode. ${error.message}.`, msg);
+                                return null;
+                            }
+                            delete param.value;
+                        } else {
+                            queryParamValues[param.name] = param.value;
+                        }
                         delete param.valueType;
                     } catch (error) {
                         node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg);
                         return null;
                     }
                 }
-            }          
+            }
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));
@@ -658,13 +712,14 @@ module.exports = function (RED) {
             Promise.all(promises).then(function () {
                 var value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
                 msg.query = value;
-                doSQL(node, msg);
+                let values = msg.queryMode == "bulk" ? rows : queryParamValues;
+                doSQL(node, msg, values);
             }).catch(function (err) {
                 node.processError(err, msg)
             });
         });
 
-        function doSQL(node, msg) {
+        function doSQL(node, msg, values) {
             node.status({
                 fill: 'blue',
                 shape: 'dot',
@@ -672,7 +727,7 @@ module.exports = function (RED) {
             });
 
             try {
-                mssqlCN.execSql(msg.queryMode, msg.query, msg.queryParams, function (err, data, info) {
+                mssqlCN.execSql(msg.queryMode, msg.query, msg.queryParams, values, function (err, data, info) {
                     if (err) {
                         node.processError(err, msg)
                     } else {
