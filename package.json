@@ -4,13 +4,13 @@
   "description": "A node-red node to execute queries and stored procedures in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019",
   "main": "odbc.js",
   "dependencies": {
-    "mssql": "^6.2.1",
+    "mssql": "^7.0.0-alpha",
     "mustache": "^4.0.1"
   },
   "devDependencies": {
-    "mocha": "^7.0.0",
+    "mocha": "^8.2.1",
     "node-red": "^1.0.3",
-    "node-red-node-test-helper": "^0.2.3",
+    "node-red-node-test-helper": "^0.2.5",
     "should": "^13.2.3"
   },
   "node-red": {
