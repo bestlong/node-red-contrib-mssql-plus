@@ -5,8 +5,21 @@
     .mssql-plus-form-row>select {
         width: 70% !important;
     }
-    div.form-row.mssql-plus-form-row input[type="checkbox"]{
+    div.form-row.mssql-plus-form-row > input[type="checkbox"]{
         width: unset;
+        margin-top: -2px;
+    }
+
+    div.form-row.mssql-plus-form-row > .form-tips {
+        width: calc(100% - 35px);
+    } 
+
+    .mssql-plus-row-item {
+        margin: 2px 4px 2px 2px;
+    }
+
+    .mssql-plus-row {
+        flex-wrap: wrap;
     }
 </style>
 
@@ -93,7 +106,7 @@
           <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
       </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-config-input-parseJSON"><i class="fa fa-file-o"></i> JSON Support?</label>
+        <label for="node-config-input-parseJSON"><span style="display: inline-block; font-family: monospace;">{}</span></i> JSON Support?</label>
         <input type="checkbox" id="node-config-input-parseJSON">
     </div>
     <div class="form-row mssql-plus-form-row">
@@ -174,6 +187,9 @@
                 }
             }
             return n;
+        },
+        oneditresize: function (size) {
+            $("div.form-row.mssql-plus-form-row > .form-tips").css("maxWidth","unset");
         }
     });
 </script>
@@ -196,20 +212,20 @@
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-queryOpt"><i class="fa fa-comments"></i> Query</label>
         <input type="hidden" id="node-input-queryOptType">
-        <input type="text" id="node-input-queryOpt" style="width: calc(70% - 20px)" placeholder="payload">
+        <input type="text" id="node-input-queryOpt" style="width: 70%" placeholder="payload">
         <div style="float: right;position: relative;margin-top: 14px;">
             <button id="node-query-expand" class="editor-button editor-button-small" title="Expand query editor"><i class="fa fa-expand"></i></button>
         </div>
     </div>
-    <div class="form-row node-text-editor-row" style="min-height: 60px; margin-top: -6px;">
+    <div class="form-row mssql-plus-form-row node-text-editor-row" style="min-height: 60px; margin-top: -6px;">
         <div style="height: 60px;"  class="node-text-editor" id="node-sql-query-editor" ></div>
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label><i class="fa fa-list-alt"></i> Parameters</label>
+        <label><i class="fa fa-list-alt"></i> <span id="mssql-plus-params-label">Parameters</span></label>
         <input type="hidden" id="node-input-paramsOptType">
         <input type="text" id="node-input-paramsOpt" style="width: 70%" placeholder="queryParams">
     </div>
-    <div class="form-row node-input-params-container-row" style="margin-top: -6px;">
+    <div class="form-row mssql-plus-form-row node-input-params-container-row" style="margin-top: -6px;">
         <ol id="node-input-params-container"></ol>
     </div>
     <div class="form-row mssql-plus-form-row">
@@ -546,24 +562,24 @@
                         whiteSpace: 'nowrap'
                     });
                     let fragment = document.createDocumentFragment();
-                    var row1 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row" }).appendTo(fragment);
+                    var row1 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row" }).appendTo(fragment);
 
-                    let row1_0 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row-item" }).appendTo(row1);
+                    let row1_0 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row1);
                     let inoutField = $('<input/>', { class: "node-input-item-property-inout", type: "text", width: "72px" })
                         .appendTo(row1_0)
                         .typedInput({ types: [{ label: "Input", value: "input", hasValue: false }, { label: "Output", value: "output", hasValue: false }] })
 
-                    let row1_1 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row-item" }).appendTo(row1);
+                    let row1_1 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row1);
                     let nameField = $('<input/>', { class: "node-input-item-property-name", type: "text", width: "112px" })
                         .appendTo(row1_1)
                         .typedInput({ types: [{ label: "Name", value: "str" }] })
 
-                    let row1_2 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row-item" }).appendTo(row1);
+                    let row1_2 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row1);
                     let typeField = $('<input/>', { class: "node-input-item-property-type", type: "text", width: "120px" })
                         .appendTo(row1_2)
                         .typedInput({ types: [{ label: "Type", value: "str" }] })
 
-                    let row1_3 = $('<div/>', { style: "display:flex;", class: "buffer-parser-row-item" }).appendTo(row1);
+                    let row1_3 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row1);
                     let valueField = $('<input/>', { class: "node-input-item-property-value", type: "text", width: "140px" })
                         .appendTo(row1_3)
                         .typedInput({ types: ['msg', 'flow', 'global', 'str', 'num', 'bool', 'json', 'bin', 'jsonata', "env", 

@@ -457,14 +457,14 @@ module.exports = function (RED) {
                 throw new Error("Parameter is not an object");
             }
             if(!p.name || typeof p.name !== "string") {
-                throw new Error("Parameter does not have a valid name propery");
+                throw new Error("Parameter does not have a valid name property");
             }
             if(!p.output && !('value' in p)) {
-                throw new Error("Input parameter '" + p.name + "' does not have a value propery");
+                throw new Error("Input parameter '" + p.name + "' does not have a value property");
             }
             if(p.type && p.type.toLowerCase() == "uniqueidentifier") {
                 if(!UUID.isValid(p.value)) {
-                    throw new Error("Uniqueidentifier is not valid")
+                    throw new Error("Unique identifier is not valid")
                 }
             }
             return true;
@@ -592,7 +592,7 @@ module.exports = function (RED) {
             } else {
                 RED.util.evaluateNodeProperty(node.paramsOpt, node.paramsOptType, node, msg, (err, value) => {
                     if (err) {
-                        let errmsg = `Unable to evaluate paramater choice`
+                        let errmsg = `Unable to evaluate parameter choice`
                         node.processError(errmsg, msg);
                         return;//halt flow!
                     } else {
@@ -611,7 +611,7 @@ module.exports = function (RED) {
             msg.queryMode = queryMode;
             msg.queryParams = queryParams || [];
 
-            //now validate params, remove superflous properties & coerce type into sql.type
+            //now validate params, remove superfluous properties & coerce type into sql.type
             if(msg.queryParams && msg.queryParams.length){
                 for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
                     let param = msg.queryParams[iParam];
@@ -625,7 +625,7 @@ module.exports = function (RED) {
                         return null;
                     }
                 }
-            }          
+            }
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));
