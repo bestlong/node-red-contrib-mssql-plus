@@ -534,13 +534,13 @@ module.exports = function (RED) {
                         node.processError(errmsg, msg);
                         return;//halt flow!
                     } else {
-                        queryMode = value || "query";
+                        queryMode = value || "";
                     }
                 });
             }
 
             if(!["query","execute"].includes(queryMode)){
-                node.processError("Query mode is not valid. Supported options are 'query' and 'execute'.", msg);
+                node.processError(`Query mode '${queryMode}' is not valid. Supported options are 'query' and 'execute'.`, msg);
                 return null;//halt flow
             }
 
