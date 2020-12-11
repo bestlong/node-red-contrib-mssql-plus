@@ -401,7 +401,7 @@
             <ul>
                 <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
             </ul>
-            <h4>Output type (Only valid for "Query" mode)</h4>
+            <h4>Output type (not used for "Bulk Insert" mode)</h4>
             <ul>
                 <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single recordset (if
                     any). This is the same as earlier mssql-plus version - for compatibility</li>
@@ -409,9 +409,6 @@
                     direct from the driver output. This format can return multiple recordsets and other information. Add a
                     debug node to see all available properties returned.</li>
             </ul>
-            <div class="form-tips" style="width: 100%">NOTE...
-                Output type is only applies when the Query mode is set to "query"
-            </div>
         </div>
         <h3>Error Handling...</h3>
         <div style="padding-left: 15px;">
