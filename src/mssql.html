@@ -520,6 +520,8 @@
                 }
                 RED.tray.resize(); 
             });
+            modeField.change();//cause the modeField on change to trigger
+
             //show/hide editor depending on query source
             queryField.on("change", function() {
                 var type = $(this).typedInput("type");
