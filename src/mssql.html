@@ -246,6 +246,27 @@
             <option value="1">Throw error</option>
         </select>
     </div>
+    <div class="mssql-plus-shameless-beta-request" style="display: none;">
+        <div style="
+            background-color: lightcyan; /* Changing background color */
+            font-weight: bold; /* Making font bold */
+            border-radius: 20px; /* Making border radius */
+            width: auto; /* Making auto-sizable width */
+            height: auto; /* Making auto-sizable height */
+            padding: 5px 30px 5px 30px; /* Making space around letters */
+            font-size: 18px; /* Changing font size */
+        ">
+                <h2>Bulk Insert mode</h2>
+                <h3>Shameless request for beta testers...</h3>
+                <div style="font-weight: 500;">
+                    Bulk Insert mode is implemented in version 0.7.0 beta but before I make the new features mainstream, I need testers and feedback. 
+                    <br><br>
+                    If you are able to help out, you can find installation instructions and provide feedback here: 
+                    <a href="https://bit.ly/3gCd8IA" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;color: blue;">
+                        https://discourse.nodered.org/t/updated-node-red-contrib-mssql-plus-0-7-0-beta-2-bulk-insert-support/37331</a>
+                </div>
+            </div>
+    </div>
 </script>
 
 <script type="text/html" data-help-name="MSSQL">
@@ -450,16 +471,17 @@
                 value: node.query // $("#node-input-query").val()
             });
             //create typedInput widgets
-            var modeField = $("#node-input-modeOpt").typedInput(
-                {
-                    types:[
-                        { value:"query", label: "Query",  hasValue:false },
-                        { value:"execute", label: "Execute Procedure",  hasValue:false },
-                        'msg', 'flow', 'global', 'env'            
-                    ],
-                    typeField: $("#node-input-modeOptType"),
-                    default:"query"
-                });
+            var modeField = $("#node-input-modeOpt").typedInput({
+                types:[
+                    { value:"query", label: "Query",  hasValue:false },
+                    { value:"execute", label: "Execute Procedure",  hasValue:false },
+                    //FUTURE: { value:"prepared", label: "Prepared Statement",  hasValue:false },
+                    { value:"bulk", label: "Bulk Insert",  hasValue:false },
+                    'msg', 'flow', 'global', 'env'
+                ],
+                typeField: $("#node-input-modeOptType"),
+                default:"query"
+            });
             var queryField =$("#node-input-queryOpt").typedInput(
                 {
                     types:[
@@ -486,6 +508,18 @@
                     ],
                     default:"str"
                 });
+            //show/hide rows field depending on query type
+            modeField.on("change", function() {
+                var queryMode = $(this).typedInput("type");
+                if (queryMode == "bulk") {
+                    $(".mssql-plus-shameless-beta-request").show();
+                    $("div.form-row.mssql-plus-form-row:not(div.form-row.mssql-plus-form-row:nth-child(6))").hide()
+                } else {
+                    $(".mssql-plus-shameless-beta-request").hide();
+                    $("div.form-row.mssql-plus-form-row:not(div.form-row.mssql-plus-form-row:nth-child(6))").show()
+                }
+                RED.tray.resize(); 
+            });
             //show/hide editor depending on query source
             queryField.on("change", function() {
                 var type = $(this).typedInput("type");
