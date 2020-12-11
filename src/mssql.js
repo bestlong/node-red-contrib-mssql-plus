@@ -64,70 +64,99 @@ module.exports = function (RED) {
         return set;
     }
 
+    const sqlParamTypes = {
+        "varchar": { params: [], sqlType: "VarChar" },
+        "varchar(?)": { params: ["n"], sqlType: "VarChar" },
+        "nvarchar": { params: [], sqlType: "NVarChar" },
+        "nvarchar(?)": { params: ["n"], sqlType: "NVarChar" },
+        "text": { params: [], sqlType: "Text" },
+        "int": { params: [], sqlType: "Int" },
+        "bigint": { params: [], sqlType: "BigInt" },
+        "tinyint": { params: [], sqlType: "TinyInt" },
+        "smallint": { params: [], sqlType: "SmallInt" },
+        "bit": { params: [], sqlType: "Bit" },
+        "float": { params: [], sqlType: "Float" },
+        "numeric": { params: [], sqlType: "Numeric" },
+        "numeric(?,?)": { params: ["n","n"], sqlType: "Numeric" },
+        "decimal": { params: [], sqlType: "Decimal" },
+        "decimal(?,?)": { params: ["n","n"], sqlType: "Decimal" },
+        "real": { params: [], sqlType: "Real" },
+        "date": { params: [], sqlType: "Date" },
+        "datetime": { params: [], sqlType: "DateTime" },
+        "datetime2": { params: [], sqlType: "DateTime2" },
+        "datetime2(?)": { params: ["n"], sqlType: "DateTime2" },
+        "datetimeoffset": { params: [], sqlType: "DateTimeOffset" },
+        "datetimeoffset(?)": { params: ["n"], sqlType: "DateTimeOffset" },
+        "smalldatetime": { params: [], sqlType: "SmallDateTime" },
+        "time": { params: [], sqlType: "Time" },
+        "time(?)": { params: ["n"], sqlType: "Time" },
+        "uniqueidentifier": { params: [], sqlType: "UniqueIdentifier" },
+        "smallmoney": { params: [], sqlType: "SmallMoney" },
+        "money": { params: [], sqlType: "Money" },
+        "binary": { params: [], sqlType: "Binary" },
+        "varbinary": { params: [], sqlType: "VarBinary" },
+        "varbinary(?)": { params: ["n"], sqlType: "VarBinary" },
+        "image": { params: [], sqlType: "Image" },
+        "xml": { params: [], sqlType: "Xml" },
+        "char": { params: [], sqlType: "Char" },
+        "char(?)": { params: ["n"], sqlType: "Char" },
+        "nchar": { params: [], sqlType: "NChar" },
+        "nchar(?)": { params: ["n"], sqlType: "NChar" },
+        "ntext": { params: [], sqlType: "NText" },
+        "tvp": { params: [], sqlType: "TVP" },
+        "tvp(?)": { params: ["p"], sqlType: "TVP" },
+        "udt": { params: [], sqlType: "UDT" },
+        "geography": { params: [], sqlType: "Geography" },
+        "geometry": { params: [], sqlType: "Geometry" },
+        "variant": { params: [], sqlType: "Variant" },
+    };
+
     function coerceType(sqlType) {
-        var st = sqlType.trim();
-        var sl = st.toLowerCase();
-        var bp = sl.indexOf("(");
-        var t, p, n;
-        if (bp > -1) {
-            t = sl.slice(0, bp);
-            p = st.slice(bp + 1, -1);
+        if(!sqlType) return null; //no type specified (infered)
+        let st = sqlType.trim();
+        let sl = st.toLowerCase();
+        let bp = sl.indexOf("(");
+        let typeName, typeParams = "", p, p2;
+        if (bp > -1) { //has bracket?
+            typeName = sl.slice(0, bp).trim();//get typename without params
+            typeParams = "(?)"; //additional typename param for sqlParamTypes lookup
+            let _params = st.slice(bp + 1, -1);//get params
+            let hasComma = _params.indexOf(",") > 0; //more than one param?
+            if(hasComma && (sl.includes("decimal") || sl.includes("numeric"))) {
+                typeParams = "(?,?)"; //additional typename param for sqlParamTypes lookup
+                let aparams = _params.split(","); 
+                p = aparams[0];
+                p2 = aparams[1];
+            } else {
+                p = _params;
+            }
         } else {
-            t = sl;
+            typeName = sl; //use lowercase type name for sqlParamTypes lookup
         }
+        //lookup the desired type from sqlParamTypes
+        let _type = sqlParamTypes[typeName+typeParams];
+        if(_type) {
+            let aparams = [];
+            if(_type.params.length >= 1) {
+                if(_type.params[0] === "n") {
+                    aparams.push(parseInt(p));
+                } else {
+                    aparams.push(p);
+                } 
+            }
+            if(_type.params.length >= 2) {
+                if(_type.params[1] === "n") {
+                    aparams.push(parseInt(p2));
+                } else if(_type.params[0] === "n") {
+                    aparams.push(p2);
+                } 
+            }
+            if(aparams.length)
+                return sql[_type.sqlType](...aparams);//e.g. sql.NChar(10)
+            return sql[_type.sqlType]();//e.g. sql.NChar()
 
-        if (p) {
-            try {
-                if (p) t += "(?)";
-                n = parseInt(p);
-            } catch (error) { }
         }
-
-        var r = {
-            "varchar": sql.VarChar,
-            "varchar(?)": sql.VarChar(n),
-            "nvarchar": sql.NVarChar,
-            "nvarchar(?)": sql.NVarChar(n),
-            "text": sql.Text,
-            "int": sql.Int,
-            "bigint": sql.BigInt,
-            "tinyint": sql.TinyInt,
-            "smallint": sql.SmallInt,
-            "bit": sql.Bit,
-            "float": sql.Float,
-            "numeric": sql.Numeric,
-            "decimal": sql.Decimal,
-            "real": sql.Real,
-            "date": sql.Date,
-            "datetime": sql.DateTime,
-            "datetime2": sql.DateTime2,
-            "datetime2(?)": sql.DateTime2(n),
-            "datetimeoffset": sql.DateTimeOffset,
-            "datetimeoffset(?)": sql.DateTimeOffset(n),
-            "smalldatetime": sql.SmallDateTime,
-            "time": sql.Time,
-            "time(?)": sql.Time(n),
-            "uniqueidentifier": sql.UniqueIdentifier,
-            "smallmoney": sql.SmallMoney,
-            "money": sql.Money,
-            "binary": sql.Binary,
-            "varbinary": sql.VarBinary,
-            "varbinary(?)": sql.VarBinary(n),
-            "image": sql.Image,
-            "xml": sql.Xml,
-            "char": sql.Char,
-            "char(?)": sql.Char(n),
-            "nchar": sql.NChar,
-            "nchar(?)": sql.NChar(n),
-            "ntext": sql.NText,
-            "tvp": sql.TVP,
-            "tvp(?)": sql.TVP(p),
-            "udt": sql.UDT,
-            "geography": sql.Geography,
-            "geometry": sql.Geometry,
-            "variant": sql.Variant,
-        }[t];
-        return r;
+        throw new Error(`Unable to determine the type or its properties from '${sqlType}'` );
     }
 
     /**
@@ -345,7 +374,7 @@ module.exports = function (RED) {
                             }
                         } else {
                             //if the data is a vtp/udt, coerce the type from string into sql.type
-                            if ((p.type.name == "UDT" || p.type.name == "TVP" || (p.type.type && p.type.type.name == "TVP"))
+                            if (p.type && (p.type.name == "UDT" || p.type.name == "TVP" || (p.type.type && p.type.type.name == "TVP"))
                                 && typeof p.value == "object"
                                 && p.value.columns && p.value.rows) {
                                 let table = new sql.Table()
