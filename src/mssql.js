@@ -332,7 +332,7 @@ module.exports = function (RED) {
                 //If bulk mode, create a table & populate the rows
                 if (queryMode == "bulk") {
                     var bulkTable = new sql.Table(sqlQuery);
-                    bulkTable.create = true;//table must be present
+                    bulkTable.create = true;//TODO: Present this as an option 
                     for(let rx = 0; rx < paramValues.length; rx++) {
                         bulkTable.rows.push(paramValues[rx]);
                     }
@@ -483,14 +483,14 @@ module.exports = function (RED) {
                 throw new Error("Parameter is not an object");
             }
             if(!p.name || typeof p.name !== "string") {
-                throw new Error("Parameter does not have a valid name propery");
+                throw new Error("Parameter does not have a valid name property");
             }
             if(!p.output && !('value' in p)) {
-                throw new Error("Input parameter '" + p.name + "' does not have a value propery");
+                throw new Error("Input parameter '" + p.name + "' does not have a value property");
             }
             if(p.type && p.type.toLowerCase() == "uniqueidentifier") {
                 if(!UUID.isValid(p.value)) {
-                    throw new Error("Uniqueidentifier is not valid")
+                    throw new Error("Unique identifier is not valid")
                 }
             }
             return true;
@@ -600,8 +600,8 @@ module.exports = function (RED) {
                         rows = value;
                     }
                 });
-                if (!rows || !Array.isArray(rows) || !rows.length || !Array.isArray(rows[0])) {
-                    node.processError(`In bulk mode, rows must be an array of arrays`, msg);
+                if (!rows || !Array.isArray(rows) || !rows.length || !(Array.isArray(rows[0]) || typeof rows[0] == "object") ) {
+                    node.processError(`In bulk mode, rows must be an array of arrays or objects`, msg);
                     return;//halt flow!
                 }
             }
@@ -640,7 +640,7 @@ module.exports = function (RED) {
             } else {
                 RED.util.evaluateNodeProperty(node.paramsOpt, node.paramsOptType, node, msg, (err, value) => {
                     if (err) {
-                        let errmsg = `Unable to evaluate paramater choice`
+                        let errmsg = `Unable to evaluate parameter choice`
                         node.processError(errmsg, msg);
                         return;//halt flow!
                     } else {
@@ -667,7 +667,7 @@ module.exports = function (RED) {
                         param.type = coerceType(param.type);
                         if(param.output) {
                             if (queryMode == "bulk") {
-                                node.processError(`Parameter at index [${iParam}] is not valid. Output parameter is not valid for bulk insert mode. ${error.message}.`, msg);
+                                node.processError(`Parameter '${param.name}' (at row ${iParam+1}) is not valid. Output parameter is not valid for bulk insert mode.`, msg);
                                 return null;
                             }
                             delete param.value;
