@@ -276,6 +276,11 @@
 
 <script type="text/html" data-help-name="MSSQL">
         <p>Node for Node-RED to MS SQL</p>
+        <h3>Foreword</h3>
+        <dl class="message-properties">
+            Examples have been included to help you do some common tasks. 
+            To use the examples, press the hamburger menu <a id="red-ui-header-button-sidemenu" class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b>
+        </dl>        
         <h3>Query Mode...</h3>
         <div style="padding-left: 15px;">
             <p>Select the execution mode, this can be "Query", "Stored procedure" or "Bulk Insert"</p>
@@ -290,15 +295,16 @@
         <div style="padding-left: 15px;">
             <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
             <div class="form-tips" style="width: 100%">
-                TIP: Query can be set in the UI or dynamically via msg, flow, global or env. The value sent can also contain mustache items.
+                TIP: Query can be set in the UI or dynamically via msg, flow, global or env. 
+                The value sent can also contain mustache items.
             </div>
             <br>
-            <p>Query Examples (with mustache)...
+            <p>Query Examples (with mustache and parameters)...
                 <ul>
-                    <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
-                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
-                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
-                    <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+                    <li><code style="white-space: normal;">SELECT TOP {{{flow.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= {{{global.minQty}}}</code></li>
+                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES (@id, '{{{payload.name}}}', {{{payload.qty}}})</code></li>
+                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = @quantity WHERE id = {{{payload.id}}}</code></li>
+                    <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = @id</code></li>
                 </ul>
             </p>
             <div class="form-tips" style="width: 100%">Query mode tips...
@@ -315,22 +321,28 @@
             <div class="form-tips" style="width: 100%">Execute tips...
                 <ul>
                     <li>The query should be just the name of the stored procedure (don't include <code>exec</code>)</li>
-                    <li>Parameters can be entered in the query but are not necessary. Just Enter the matching parameter name in the <code>Parameters</code> list </li>
+                    <li>Parameters can be entered in the procedure query 
+                        (but are not necessary - just enter the matching parameter name in the <code>Parameters</code> list) </li>
                 </ul>
             </div>
             <div class="form-tips" style="width: 100%">Bulk Insert tips...
                 <ul>
                     <li>The query should be just the name table to bulk insert into</li>
-                    <li>Data to bulk insert must be provided in <code>rows</code> and must be an array of arrays e.g. <code>[ [row1_col1, row1_col2], [row2_col1, row2_col2] ]</code></li>
+                    <li>Data to bulk insert must be provided to the <code>Rows (bulk data)</code> field as either ...
+                        <ul>
+                            <li>an array of array rows e.g. <code>[ [col1_value, col2_value], [col1_value, col2_value] ]</code></li>
+                            <li>an array of object rows e.g. <code>[ {col1:"value", col2:"value"}, {col1:"value", col2:"value"} ]</code></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
 
             <br>
             <p>INFO: When the 'Result type' is set to 'Driver output'...
                 <ul>
-                    <li>Multiple results will be returned in the <code>recordsets</code> array if multiple queries are
+                    <li>Multiple results can be returned in the <code>recordsets</code> array if multiple queries are
                         executed.</li>
-                    <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> array to confirm
+                    <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> property to confirm
                         operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
                 </ul>
             </p>
@@ -389,14 +401,17 @@
             <ul>
                 <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
             </ul>
-            <h4>Output type</h4>
+            <h4>Output type (Only valid for "Query" mode)</h4>
             <ul>
-                <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single result (if
-                    any). This is the same as previous version - for compatibility</li>
+                <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single recordset (if
+                    any). This is the same as earlier mssql-plus version - for compatibility</li>
                 <li><b>Driver output</b>: The property specified by 'Output property' will be populated with the result of the query
                     direct from the driver output. This format can return multiple recordsets and other information. Add a
                     debug node to see all available properties returned.</li>
             </ul>
+            <div class="form-tips" style="width: 100%">NOTE...
+                Output type is only applies when the Query mode is set to "query"
+            </div>
         </div>
         <h3>Error Handling...</h3>
         <div style="padding-left: 15px;">
