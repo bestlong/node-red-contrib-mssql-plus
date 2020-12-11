@@ -252,6 +252,7 @@
             font-weight: bold; /* Making font bold */
             border-radius: 20px; /* Making border radius */
             width: auto; /* Making auto-sizable width */
+            max-width: 500px; 
             height: auto; /* Making auto-sizable height */
             padding: 5px 30px 5px 30px; /* Making space around letters */
             font-size: 18px; /* Changing font size */
@@ -756,7 +757,18 @@
             delete this.editor;
         },
         oneditresize: function (size) {
-            console.log("mssql-onresize")
+            //TODO: Remove shameless plug for beta testers
+            try {
+                var queryMode = $("#node-input-modeOpt").typedInput("type");
+                if (queryMode == "bulk") {
+                    $(".mssql-plus-shameless-beta-request").show();
+                    $("div.form-row.mssql-plus-form-row:not(div.form-row.mssql-plus-form-row:nth-child(6))").hide()
+                } else {
+                    $(".mssql-plus-shameless-beta-request").hide();
+                    $("div.form-row.mssql-plus-form-row:not(div.form-row.mssql-plus-form-row:nth-child(6))").show()
+                }
+            } catch(ex) {}
+
             var rows = $("#dialog-form>div:not(.node-text-editor-row)");
             var height = $("#dialog-form").height();
             var row;
