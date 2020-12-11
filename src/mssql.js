@@ -454,7 +454,7 @@ module.exports = function (RED) {
         node.rowsType = config.rowsType || "msg";
 
         var setResult = function (msg, field, value, returnType = 0) {
-            let setValue = returnType == 1 ? value : value && value.recordset;
+            let setValue = (returnType == 0 && msg.queryMode == "query") ? value && value.recordset : value;
             // if(!setValue) return;
             const set = (obj, path, val) => {
                 const keys = path.split('.');
