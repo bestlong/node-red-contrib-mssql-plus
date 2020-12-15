@@ -353,7 +353,9 @@ module.exports = function (RED) {
                     for (let index = 0; index < params.length; index++) {
                         let p = params[index];
                         if (queryMode == "bulk") {
-                            bulkTable.columns.add(p.name, p.type);
+                            let _opts = p.options || {};
+                            if(p.type && p.type.length) _opts.length = p.type.length;
+                            bulkTable.columns.add(p.name, p.type, _opts);
                             continue;
                         }
                         if (p.output == true) {
@@ -656,7 +658,7 @@ module.exports = function (RED) {
                     } else {
                         let _params = value || [];
                         for (let iParam = 0; iParam < _params.length; iParam++) {
-                            let param = RED.util.cloneMessage(_params[iParam]);                 
+                            let param = RED.util.cloneMessage(_params[iParam]);
                             queryParams.push(param);
                         }
                         

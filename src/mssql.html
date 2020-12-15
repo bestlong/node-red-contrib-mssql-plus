@@ -27,12 +27,25 @@
     } 
 
     .mssql-plus-row-item {
-        margin: 2px 4px 2px 2px;
+        /* margin: 2px 4px 2px 2px; */
+        margin: 0px 4px 0px 2px;
     }
 
     .mssql-plus-row {
         flex-wrap: wrap;
     }
+    
+    ol .mssql-plus-row > .mssql-plus-row-item  input[type="checkbox"] {
+        width: 15px;
+        margin-left: 4px;
+        margin-top: -1px;
+        margin-right: 20px;
+    }
+    ol .mssql-plus-row > .mssql-plus-row-item  label {
+        margin-top: 2px;
+        margin-bottom: 0px;
+    }
+    
 
 </style>
 
@@ -428,12 +441,19 @@
     function resizeParameters(){
         var paramsWidth = $('#node-input-params-container').width();
         var queryMode = $("#node-input-modeOpt").typedInput("type");
-        var hideVal = queryMode == "bulk";
+        var bulkMode = queryMode == "bulk";
+        var showItemOptsRow = ["bulk","msg", "flow", "env"].indexOf(queryMode) >= 0;
+        if(showItemOptsRow) {
+            $("#node-input-params-container .node-input-item-property-options").show();
+        } else {
+            $("#node-input-params-container .node-input-item-property-options").hide();
+        }
         paramsWidth -= (28 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28);//remove outer padding, margins & input/output width
         var p1 = Math.max(((paramsWidth / 3) -20), 80);
         var p2 = Math.max(p1 - 20, 80);
         var p3 = Math.max(paramsWidth - (p1 + p2), 80);
-        if(hideVal) {
+       
+        if(bulkMode) {
             p1 += (p3/2);
             p2 += (p3/2);
         } else {
@@ -560,14 +580,17 @@
                     $("#mssql-plus-params-label").text("Columns");
                     $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").show();
                     $("#node-input-params-container .node-input-item-property-value").typedInput("hide");
+                    $("#node-input-params-container .node-input-item-property-options").show();
                 } else if (queryMode == "query" || queryMode == "execute") {
                     $("#mssql-plus-params-label").text("Parameters");
                     $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").hide();
                     $("#node-input-params-container .node-input-item-property-value").typedInput("show");
+                    $("#node-input-params-container .node-input-item-property-options").hide();
                 } else {
                     $("#mssql-plus-params-label").text("Params/Cols");
                     $("#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row").show();
                     $("#node-input-params-container .node-input-item-property-value").typedInput("show");
+                    $("#node-input-params-container .node-input-item-property-options").show();
                 }
                 RED.tray.resize(); 
             });
@@ -642,13 +665,16 @@
                         rule = { type: "int", name: "param" + (i + 1), value: 0, valueType: "num", output: false };
                         isNew = true;
                     }
-
+                    if (!rule.options || typeof rule.options != "object" ) {
+                        rule.options = { nullable: true, primary: false, identity: false, readOnly: false }
+                    }
                     container.css({
                         overflow: 'hidden',
                         whiteSpace: 'nowrap'
                     });
                     let fragment = document.createDocumentFragment();
                     var row1 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row" }).appendTo(fragment);
+                    var row2 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row" }).appendTo(fragment);
 
                     let row1_0 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row1);
                     let inoutField = $('<input/>', { class: "node-input-item-property-inout", type: "text", width: "72px" })
@@ -669,7 +695,7 @@
                     let valueField = $('<input/>', { class: "node-input-item-property-value", type: "text", width: "140px" })
                         .appendTo(row1_3)
                         .typedInput({ types: ['msg', 'flow', 'global', 'str', 'num', 'bool', 'json', 'bin', 'jsonata', "env", 
-                        {
+                            {
                                 icon: "fa fa-clock-o",
                                 value:"jsEpoch",
                                 label:"Epoch (JS)",
@@ -692,6 +718,21 @@
                             }], default: 'num' })
                     valueField.typedInput(queryMode == "bulk" ? "hide" : "show");
 
+                    let row2_1 = $('<div/>', { style: "display:flex;", class: "mssql-plus-row-item" }).appendTo(row2);
+                    let optionsField = $('<fieldset/>', { class: "node-input-item-property-options", type: "text", width: "100px" })
+                        .data('role','controlgroup').data('type',"horizontal")
+                        .appendTo(row2_1)
+ 
+                    optionsField.append($('<label>nullable <input type="checkbox" class="node-input-item-property-nullable" /> </label>'));
+                    optionsField.append($('<label>primary <input type="checkbox" class="node-input-item-property-primary" /> </label>'));
+                    optionsField.append($('<label>identity <input type="checkbox" class="node-input-item-property-identity" /> </label>'));
+                    optionsField.append($('<label>readOnly <input type="checkbox" class="node-input-item-property-readOnly" /> </label>'));
+                    
+                    let nullableOptionField = optionsField.find('.node-input-item-property-nullable');
+                    let primaryOptionField = optionsField.find('.node-input-item-property-primary');
+                    let identityOptionField = optionsField.find('.node-input-item-property-identity');
+                    let readOnlyOptionField = optionsField.find('.node-input-item-property-readOnly');
+                    
                     inoutField.on("change", function (o) {
                         var t = $(this).typedInput("type");
                         if (t == "output") {
@@ -760,7 +801,12 @@
                     valueField.typedInput('value', rule.value || 0);
 
                     inoutField.typedInput('type', (rule.output == "true" || rule.output == true) ? "output" : "input");
-
+ 
+                    nullableOptionField.prop("checked", rule.options.nullable);
+                    primaryOptionField.prop("checked", rule.options.primary);
+                    identityOptionField.prop("checked", rule.options.identity);
+                    readOnlyOptionField.prop("checked", rule.options.readOnly);
+                    
                     container[0].appendChild(fragment);
                     
                     if(isNew) resizeParameters();//cause newly added row to size correctly.
@@ -799,6 +845,12 @@
                 } else {
                     r.valueType = rule.find(".node-input-item-property-value").typedInput("type") || "num";
                     r.value = rule.find(".node-input-item-property-value").typedInput("value") || 0;
+                }
+                r.options = {
+                    nullable: rule.find(".node-input-item-property-nullable").prop("checked"),
+                    primary: rule.find(".node-input-item-property-primary").prop("checked"),
+                    identity: rule.find(".node-input-item-property-identity").prop("checked"),
+                    readOnly: rule.find(".node-input-item-property-readOnly").prop("checked"),
                 }
                 node.params.push(r);
             });
