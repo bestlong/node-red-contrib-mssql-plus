@@ -65,6 +65,50 @@ module.exports = function (RED) {
     }
 
     function coerceType(sqlType) {
+        const typeLookup = {
+            "varchar": "VarChar",
+            "varchar(?)": "VarChar",
+            "nvarchar": "NVarChar",
+            "nvarchar(?)": "NVarChar",
+            "text": "Text",
+            "int": "Int",
+            "bigint": "BigInt",
+            "tinyint": "TinyInt",
+            "smallint": "SmallInt",
+            "bit": "Bit",
+            "float": "Float",
+            "numeric": "Numeric",
+            "decimal": "Decimal",
+            "real": "Real",
+            "date": "Date",
+            "datetime": "DateTime",
+            "datetime2": "DateTime2",
+            "datetime2(?)": "DateTime2",
+            "datetimeoffset": "DateTimeOffset",
+            "datetimeoffset(?)": "DateTimeOffset",
+            "smalldatetime": "SmallDateTime",
+            "time": "Time",
+            "time(?)": "Time",
+            "uniqueidentifier": "UniqueIdentifier",
+            "smallmoney": "SmallMoney",
+            "money": "Money",
+            "binary": "Binary",
+            "varbinary": "VarBinary",
+            "varbinary(?)": "VarBinary",
+            "image": "Image",
+            "xml": "Xml",
+            "char": "Char",
+            "char(?)": "Char",
+            "nchar": "NChar",
+            "nchar(?)": "NChar",
+            "ntext": "NText",
+            "tvp": "TVP",
+            "tvp(?)": "TVP",
+            "udt": "UDT",
+            "geography": "Geography",
+            "geometry": "Geometry",
+            "variant": "Variant"
+        };
         var st = sqlType.trim();
         var sl = st.toLowerCase();
         var bp = sl.indexOf("(");
@@ -75,59 +119,26 @@ module.exports = function (RED) {
         } else {
             t = sl;
         }
-
-        if (p) {
+        if(p == "?") p = null;//user left param as '?' - delete it.
+        var hasParam = !!p;
+        if (hasParam) {
+            t += "(?)";
             try {
-                if (p) t += "(?)";
                 n = parseInt(p);
+                if(isNumber(n)) {
+                    p = n;
+                }
             } catch (error) { }
         }
+        var foundType = typeLookup[t]; 
+        if(!foundType || !sql[foundType]) {
+            throw new Error("Invalid type '"+sqlType+"'");
+        }
+        if (hasParam) {
+            return sql[foundType](p);
+        }
+        return sql[foundType]();
 
-        var r = {
-            "varchar": sql.VarChar,
-            "varchar(?)": sql.VarChar(n),
-            "nvarchar": sql.NVarChar,
-            "nvarchar(?)": sql.NVarChar(n),
-            "text": sql.Text,
-            "int": sql.Int,
-            "bigint": sql.BigInt,
-            "tinyint": sql.TinyInt,
-            "smallint": sql.SmallInt,
-            "bit": sql.Bit,
-            "float": sql.Float,
-            "numeric": sql.Numeric,
-            "decimal": sql.Decimal,
-            "real": sql.Real,
-            "date": sql.Date,
-            "datetime": sql.DateTime,
-            "datetime2": sql.DateTime2,
-            "datetime2(?)": sql.DateTime2(n),
-            "datetimeoffset": sql.DateTimeOffset,
-            "datetimeoffset(?)": sql.DateTimeOffset(n),
-            "smalldatetime": sql.SmallDateTime,
-            "time": sql.Time,
-            "time(?)": sql.Time(n),
-            "uniqueidentifier": sql.UniqueIdentifier,
-            "smallmoney": sql.SmallMoney,
-            "money": sql.Money,
-            "binary": sql.Binary,
-            "varbinary": sql.VarBinary,
-            "varbinary(?)": sql.VarBinary(n),
-            "image": sql.Image,
-            "xml": sql.Xml,
-            "char": sql.Char,
-            "char(?)": sql.Char(n),
-            "nchar": sql.NChar,
-            "nchar(?)": sql.NChar(n),
-            "ntext": sql.NText,
-            "tvp": sql.TVP,
-            "tvp(?)": sql.TVP(p),
-            "udt": sql.UDT,
-            "geography": sql.Geography,
-            "geometry": sql.Geometry,
-            "variant": sql.Variant,
-        }[t];
-        return r;
     }
 
     /**
