@@ -21,6 +21,9 @@
     .mssql-plus-row {
         flex-wrap: wrap;
     }
+    .mssql-plus-hide-row {
+        display: none !important;
+    }
 </style>
 
 <script type="text/html" data-help-name="MSSQL-CN">
@@ -540,9 +543,9 @@
             paramsField.on("change", function() {
                 var type = $(this).typedInput("type");
                 if(type == "editor")
-                    $(".form-row.node-input-params-container-row").show();
+                    $(".form-row.node-input-params-container-row").removeClass("mssql-plus-hide-row");
                 else
-                    $(".form-row.node-input-params-container-row").hide();
+                    $(".form-row.node-input-params-container-row").addClass("mssql-plus-hide-row");
                 RED.tray.resize();                      
             });
 
