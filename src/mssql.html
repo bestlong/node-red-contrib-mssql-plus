@@ -529,9 +529,10 @@
             queryField.on("change", function() {
                 var type = $(this).typedInput("type");
                 if(type == "editor")
-                    $(".form-row.node-text-editor-row").show();
+                    $(".form-row.node-text-editor-row").removeClass("mssql-plus-hide-row");
                 else
-                    $(".form-row.node-text-editor-row").hide();
+                    $(".form-row.node-text-editor-row").addClass("mssql-plus-hide-row");
+
                 RED.tray.resize(); 
                 if(type == "editor") {
                     $("#node-query-expand").show();
