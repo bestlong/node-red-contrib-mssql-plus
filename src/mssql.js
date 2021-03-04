@@ -507,6 +507,27 @@ module.exports = function (RED) {
             }
             return true;
         }
+        var validateBulkColumn = function(p){
+            //{name:string, type?:string, value?:any, output?:boolean}
+            if(typeof p !== "object" ) {
+                throw new Error("Column Parameter is not an object");
+            }
+            if(!p.name || typeof p.name !== "string") {
+                throw new Error("Column Parameter does not have a valid name property");
+            }
+            if(!p.type || typeof p.type !== "string") {
+                throw new Error("Column Parameter does not have a valid type property");
+            }
+            if(p.type && p.type.toLowerCase() == "uniqueidentifier") {
+                if(!UUID.isValid(p.value)) {
+                    throw new Error("Unique identifier is not valid")
+                }
+            }
+            if(p.output) {
+                throw new Error("Output parameter is not valid for bulk insert mode");
+            } 
+            return true;
+        }
 
         node.processError = function (err, msg) {
             let errMsg = "Error";
@@ -622,7 +643,7 @@ module.exports = function (RED) {
             var queryParamValues = {};
             if(node.paramsOptType == "none") { 
                 //no params
-            } else if(!node.paramsOptType || node.queryOptType == "editor") {
+            } else if(!node.paramsOptType || node.paramsOptType == "editor") {
                 let _params = node.params || [];
                 for (let iParam = 0; iParam < _params.length; iParam++) {
                     let param = RED.util.cloneMessage(_params[iParam]);
@@ -671,28 +692,38 @@ module.exports = function (RED) {
             msg.queryParams = queryParams || [];
 
             //now validate params, remove superfluous properties & coerce type into sql.type
-            if(msg.queryParams && msg.queryParams.length){
-                for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
-                    let param = msg.queryParams[iParam];
-                    try {
-                        validateQueryParam(param)
-                        param.type = coerceType(param.type);
-                        if(param.output) {
-                            if (queryMode == "bulk") {
-                                node.processError(`Parameter '${param.name}' (at row ${iParam+1}) is not valid. Output parameter is not valid for bulk insert mode.`, msg);
-                                return null;
-                            }
-                            delete param.value;
-                        } else {
-                            queryParamValues[param.name] = param.value;
+            if (msg.queryParams && msg.queryParams.length) {
+                if(queryMode == "bulk"){
+                    for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
+                        let param = msg.queryParams[iParam];
+                        try {
+                            validateBulkColumn(param);
+                            param.type = coerceType(param.type);
+                        } catch (error) {
+                            node.processError(`Column parameter at index [${iParam}] is not valid. ${error.message}.`, msg);
+                            return null;
                         }
-                        delete param.valueType;
-                    } catch (error) {
-                        node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg);
-                        return null;
+                    }
+                } else {
+                    for (let iParam = 0; iParam < msg.queryParams.length; iParam++) {
+                        let param = msg.queryParams[iParam];
+                        try {
+                            validateQueryParam(param);
+                            param.type = coerceType(param.type);
+                            if(param.output) {
+                                delete param.value;
+                            } else {
+                                queryParamValues[param.name] = param.value;
+                            }
+                            delete param.valueType;
+                        } catch (error) {
+                            node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg);
+                            return null;
+                        }
                     }
                 }
             }
+            
 
             var promises = [];
             var tokens = extractTokens(mustache.parse(msg.query));
