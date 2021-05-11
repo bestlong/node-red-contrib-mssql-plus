@@ -6,16 +6,6 @@ Importantly, this package comes with pre-built linux drivers for communicating w
 
 --- 
 
-## Bulk Insert mode
-### Shameless request for beta testers...
-Bulk Insert mode is implemented in version 0.7.0 beta but before I make the new features mainstream, I need testers and feedback. 
-<br>
-If you are able to help out, you can find installation instructions and provide feedback here: 
-<a href="https://bit.ly/3gCd8IA" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;color: blue;">
-    https://discourse.nodered.org/t/updated-node-red-contrib-mssql-plus-0-7-0-beta-2-bulk-insert-support/37331</a>
-
----
-
 ## Screen shot
 ![image](https://user-images.githubusercontent.com/44235289/87884584-14287900-ca07-11ea-8825-0030943f3c4a.png)
 
