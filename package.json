@@ -1,16 +1,22 @@
 {
   "name": "node-red-contrib-mssql-plus",
-  "version": "0.6.4",
-  "description": "A node-red node to execute queries and stored procedures in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019",
+  "version": "0.7.0",
+  "description": "A node-red node to execute queries, stored procedures and bulk inserts in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019",
   "main": "odbc.js",
   "dependencies": {
-    "mssql": "^6.2.3",
-    "mustache": "^4.0.1"
+    "mssql": "^7.0.0",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "mocha": "^7.0.0",
+    "eslint": "^7.25.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "mocha": "^8.4.0",
     "node-red": "^1.0.3",
-    "node-red-node-test-helper": "^0.2.3",
+    "node-red-node-test-helper": "^0.2.7",
     "should": "^13.2.3"
   },
   "node-red": {
@@ -44,7 +50,7 @@
   "contributors": [
     "Shao Yu-Lung <bestlong168@gmail.com> (https://github.com/bestlong)",
     "Olli Kasari <8488349+kasarol@users.noreply.github.com>",
-    "Steve McLaughlin <44235289+Steve-Mcl@users.noreply.github.com>"
+    "Steve McLaughlin <44235289+Steve-Mcl@users.noreply.github.com> (https://github.com/Steve-Mcl)"
   ],
   "license": "MIT",
   "homepage": "https://github.com/bestlong/node-red-contrib-mssql-plus",

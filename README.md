@@ -1,6 +1,6 @@
 # node-red-contrib-mssql-plus
 
-A [Node-RED](http://nodered.org) node to execute queries and stored procedures in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019.
+A [Node-RED](http://nodered.org) node to execute queries, stored procedures and bulk inserts in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019.
 
 Importantly, this package comes with pre-built linux drivers for communicating with the Azure & MS SQL services (using TDS protocol), removing the need to set-up environment level MSSQL (or similar) drivers.
 
@@ -23,7 +23,11 @@ If you are able to help out, you can find installation instructions and provide 
 ## Features include...
 * Connect to multiple SQL Servers and Azure databases from SQL2000 ~ 2019
 * Perform multiple queries in one go & get back multiple recordsets (depends on the queries sent)
-* Supports stored procedure execute
+* Supports Stored Procedure execute
+* Supports Bulk Insert
+* Built in examples (node-red hamburger menu → import → examples → node-red-contrib-mssql-plus)
+  * TVP - A demo of calling a stored procedure and passing in a table valued parameters
+  * BULK - A demo of inserting a large amount of data in bulk mode
 * Use env vars in the config node for all fields (including credentials). e.g...
   * Server `{{{SQL_IP}}}`
   * Password `{{{SQL_PW}}}`
