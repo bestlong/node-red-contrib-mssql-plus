@@ -305,7 +305,7 @@ module.exports = function (RED) {
             const updateStatusAndLog = !quiet;
             try {
                 if (node.poolConnect) {
-                    if (updateStatusAndLog) node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.server}`);
+                    if (updateStatusAndLog) node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
                     node.poolConnect.then(_ => _.close()).catch(e => { console.error(e); });
                 }
             } catch (error) {
