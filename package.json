@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-mssql-plus",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A node-red node to execute queries, stored procedures and bulk inserts in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019",
   "main": "odbc.js",
   "dependencies": {
@@ -27,6 +27,9 @@
   "files": [
     "src/"
   ],
+  "directories": {
+    "example": "examples"
+  },
   "scripts": {
     "test": "mocha \"test/**/*_spec.js\"",
     "release": "np"
