@@ -67,9 +67,9 @@ module.exports = function (RED) {
 
     const sqlParamTypes = {
         'varchar': { params: [], sqlType: 'VarChar' },
-        'varchar(?)': { params: ['n'], sqlType: 'VarChar' },
+        'varchar(?)': { params: ['nm'], sqlType: 'VarChar' },
         'nvarchar': { params: [], sqlType: 'NVarChar' },
-        'nvarchar(?)': { params: ['n'], sqlType: 'NVarChar' },
+        'nvarchar(?)': { params: ['nm'], sqlType: 'NVarChar' },
         'text': { params: [], sqlType: 'Text' },
         'int': { params: [], sqlType: 'Int' },
         'bigint': { params: [], sqlType: 'BigInt' },
@@ -96,7 +96,7 @@ module.exports = function (RED) {
         'money': { params: [], sqlType: 'Money' },
         'binary': { params: [], sqlType: 'Binary' },
         'varbinary': { params: [], sqlType: 'VarBinary' },
-        'varbinary(?)': { params: ['n'], sqlType: 'VarBinary' },
+        'varbinary(?)': { params: ['nm'], sqlType: 'VarBinary' },
         'image': { params: [], sqlType: 'Image' },
         'xml': { params: [], sqlType: 'Xml' },
         'char': { params: [], sqlType: 'Char' },
@@ -125,9 +125,9 @@ module.exports = function (RED) {
             const hasComma = _params.indexOf(',') > 0; //more than one param?
             if (hasComma && (sl.includes('decimal') || sl.includes('numeric'))) {
                 typeParams = '(?,?)'; //additional typename param for sqlParamTypes lookup
-                const aparams = _params.split(',');
-                p = aparams[0];
-                p2 = aparams[1];
+                const params = _params.split(',');
+                p = params[0];
+                p2 = params[1];
             } else {
                 p = _params;
             }
@@ -137,23 +137,27 @@ module.exports = function (RED) {
         //lookup the desired type from sqlParamTypes
         const _type = sqlParamTypes[typeName + typeParams];
         if (_type) {
-            const aparams = [];
+            const params = [];
             if (_type.params.length >= 1) {
-                if (_type.params[0] === 'n') {
-                    aparams.push(parseInt(p));
+                if (_type.params[0] === 'nm' && (p + '').toLowerCase() === 'max') {
+                    params.push('MAX');
+                } else if (_type.params[0] === 'n') {
+                    params.push(parseInt(p));
                 } else {
-                    aparams.push(p);
+                    params.push(p);
                 }
             }
             if (_type.params.length >= 2) {
-                if (_type.params[1] === 'n') {
-                    aparams.push(parseInt(p2));
+                if (_type.params[1] === 'nm' && (p2 + '').toLowerCase() === 'max') {
+                    params.push('MAX');
+                } else if (_type.params[1] === 'n') {
+                    params.push(parseInt(p2));
                 } else if (_type.params[0] === 'n') {
-                    aparams.push(p2);
+                    params.push(p2);
                 }
             }
-            if (aparams.length) {
-                return sql[_type.sqlType](...aparams);//e.g. sql.NChar(10)
+            if (params.length) {
+                return sql[_type.sqlType](...params);//e.g. sql.NChar(10)
             }
             return sql[_type.sqlType]();//e.g. sql.NChar()
         }
