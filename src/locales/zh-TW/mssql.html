@@ -1,0 +1,124 @@
+<script type="text/html" data-help-name="MSSQL-CN">
+    <p>MSSQL連線 設定節點</p>
+    <h4>連線設定</h4>
+    <p>
+        每個欄位都可以使用 <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> 格式來套用環境變數.
+    </p>
+    <p>
+        Example: <i>{{{environment variable name}}}</i>; 或<br />
+        Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
+    </p>
+</script>
+
+<script type="text/html" data-help-name="MSSQL">
+    <p>MSSQL 節點</p>
+    <h3>查詢模式...</h3>
+    <div style="padding-left: 15px;">
+        <p>選擇查詢模式, 可以為 "Query" 或是 "Stored procedure"</p>
+        <div class="form-tips" style="width: 100%">
+            提示: 查詢模式可以直接在使用者介面設定或透過 msg, flow, global, env 動態設定. The value sent must be either "query" or "execute"
+        </div>
+        <p>
+            INFO: TVP 變數僅支援預儲程序. Some variable types are not supported by the underlying SQL driver.
+        </p>
+    </div>
+
+    <h3>查詢...</h3>
+    <div style="padding-left: 15px;">
+        <p>輸入查詢語法或是要執行的預儲程序. 還可以使用 <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> 格式來套用 msg, flow context, global context 的屬性.</p>
+        <div class="form-tips" style="width: 100%">
+            提示: 查詢可以在使用者介面設定或透過 msg, flow, global, env 動態設定. The value sent can also contain mustache items.
+        </div>
+        <br>
+        <p>查詢範例 (使用 mustache 格式)...
+            <ul>
+                <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
+                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
+                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+            </ul>
+        </p>
+        <div class="form-tips" style="width: 100%">提示...
+            <ul>
+                <li>要套用 <code>msg</code> 屬性, 只要使用變數名稱. 例如: <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
+                <li>要套用 <code>flow</code> 或 <code>global</code> 屬性, 使用 mustache 格式處理, 例如: <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
+                <li>為了避免特定字元被轉譯, 需要使用三層花括號. 例如: <code>{{{flow.my_string}}}</code> </li>
+            </ul>
+        </div>
+
+        <br>
+        <p>INFO: 當 '輸出類型' 設定為 'Driver output'...
+            <ul>
+                <li>執行多重查詢後產生的多重結果會傳回 <code>recordsets</code> 陣列.</li>
+                <li>建議使用者檢查在 <code>rowsAffected</code> 陣列中的數值來確認操作 - 特別是在處理 INSERT, UPDATE and DELETE 操作.</li>
+            </ul>
+        </p>
+    </div>
+    
+    <h3>參數...</h3>
+    <div style="padding-left: 15px;">
+        <p>輸入及輸出參數都可以在查詢中指定.</p>
+        <div class="form-tips" style="width: 100%">
+            提示: 參數可以在使用者介面中設定或透過 msg, flow, global 動態設定, 參考下列的格式...<br>
+            <code><pre style="white-space: pre;">[
+    {
+        "output": false,
+        "name": "參數名稱",
+        "type": "參數類型",
+        "value": "參數值"
+    },
+    {
+        "output": true,
+        "name": "參數名稱",
+        "type": "參數類型"
+    }
+]</pre></code>
+        </div>
+        <br>
+        <p>查詢範例 (使用參數)...
+            <div style="padding-left: 15px;">
+                <code style="font-weight: bold;">查詢</code>
+                <div style="padding-left: 15px;">
+                    <code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= @minQty</code>
+                </div>
+            </div>
+            <div style="padding-left: 15px;">
+                <code style="font-weight: bold;">參數</code>
+                <ul>               
+                    <li>
+                        <span>In/Out </span><code style="white-space: normal;">input</code> 
+                        <span>, Name </span><code style="white-space: normal;">name</code>
+                        <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
+                        <span>, Value </span><code style="white-space: normal;">stephen</code>
+                    </li>
+                    <li>
+                        <span>In/Out </span><code style="white-space: normal;">input</code> 
+                        <span>, Name </span><code style="white-space: normal;">minQty</code>
+                        <span>, Type </span><code style="white-space: normal;">int</code>
+                        <span>, Value </span><code style="white-space: normal;">5</code>
+                    </li>
+                </ul>
+            </div>
+        </p>
+    </div>
+
+    <h3>輸出選項...</h3>
+    <div style="padding-left: 15px;">
+        <h4>輸出屬性</h4>
+        <ul>
+            <li>將執行結果寫入到指定的屬性. 通常會是 <code>msg.payload</code></li>
+        </ul>
+        <h4>輸出類型</h4>
+        <ul>
+            <li><b>Original output</b>: 設定此選項只會傳回單一結果. (與舊版本相同 - 為了向下相容)</li>
+            <li><b>Driver output</b>: 設定此選項將會直接傳回驅動的輸出. 可以傳回多重資料集格式與其他資訊. 加入 debug 節點可以觀察所有回傳的屬性.</li>
+        </ul>
+    </div>
+    <h3>錯誤處理...</h3>
+    <div style="padding-left: 15px;">
+        <ul>
+            <li><b>傳送到 msg.error</b>: 會寫入錯誤到 <code>msg.error</code> 然後傳送到輸出. 使用者應該檢查輸出是否有 <code>msg.error</code> 在每個 MSSQL 節點之後. (與舊版本相同 - 為了向下相容)</li>
+            <li><b>拋出 error</b>: 會在錯誤輸出的同時拋出錯誤. 讓使用者可以用 <code>catch</code> 節點來偵測與處理錯誤.</li>
+        </ul>
+    </div>
+</script>
