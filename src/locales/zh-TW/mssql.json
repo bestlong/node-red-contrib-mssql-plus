@@ -51,6 +51,7 @@
                 "cancel_timeout": "取消超時",
                 "cancel_timeout_tip": "數值為毫秒, 等待取消成功的時間.",
                 "max_pool_size": "連線池最大連線數",
+                "parse_json": "支援 JSON?",
                 "arith_abort": "ARITHABORT?",
                 "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."
             }

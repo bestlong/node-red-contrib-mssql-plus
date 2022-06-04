@@ -51,6 +51,7 @@
                 "cancel_timeout": "Cancel Timeout",
                 "cancel_timeout_tip": "The number of milliseconds before the cancel (abort) of a request is considered failed.",
                 "max_pool_size": "Max Pool Size",
+                "parse_json": "JSON Support?",
                 "arith_abort": "ARITHABORT?",
                 "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."
             }
