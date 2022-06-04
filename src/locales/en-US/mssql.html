@@ -1,0 +1,139 @@
+<script type="text/html" data-help-name="MSSQL-CN">
+    <p>Config node for Node-RED to MS SQL</p>
+    <h4>Connection setup</h4>
+    <p>
+        You can use environment variables in any connection field, using
+        <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i>
+        format.
+    </p>
+    <p>
+        Example: <i>{{{environment variable name}}}</i>; or<br />
+        Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
+    </p>
+</script>
+
+
+
+<script type="text/html" data-help-name="MSSQL">
+    <p>Node for Node-RED to MS SQL</p>
+    <h3>Query Mode...</h3>
+    <div style="padding-left: 15px;">
+        <p>Select the execution mode, this can be "Query" or "Stored procedure"</p>
+        <div class="form-tips" style="width: 100%">
+            TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query" or "execute"
+        </div>
+        <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
+        </p>
+    </div>
+     
+    <h3>Query...</h3>
+    <div style="padding-left: 15px;">
+        <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
+        <div class="form-tips" style="width: 100%">
+            TIP: Query can be set in the UI or dynamically via msg, flow, global or env. The value sent can also contain mustache items.
+        </div>
+        <br>
+        <p>Query Examples (with mustache)...
+            <ul>
+                <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
+                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
+                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+            </ul>
+        </p>
+        <div class="form-tips" style="width: 100%">TIPS...
+            <ul>
+                <li>To access <code>msg</code> properties, just use the variable name. e.g.
+                    <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
+                <li>To access <code>flow</code> and <code>global</code> properties,
+                    specify them in the mustache e.g. 
+                    <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
+                <li>To prevent certain characters being escaped, use triple curly brackets. e.g. 
+                    <code>{{{flow.my_string}}}</code> </li>
+            </ul>
+        </div>
+
+        <br>
+        <p>INFO: When the 'Result type' is set to 'Driver output'...
+            <ul>
+                <li>Multiple results will be returned in the <code>recordsets</code> array if multiple queries are
+                    executed.</li>
+                <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> array to confirm
+                    operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
+            </ul>
+        </p>
+    </div>
+    
+    <h3>Parameters...</h3>
+    <div style="padding-left: 15px;">
+        <p>Input and Output Parameters can be specified for the query.</p>
+        <div class="form-tips" style="width: 100%">
+            TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
+            <code><pre style="white-space: pre;">[
+{
+    "output": false,
+    "name": "parameter name",
+    "type": "parameter type",
+    "value": "parameter value"
+},
+{
+    "output": true,
+    "name": "parameter name",
+    "type": "parameter type"
+}
+]</pre></code>
+        </div>
+        <br>
+        <p>Query Examples (with parameters)...
+            <div style="padding-left: 15px;">
+                <code style="font-weight: bold;">Query</code>
+                <div style="padding-left: 15px;">
+                    <code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= @minQty</code>
+                </div>
+            </div>
+            <div style="padding-left: 15px;">
+                <code style="font-weight: bold;">Parameters</code>
+                <ul>               
+                    <li>
+                        <span>In/Out </span><code style="white-space: normal;">input</code> 
+                        <span>, Name </span><code style="white-space: normal;">name</code>
+                        <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
+                        <span>, Value </span><code style="white-space: normal;">stephen</code>
+                    </li>
+                    <li>
+                        <span>In/Out </span><code style="white-space: normal;">input</code> 
+                        <span>, Name </span><code style="white-space: normal;">minQty</code>
+                        <span>, Type </span><code style="white-space: normal;">int</code>
+                        <span>, Value </span><code style="white-space: normal;">5</code>
+                    </li>
+                </ul>
+            </div>
+        </p>
+    </div>
+    
+    <h3>Output options...</h3>
+    <div style="padding-left: 15px;">
+        <h4>Output property</h4>
+        <ul>
+            <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
+        </ul>
+        <h4>Output type</h4>
+        <ul>
+            <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single result (if
+                any). This is the same as previous version - for compatibility</li>
+            <li><b>Driver output</b>: The property specified by 'Output property' will be populated with the result of the query
+                direct from the driver output. This format can return multiple recordsets and other information. Add a
+                debug node to see all available properties returned.</li>
+        </ul>
+    </div>
+    <h3>Error Handling...</h3>
+    <div style="padding-left: 15px;">
+        <ul>
+            <li><b>Send in msg.error</b>: Error will be written to <code>msg.error</code> and the msg will be sent in the
+                output. Users should check the output msg for presence of <code>msg.error</code> after each MSSQL node (same
+                functionality as previous version - for compatibility)</li>
+            <li><b>Throw error</b>: This will cause an error to be thrown instead of being sent in the output. Users can use the
+                <code>catch</code> node to detect and handle errors</li>
+        </ul>
+    </div>
+</script>

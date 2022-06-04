@@ -64,63 +64,50 @@
 
 </style>
 
-<script type="text/html" data-help-name="MSSQL-CN">
-    <p>Config node for Node-RED to MS SQL</p>
-    <h4>Connection setup</h4>
-    <p>
-        You can use environment variables in any connection field, using
-        <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i>
-        format.
-    </p>
-    <p>
-        Example: <i>{{{environment variable name}}}</i>; or<br />
-        Server: MyAwesomeSQLServer-{{{ENV_NODE}}}.company.com
-    </p>
-  </script>
 
 <script type="text/html" data-template-name="MSSQL-CN">
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
-          <input type="text" id="node-config-input-name" placeholder="Connection Name">
+          <label for="node-config-input-name" ><i class="fa fa-tag"></i> <span data-i18n="mssql.connection.label.name"></span></label>
+          <input type="text" id="node-config-input-name" data-i18n="[placeholder]mssql.connection.label.name_ph">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-server"><i class="fa fa-server"></i> Server</label>
-          <input type="text" id="node-config-input-server" placeholder="Server name or IP">
+          <label for="node-config-input-server"><i class="fa fa-server"></i> <span data-i18n="mssql.connection.label.server"></span></label>
+          <input type="text" id="node-config-input-server" data-i18n="[placeholder]mssql.connection.label.server_ph">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-port"><i class="fa fa-random"></i> Port</label>
-          <input type="text" id="node-config-input-port" placeholder="Port">
+          <label for="node-config-input-port"><i class="fa fa-random"></i> <span data-i18n="mssql.connection.label.port"></span></label>
+          <input type="text" id="node-config-input-port" data-i18n="[placeholder]mssql.connection.label.port">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
+          <label for="node-config-input-username"><i class="fa fa-user"></i> <span data-i18n="mssql.connection.label.username"></span></label>
           <input type="text" id="node-config-input-username">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+          <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="mssql.connection.label.password"></label>
           <input type="password" id="node-config-input-password">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-domain"><i class="fa fa-user"></i> Domain</label>
+          <label for="node-config-input-domain"><i class="fa fa-user"></i> <span data-i18n="mssql.connection.label.domain"></label>
           <input type="text" id="node-config-input-domain">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-database"><i class="fa fa-database"></i> Database</label>
+          <label for="node-config-input-database"><i class="fa fa-database"></i> <span data-i18n="mssql.connection.label.database"></label>
           <input type="text" id="node-config-input-database">
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-tdsVersion"><i class="fa fa-list"></i> TDS Version</label>
+          <label for="node-config-input-tdsVersion"><i class="fa fa-list"></i> <span data-i18n="mssql.connection.label.tds.title"></label>
           <select id="node-config-input-tdsVersion">
-              <option value="7_4">7_4 (SQL Server 2012 ~ 2019)</option>
-              <option value="7_3_B">7_3_B (SQL Server 2008R2)</option>
-              <option value="7_3_A">7_3_A (SQL Server 2008)</option>
-              <option value="7_2">7_2 (SQL Server 2005)</option>
-              <option value="7_1">7_1 (SQL Server 2000)</option>
+              <option value="7_4" data-i18n="mssql.connection.label.tds.v7_4"></option>
+              <option value="7_3_B" data-i18n="mssql.connection.label.tds.v7_3_b"></option>
+              <option value="7_3_A" data-i18n="mssql.connection.label.tds.v7_3_a"></option>
+              <option value="7_2" data-i18n="mssql.connection.label.tds.v7_2"></option>
+              <option value="7_1" data-i18n="mssql.connection.label.tds.v7_1"></option>
           </select>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-encyption"><i class="fa fa-lock"></i> Use Encryption?</label>
+          <label for="node-config-input-encyption"><i class="fa fa-lock"></i> <span data-i18n="mssql.connection.label.encryption"></label>
           <input type="checkbox" id="node-config-input-encyption">
-          <div class="form-tips">SQL Databases hosted on Azure will need this checked</div>
+          <div class="form-tips" data-i18n="mssql.connection.label.encryption_tip"></div>
       </div>
       <div class="form-row mssql-plus-form-row">
           <label for="node-config-input-trustServerCertificate"><i class="fa fa-lock"></i> Trust Certificate?</label>
@@ -128,36 +115,36 @@
           <div class="form-tips">If unchecked, SQL Server will try to validate the server SSL certificate and will terminate the connection if validation fails</div>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> Assume UTC?</label>
+          <label for="node-config-input-useUTC"><i class="fa fa-clock-o"></i> <span data-i18n="mssql.connection.label.utc"></label>
           <input type="checkbox" id="node-config-input-useUTC">
-          <div class="form-tips">Pass time values in UTC or local time.</div>
+          <div class="form-tips" data-i18n="mssql.connection.label.utc_tip"></div>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> Connect Timeout</label>
+          <label for="node-config-input-connectTimeout"><i class="fa fa-clock-o"></i> <span data-i18n="mssql.connection.label.connect_timeout"></label>
           <input type="text" id="node-config-input-connectTimeout">
-          <div class="form-tips">The number of milliseconds before the attempt to connect is considered failed.</div>
+          <div class="form-tips" data-i18n="mssql.connection.label.connect_timeout_tip"></div>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> Request Timeout</label>
+          <label for="node-config-input-requestTimeout"><i class="fa fa-clock-o"></i> <span data-i18n="mssql.connection.label.request_timeout"></label>
           <input type="text" id="node-config-input-requestTimeout">
-          <div class="form-tips">The number of milliseconds before a request is considered failed, or 0 for no timeout.</div>
+          <div class="form-tips" data-i18n="mssql.connection.label.request_timeout_tip"></div>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> Cancel Timeout</label>
+          <label for="node-config-input-cancelTimeout"><i class="fa fa-clock-o"></i> <span data-i18n="mssql.connection.label.cancel_timeout"></label>
           <input type="text" id="node-config-input-cancelTimeout">
-          <div class="form-tips">The number of milliseconds before the cancel (abort) of a request is considered failed.</div>
+          <div class="form-tips"data-i18n="mssql.connection.label.cancel_timeout_tip"></div>
       </div>
       <div class="form-row mssql-plus-form-row">
-          <label for="node-config-input-pool"><i class="icon-bookmark"></i> Max Pool Size</label>
-          <input type="text" id="node-config-input-pool" placeholder="Max Pool Size">
+          <label for="node-config-input-pool"><i class="icon-bookmark"></i> <span data-i18n="mssql.connection.label.max_pool_size"></label>
+          <input type="text" id="node-config-input-pool" data-i18n="[placeholder]mssql.connection.label.max_pool_size">
       </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-config-input-parseJSON"><span style="display: inline-block; font-family: monospace;">{}</span></i> JSON Support?</label>
+        <label for="node-config-input-parseJSON"><i class="fa fa-file-o"></i> <span data-i18n="mssql.connection.label.parse_json"></label>
         <input type="checkbox" id="node-config-input-parseJSON">
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-config-input-enableArithAbort" title="Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."><i class="fa fa-times"></i> ARITHABORT?</label>
-        <input type="checkbox" id="node-config-input-enableArithAbort" checked  title="Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled.">
+        <label for="node-config-input-enableArithAbort" data-i18n="[title]mssql.connection.label.arith_abort_tooltip"><i class="fa fa-times"></i> <span data-i18n="mssql.connection.label.arith_abort"></label>
+        <input type="checkbox" id="node-config-input-enableArithAbort" checked  data-i18n="[title]mssql.connection.label.arith_abort_tooltip">
     </div>
 </script>
 
@@ -246,20 +233,20 @@
 
 <script type="text/html" data-template-name="MSSQL">
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-mssqlCN"><i class="fa fa-globe"></i> Connection</label>
+        <label for="node-input-mssqlCN"><i class="fa fa-globe"></i> <span data-i18n="mssql.node.label.connection"></label>
         <input type="text" id="node-input-mssqlCN">
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="mssql.node.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]mssql.node.label.name">
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-data"><i class="fa fa-list-ul"></i> Query mode</label>
+        <label for="node-input-data"><i class="fa fa-list-ul"></i> <span data-i18n="mssql.node.label.query_mode"></span></label>
         <input type="hidden" id="node-input-modeOptType">
-        <input type="text" id="node-input-modeOpt" style="width: 70%" placeholder="queryMode">
+        <input type="text" id="node-input-modeOpt" style="width: 70%" data-i18n="[placeholder]mssql.node.label.query_mode">
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-queryOpt"><i class="fa fa-comments"></i> Query</label>
+        <label for="node-input-queryOpt"><i class="fa fa-comments"></i> <span data-i18n="mssql.node.label.query"></label>
         <input type="hidden" id="node-input-queryOptType">
         <input type="text" id="node-input-queryOpt" style="width: 70%" placeholder="payload">
         <div style="float: right;position: relative;margin-top: 14px;">
@@ -270,7 +257,7 @@
         <div style="height: 60px;"  class="node-text-editor" id="node-sql-query-editor" ></div>
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label><i class="fa fa-list-alt"></i> <span id="mssql-plus-params-label">Parameters</span></label>
+        <label><i class="fa fa-list-alt"></i> <span data-i18n="mssql.node.label.parameters"></label>
         <input type="hidden" id="node-input-paramsOptType">
         <input type="text" id="node-input-paramsOpt" style="width: 70%" placeholder="queryParams">
     </div>
@@ -283,21 +270,21 @@
         <input type="text" id="node-input-rows" placeholder="rows" style="width: 70%" dir=""> 
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-outField"><i class="fa fa-sign-out"></i> Output property</label>
+        <label for="node-input-outField"><i class="fa fa-sign-out"></i> <span data-i18n="mssql.node.label.output_property"></label>
         <input type="text" id="node-input-outField" placeholder="payload" style="width: 70%" dir=""> 
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-returnType"><i class="fa fa-sign-out"></i> Output type</label>
+        <label for="node-input-returnType"><i class="fa fa-sign-out"></i> <span data-i18n="mssql.node.label.output_type"></label>
         <select id="node-input-returnType" style="width: 70%">
-            <option value="0">Original output</option>
-            <option value="1">Driver output</option>
+            <option value="0" data-i18n="mssql.node.label.output_type_original"></option>
+            <option value="1" data-i18n="mssql.node.label.output_type_driver"></option>
         </select>
     </div>
     <div class="form-row mssql-plus-form-row">
-        <label for="node-input-throwErrors"><i class="fa fa-exclamation"></i> Error Handling</label>
+        <label for="node-input-throwErrors"><i class="fa fa-exclamation"></i> <span data-i18n="mssql.node.label.error_handling"></label>
         <select id="node-input-throwErrors" style="width: 70%">
-            <option value="0">Send in msg.error</option>
-            <option value="1">Throw error</option>
+            <option value="0" data-i18n="mssql.node.label.error_handling_send_in_msg"></option>
+            <option value="1" data-i18n="mssql.node.label.error_handling_throw"></option>
         </select>
     </div>
     <div class="mssql-plus-shameless-beta-request" style="display: none;">
@@ -323,154 +310,6 @@
             </div>
     </div>
 </script>
-
-<script type="text/html" data-help-name="MSSQL">
-        <p>Node for Node-RED to MS SQL</p>
-        <h3>Foreword</h3>
-        <dl class="message-properties">
-            Examples have been included to help you do some common tasks. 
-            <a onclick="RED.actions.invoke('core:show-examples-import-dialog')" href="#">Click here</a> to import an example or press the hamburger menu <a class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b> or press <kbd>ctrl+i</kbd>
-        </dl>        
-        <h3>Query Mode...</h3>
-        <div style="padding-left: 15px;">
-            <p>Select the execution mode, this can be "Query", "Stored procedure" or "Bulk Insert"</p>
-            <div class="form-tips" style="width: 100%">
-                TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query", "execute" or "bulk"
-            </div>
-            <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
-            </p>
-        </div>
-         
-        <h3>Query...</h3>
-        <div style="padding-left: 15px;">
-            <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
-            <div class="form-tips" style="width: 100%">
-                TIP: Query can be set in the UI or dynamically via msg, flow, global or env. 
-                The value sent can also contain mustache items.
-            </div>
-            <br>
-            <p>Query Examples (with mustache and parameters)...
-                <ul>
-                    <li><code style="white-space: normal;">SELECT TOP {{{flow.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= {{{global.minQty}}}</code></li>
-                    <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES (@id, '{{{payload.name}}}', {{{payload.qty}}})</code></li>
-                    <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = @quantity WHERE id = {{{payload.id}}}</code></li>
-                    <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = @id</code></li>
-                </ul>
-            </p>
-            <div class="form-tips" style="width: 100%">Query mode tips...
-                <ul>
-                    <li>To access <code>msg</code> properties, just use the variable name. e.g.
-                        <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
-                    <li>To access <code>flow</code> and <code>global</code> properties,
-                        specify them in the mustache e.g. 
-                        <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
-                    <li>To prevent certain characters being escaped, use triple curly brackets. e.g. 
-                        <code>{{{flow.my_string}}}</code> </li>
-                </ul>
-            </div>
-            <div class="form-tips" style="width: 100%">Execute tips...
-                <ul>
-                    <li>The query should be just the name of the stored procedure (don't include <code>exec</code>)</li>
-                    <li>Parameters can be entered in the procedure query 
-                        (but are not necessary - just enter the matching parameter name in the <code>Parameters</code> list) </li>
-                </ul>
-            </div>
-            <div class="form-tips" style="width: 100%">Bulk Insert tips...
-                <ul>
-                    <li>The query should be just the name table to bulk insert into</li>
-                    <li>Data to bulk insert must be provided to the <code>Rows (bulk data)</code> field as either ...
-                        <ul>
-                            <li>an array of array rows e.g. <code>[ [col1_value, col2_value], [col1_value, col2_value] ]</code></li>
-                            <li>an array of object rows e.g. <code>[ {col1:"value", col2:"value"}, {col1:"value", col2:"value"} ]</code></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-
-            <br>
-            <p>INFO: When the 'Result type' is set to 'Driver output'...
-                <ul>
-                    <li>Multiple results can be returned in the <code>recordsets</code> array if multiple queries are
-                        executed.</li>
-                    <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> property to confirm
-                        operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
-                </ul>
-            </p>
-        </div>
-        
-        <h3>Parameters...</h3>
-        <div style="padding-left: 15px;">
-            <p>Input and Output Parameters can be specified for a query or procedure. In bulk mode, the parameters represent the columns of the table</p>
-            <div class="form-tips" style="width: 100%">
-                TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
-                <code><pre style="white-space: pre;">[
-    {
-        "output": false,
-        "name": "parameter name",
-        "type": "parameter type",
-        "value": "parameter value"
-    },
-    {
-        "output": true,
-        "name": "parameter name",
-        "type": "parameter type"
-    }
-]</pre></code>
-            </div>
-            <br>
-            <p>Query Examples (with parameters)...
-                <div style="padding-left: 15px;">
-                    <code style="font-weight: bold;">Query</code>
-                    <div style="padding-left: 15px;">
-                        <code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= @minQty</code>
-                    </div>
-                </div>
-                <div style="padding-left: 15px;">
-                    <code style="font-weight: bold;">Parameters</code>
-                    <ul>               
-                        <li>
-                            <span>In/Out </span><code style="white-space: normal;">input</code> 
-                            <span>, Name </span><code style="white-space: normal;">name</code>
-                            <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
-                            <span>, Value </span><code style="white-space: normal;">stephen</code>
-                        </li>
-                        <li>
-                            <span>In/Out </span><code style="white-space: normal;">input</code> 
-                            <span>, Name </span><code style="white-space: normal;">minQty</code>
-                            <span>, Type </span><code style="white-space: normal;">int</code>
-                            <span>, Value </span><code style="white-space: normal;">5</code>
-                        </li>
-                    </ul>
-                </div>
-            </p>
-        </div>
-        
-        <h3>Output options...</h3>
-        <div style="padding-left: 15px;">
-            <h4>Output property</h4>
-            <ul>
-                <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
-            </ul>
-            <h4>Output type (not used for "Bulk Insert" mode)</h4>
-            <ul>
-                <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single recordset (if
-                    any). This is the same as earlier mssql-plus version - for compatibility</li>
-                <li><b>Driver output</b>: The property specified by 'Output property' will be populated with the result of the query
-                    direct from the driver output. This format can return multiple recordsets and other information. Add a
-                    debug node to see all available properties returned.</li>
-            </ul>
-        </div>
-        <h3>Error Handling...</h3>
-        <div style="padding-left: 15px;">
-            <ul>
-                <li><b>Send in msg.error</b>: Error will be written to <code>msg.error</code> and the msg will be sent in the
-                    output. Users should check the output msg for presence of <code>msg.error</code> after each MSSQL node (same
-                    functionality as previous version - for compatibility)</li>
-                <li><b>Throw error</b>: This will cause an error to be thrown instead of being sent in the output. Users can use the
-                    <code>catch</code> node to detect and handle errors</li>
-            </ul>
-        </div>
-  </script>
 
 <script type="text/javascript">
 /* eslint-disable spaced-comment */
@@ -573,8 +412,8 @@
             //create typedInput widgets
             const modeField = $('#node-input-modeOpt').typedInput({
                 types: [
-                    { value: 'query', label: 'Query', hasValue: false },
-                    { value: 'execute', label: 'Execute Procedure', hasValue: false },
+                    { value: 'query', label: RED._("mssql.common.query"), hasValue: false },
+                    { value: 'execute', label: RED._("mssql.common.execute_procedure"), hasValue: false },
                     //FUTURE: { value:"prepared", label: "Prepared Statement",  hasValue:false },
                     { value: 'bulk', label: 'Bulk Insert', hasValue: false },
                     'msg', 'flow', 'global', 'env'
@@ -582,10 +421,9 @@
                 typeField: $('#node-input-modeOptType'),
                 default: 'query'
             });
-
             const queryField = $('#node-input-queryOpt').typedInput({
                 types: [
-                    { value: 'editor', label: 'Editor', hasValue: false },
+                    { value: 'editor', label: RED._("mssql.common.editor"), hasValue: false },
                     'msg', 'flow', 'global', 'env'
                 ],
                 typeField: $('#node-input-queryOptType'),
@@ -594,7 +432,7 @@
             const paramsField = $('#node-input-paramsOpt').typedInput({
                 types: [
                     { value: 'none', label: 'None', hasValue: false },
-                    { value: 'editor', label: 'Editor', hasValue: false },
+                    { value: 'editor', label: RED._("mssql.common.editor"), hasValue: false },
                     'msg', 'flow', 'global'/*, 'env'*/
                 ],
                 typeField: $('#node-input-paramsOptType'),
