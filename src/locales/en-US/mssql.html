@@ -16,11 +16,18 @@
 
 <script type="text/html" data-help-name="MSSQL">
     <p>Node for Node-RED to MS SQL</p>
+
+    <h3>Foreword</h3>
+    <dl class="message-properties">
+        Examples have been included to help you do some common tasks. 
+        <a onclick="RED.actions.invoke('core:show-examples-import-dialog')" href="#">Click here</a> to import an example or press the hamburger menu <a class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b> or press <kbd>ctrl+i</kbd>
+    </dl>        
+
     <h3>Query Mode...</h3>
     <div style="padding-left: 15px;">
-        <p>Select the execution mode, this can be "Query" or "Stored procedure"</p>
+        <p>Select the execution mode, this can be "Query", "Stored procedure" or "Bulk Insert"</p>
         <div class="form-tips" style="width: 100%">
-            TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query" or "execute"
+            TIP: Query mode can be set in the UI or dynamically via msg, flow, global or env. The value sent must be either "query", "execute" or "bulk"
         </div>
         <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
         </p>
@@ -33,15 +40,15 @@
             TIP: Query can be set in the UI or dynamically via msg, flow, global or env. The value sent can also contain mustache items.
         </div>
         <br>
-        <p>Query Examples (with mustache)...
+        <p>Query Examples (with mustache and parameters)...
             <ul>
-                <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
-                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
-                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
-                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">SELECT TOP {{{flow.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= {{{global.minQty}}}</code></li>
+                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES (@id, '{{{payload.name}}}', {{{payload.qty}}})</code></li>
+                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = @quantity WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = @id</code></li>
             </ul>
         </p>
-        <div class="form-tips" style="width: 100%">TIPS...
+        <div class="form-tips" style="width: 100%">Query mode tips...
             <ul>
                 <li>To access <code>msg</code> properties, just use the variable name. e.g.
                     <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
@@ -52,13 +59,31 @@
                     <code>{{{flow.my_string}}}</code> </li>
             </ul>
         </div>
+        <div class="form-tips" style="width: 100%">Execute tips...
+            <ul>
+                <li>The query should be just the name of the stored procedure (don't include <code>exec</code>)</li>
+                <li>Parameters can be entered in the procedure query 
+                    (but are not necessary - just enter the matching parameter name in the <code>Parameters</code> list) </li>
+            </ul>
+        </div>
+        <div class="form-tips" style="width: 100%">Bulk Insert tips...
+            <ul>
+                <li>The query should be just the name table to bulk insert into</li>
+                <li>Data to bulk insert must be provided to the <code>Rows (bulk data)</code> field as either ...
+                    <ul>
+                        <li>an array of array rows e.g. <code>[ [col1_value, col2_value], [col1_value, col2_value] ]</code></li>
+                        <li>an array of object rows e.g. <code>[ {col1:"value", col2:"value"}, {col1:"value", col2:"value"} ]</code></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
 
         <br>
         <p>INFO: When the 'Result type' is set to 'Driver output'...
             <ul>
-                <li>Multiple results will be returned in the <code>recordsets</code> array if multiple queries are
+                <li>Multiple results can be returned in the <code>recordsets</code> array if multiple queries are
                     executed.</li>
-                <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> array to confirm
+                <li>It is recommended the user checks the value(s) in the <code>rowsAffected</code> property to confirm
                     operation - especially when performing INSERT, UPDATE and DELETE operations.</li>
             </ul>
         </p>
@@ -66,7 +91,7 @@
     
     <h3>Parameters...</h3>
     <div style="padding-left: 15px;">
-        <p>Input and Output Parameters can be specified for the query.</p>
+        <p>Input and Output Parameters can be specified for a query or procedure. In bulk mode, the parameters represent the columns of the table</p>
         <div class="form-tips" style="width: 100%">
             TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
             <code><pre style="white-space: pre;">[
@@ -117,10 +142,10 @@
         <ul>
             <li>The field to write the results to. Typically this is <code>msg.payload</code></li>
         </ul>
-        <h4>Output type</h4>
+        <h4>Output type (not used for "Bulk Insert" mode)</h4>
         <ul>
-            <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single result (if
-                any). This is the same as previous version - for compatibility</li>
+            <li><b>Original output</b>: The property specified by 'Output property' will be populated with a single recordset (if
+                any). This is the same as earlier mssql-plus version - for compatibility</li>
             <li><b>Driver output</b>: The property specified by 'Output property' will be populated with the result of the query
                 direct from the driver output. This format can return multiple recordsets and other information. Add a
                 debug node to see all available properties returned.</li>
