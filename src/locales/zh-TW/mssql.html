@@ -12,6 +12,13 @@
 
 <script type="text/html" data-help-name="MSSQL">
     <p>MSSQL 節點</p>
+
+    <h3>Foreword</h3>
+    <dl class="message-properties">
+        Examples have been included to help you do some common tasks. 
+        <a onclick="RED.actions.invoke('core:show-examples-import-dialog')" href="#">Click here</a> to import an example or press the hamburger menu <a class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b> or press <kbd>ctrl+i</kbd>
+    </dl>        
+
     <h3>查詢模式...</h3>
     <div style="padding-left: 15px;">
         <p>選擇查詢模式, 可以為 "Query" 或是 "Stored procedure"</p>
@@ -30,19 +37,36 @@
             提示: 查詢可以在使用者介面設定或透過 msg, flow, global, env 動態設定. The value sent can also contain mustache items.
         </div>
         <br>
-        <p>查詢範例 (使用 mustache 格式)...
+        <p>查詢範例 (使用 mustache and parameters 格式)...
             <ul>
-                <li><code style="white-space: normal;">SELECT TOP {{{payload.maxRows}}} * FROM [MyTable] WHERE Name = '{{{flow.name}}}' AND quantity >= {{{global.minQty}}}</code></li>
-                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES ({{{payload.id}}}, '{{{global.name}}}', 1)</code></li>
-                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = {{{flow.quantity}}} WHERE id = {{{payload.id}}}</code></li>
-                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">SELECT TOP {{{flow.maxRows}}} * FROM [MyTable] WHERE Name = @name AND quantity >= {{{global.minQty}}}</code></li>
+                <li><code style="white-space: normal;">INSERT INTO [MyTable] (id, name, quantity) VALUES (@id, '{{{payload.name}}}', {{{payload.qty}}})</code></li>
+                <li><code style="white-space: normal;">UPDATE [MyTable] SET quantity = @quantity WHERE id = {{{payload.id}}}</code></li>
+                <li><code style="white-space: normal;">DELETE FROM [MyTable] WHERE id = @id</code></li>
             </ul>
         </p>
-        <div class="form-tips" style="width: 100%">提示...
+        <div class="form-tips" style="width: 100%">查詢模式提示...
             <ul>
                 <li>要套用 <code>msg</code> 屬性, 只要使用變數名稱. 例如: <code>SELECT top {{{payload}}} * from [MyTable]</code></li>
                 <li>要套用 <code>flow</code> 或 <code>global</code> 屬性, 使用 mustache 格式處理, 例如: <code>SELECT {{{flow.name}}} FROM {{{global.table_name}}}</code></li>
                 <li>為了避免特定字元被轉譯, 需要使用三層花括號. 例如: <code>{{{flow.my_string}}}</code> </li>
+            </ul>
+        </div>
+        <div class="form-tips" style="width: 100%">執行 tips...
+            <ul>
+                <li>The query should be just the name of the stored procedure (不能包含 <code>exec</code>)</li>
+                <li>Parameters can be entered in the procedure query (但不是必需的 - 只需要在 <code>Parameters</code> 列表內輸入參數名稱)</li>
+            </ul>
+        </div>
+        <div class="form-tips" style="width: 100%">大量新增 tips...
+            <ul>
+                <li>The query should be just the name table to bulk insert into</li>
+                <li>Data to bulk insert must be provided to the <code>Rows (bulk data)</code> field as either ...
+                    <ul>
+                        <li>an array of array rows e.g. <code>[ [col1_value, col2_value], [col1_value, col2_value] ]</code></li>
+                        <li>an array of object rows e.g. <code>[ {col1:"value", col2:"value"}, {col1:"value", col2:"value"} ]</code></li>
+                    </ul>
+                </li>
             </ul>
         </div>
 
@@ -108,7 +132,7 @@
         <ul>
             <li>將執行結果寫入到指定的屬性. 通常會是 <code>msg.payload</code></li>
         </ul>
-        <h4>輸出類型</h4>
+        <h4>輸出類型 (無法在 Bulk Insert 模式使用)</h4>
         <ul>
             <li><b>Original output</b>: 設定此選項只會傳回單一結果. (與舊版本相同 - 為了向下相容)</li>
             <li><b>Driver output</b>: 設定此選項將會直接傳回驅動的輸出. 可以傳回多重資料集格式與其他資訊. 加入 debug 節點可以觀察所有回傳的屬性.</li>
