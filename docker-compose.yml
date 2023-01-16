@@ -11,10 +11,11 @@ services:
 
   # https://hub.docker.com/_/microsoft-mssql-server
   mssql:
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    build:
+      context: ./docker
     environment:
-      - ACCEPT_EULA=Y
-      - "SA_PASSWORD=P@ssw0rdP@ssw0rd"
-      - MSSQL_PID=Express
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=P@ssw0rdP@ssw0rd"
+      # - MSSQL_PID=Express
     ports:
-      - 1433:1433
+      - 2433:1433

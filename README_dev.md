@@ -11,11 +11,18 @@ npm install -g np
 ## Prepare and run test
 
 ```shell
+docker compose build --no-cache
+docker-compose up -d mssql
+```
+
+```shell
 mkdir -p temp
 git clone --depth 1 https://github.com/node-red/node-red.git ./temp/node-red
 
 npm install
 npm install ./temp/node-red --no-save
+
+cp test/_config.docker.json test/config.json
 npm test
 ```
 
@@ -30,6 +37,7 @@ npm run release
 run node-red and mssql use docker
 
 ```shell
+docker compose build --no-cache
 docker-compose up -d
 ```
 
