@@ -10,7 +10,24 @@ try {
 }
 
 function getConfigNode (id, options) {
-    const defConf = { 'id': 'configNode', 'type': 'MSSQL-CN', 'tdsVersion': '7_4', 'name': 'My SQL Server connection', 'server': '127.0.0.1', 'port': '1433', 'encyption': false, 'trustServerCertificate': true, 'database': 'testdb', 'useUTC': true, 'connectTimeout': '15000', 'requestTimeout': '15000', 'cancelTimeout': '5000', 'pool': '5', 'parseJSON': false, 'enableArithAbort': true };
+    const defConf = {
+        'id': 'configNode',
+        'type': 'MSSQL-CN',
+        'tdsVersion': '7_4',
+        'name': 'MS SQL Server connection',
+        'server': '127.0.0.1',
+        'port': '1433',
+        'encyption': false,
+        'trustServerCertificate': true,
+        'database': 'testdb',
+        'useUTC': true,
+        'connectTimeout': '15000',
+        'requestTimeout': '15000',
+        'cancelTimeout': '5000',
+        'pool': '5',
+        'parseJSON': false,
+        'enableArithAbort': true
+    };
     const configNode = Object.assign({}, defConf, options);
     configNode.id = id || configNode.id;
     return configNode;
