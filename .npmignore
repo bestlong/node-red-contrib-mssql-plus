@@ -6,7 +6,9 @@ npm-debug.log
 
 *.tgz
 
+.eslintrc.js
 .vscode
 docker-compose.yml
+examples
 temp
 test
