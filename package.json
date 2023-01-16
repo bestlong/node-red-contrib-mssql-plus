@@ -4,7 +4,7 @@
   "description": "A node-red node to execute queries, stored procedures and bulk inserts in Microsoft SQL Server and Azure Databases SQL2000 ~ SQL2019",
   "main": "odbc.js",
   "dependencies": {
-    "mssql": "^7.0.0",
+    "mssql": "^9.0.0",
     "mustache": "^4.2.0"
   },
   "devDependencies": {
