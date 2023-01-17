@@ -180,6 +180,17 @@ module.exports = function (RED) {
     }
 
     /**
+     * parseEnv - borrowed from @0node-red/nodes/core/core/80-template.js
+     */
+    function parseEnv(key) {
+        const match = /^env\.(.+)/.exec(key);
+        if (match) {
+            return match[1];
+        }
+        return undefined;
+    }
+
+    /**
      * checks if `n` is a valid number.
      * @param {string | number} n
      */
@@ -230,6 +241,11 @@ module.exports = function (RED) {
                 value = value.replace(/[\b]/g, '\\b');
             }
             return value;
+        }
+
+        // try env
+        if (parseEnv(name)) {
+            return this.cachedContextTokens[name];
         }
 
         // try flow/global context:
@@ -736,6 +752,17 @@ module.exports = function (RED) {
             const tokens = extractTokens(mustache.parse(msg.query));
             const resolvedTokens = {};
             tokens.forEach(function (name) {
+                const envName = parseEnv(name);
+                if (envName) {
+                    const promise = new Promise((resolve, reject) => {
+                        const val = RED.util.evaluateNodeProperty(envName, 'env', node);
+                        resolvedTokens[name] = val;
+                        resolve();
+                    });
+                    promises.push(promise);
+                    return;
+                }
+
                 const context = parseContext(name);
                 if (context) {
                     const type = context.type;
