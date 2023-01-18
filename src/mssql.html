@@ -12,7 +12,7 @@
 
     div.form-row.mssql-plus-form-row > .form-tips {
         width: calc(100% - 35px);
-    } 
+    }
 
     .mssql-plus-row-item {
         margin: 2px 4px 2px 2px;
@@ -39,7 +39,7 @@
 */
     div.form-row.mssql-plus-form-row > .form-tips {
         width: calc(100% - 35px);
-    } 
+    }
 
     .mssql-plus-row-item {
         /* margin: 2px 4px 2px 2px; */
@@ -49,7 +49,7 @@
     .mssql-plus-row {
         flex-wrap: wrap;
     }
-    
+
     ol .mssql-plus-row > .mssql-plus-row-item  input[type="checkbox"] {
         width: 15px;
         margin-left: 4px;
@@ -60,7 +60,7 @@
         margin-top: 2px;
         margin-bottom: 0px;
     }
-    
+
 
 </style>
 
@@ -267,11 +267,11 @@
     <div class="form-row mssql-plus-form-row bulk-data-input-row">
         <label for="node-input-rows"><i class="fa fa-table"></i> Rows (bulk data)</label>
         <input type="hidden" id="node-input-rowsType">
-        <input type="text" id="node-input-rows" placeholder="rows" style="width: 70%" dir=""> 
+        <input type="text" id="node-input-rows" placeholder="rows" style="width: 70%" dir="">
     </div>
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-outField"><i class="fa fa-sign-out"></i> <span data-i18n="mssql.node.label.output_property"></label>
-        <input type="text" id="node-input-outField" placeholder="payload" style="width: 70%" dir=""> 
+        <input type="text" id="node-input-outField" placeholder="payload" style="width: 70%" dir="">
     </div>
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-returnType"><i class="fa fa-sign-out"></i> <span data-i18n="mssql.node.label.output_type"></label>
@@ -293,7 +293,7 @@
             font-weight: bold; /* Making font bold */
             border-radius: 20px; /* Making border radius */
             width: auto; /* Making auto-sizable width */
-            max-width: 500px; 
+            max-width: 500px;
             height: auto; /* Making auto-sizable height */
             padding: 5px 30px 5px 30px; /* Making space around letters */
             font-size: 18px; /* Changing font size */
@@ -301,9 +301,9 @@
                 <h2>Bulk Insert mode</h2>
                 <h3>Shameless request for beta testers...</h3>
                 <div style="font-weight: 500;">
-                    Bulk Insert mode is implemented in version 0.7.0 beta but before I make the new features mainstream, I need testers and feedback. 
+                    Bulk Insert mode is implemented in version 0.7.0 beta but before I make the new features mainstream, I need testers and feedback.
                     <br><br>
-                    If you are able to help out, you can find installation instructions and provide feedback here: 
+                    If you are able to help out, you can find installation instructions and provide feedback here:
                     <a href="https://bit.ly/3gCd8IA" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;color: blue;">
                         https://discourse.nodered.org/t/updated-node-red-contrib-mssql-plus-0-7-0-beta-2-bulk-insert-support/37331</a>
                 </div>
@@ -412,8 +412,8 @@
             //create typedInput widgets
             const modeField = $('#node-input-modeOpt').typedInput({
                 types: [
-                    { value: 'query', label: RED._("mssql.common.query"), hasValue: false },
-                    { value: 'execute', label: RED._("mssql.common.execute_procedure"), hasValue: false },
+                    { value: 'query', label: RED._('mssql.common.query'), hasValue: false },
+                    { value: 'execute', label: RED._('mssql.common.execute_procedure'), hasValue: false },
                     //FUTURE: { value:"prepared", label: "Prepared Statement",  hasValue:false },
                     { value: 'bulk', label: 'Bulk Insert', hasValue: false },
                     'msg', 'flow', 'global', 'env'
@@ -423,7 +423,7 @@
             });
             const queryField = $('#node-input-queryOpt').typedInput({
                 types: [
-                    { value: 'editor', label: RED._("mssql.common.editor"), hasValue: false },
+                    { value: 'editor', label: RED._('mssql.common.editor'), hasValue: false },
                     'msg', 'flow', 'global', 'env'
                 ],
                 typeField: $('#node-input-queryOptType'),
@@ -432,7 +432,7 @@
             const paramsField = $('#node-input-paramsOpt').typedInput({
                 types: [
                     { value: 'none', label: 'None', hasValue: false },
-                    { value: 'editor', label: RED._("mssql.common.editor"), hasValue: false },
+                    { value: 'editor', label: RED._('mssql.common.editor'), hasValue: false },
                     'msg', 'flow', 'global'/*, 'env'*/
                 ],
                 typeField: $('#node-input-paramsOptType'),
