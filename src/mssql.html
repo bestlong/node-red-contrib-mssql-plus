@@ -412,8 +412,8 @@
             //create typedInput widgets
             const modeField = $('#node-input-modeOpt').typedInput({
                 types: [
-                    { value: 'query', label: RED._('mssql.common.query'), hasValue: false },
-                    { value: 'execute', label: RED._('mssql.common.execute_procedure'), hasValue: false },
+                    { value: 'query', label: this._('mssql.common.query'), hasValue: false },
+                    { value: 'execute', label: this._('mssql.common.execute_procedure'), hasValue: false },
                     //FUTURE: { value:"prepared", label: "Prepared Statement",  hasValue:false },
                     { value: 'bulk', label: 'Bulk Insert', hasValue: false },
                     'msg', 'flow', 'global', 'env'
@@ -423,7 +423,7 @@
             });
             const queryField = $('#node-input-queryOpt').typedInput({
                 types: [
-                    { value: 'editor', label: RED._('mssql.common.editor'), hasValue: false },
+                    { value: 'editor', label: this._('mssql.common.editor'), hasValue: false },
                     'msg', 'flow', 'global', 'env'
                 ],
                 typeField: $('#node-input-queryOptType'),
@@ -432,7 +432,7 @@
             const paramsField = $('#node-input-paramsOpt').typedInput({
                 types: [
                     { value: 'none', label: 'None', hasValue: false },
-                    { value: 'editor', label: RED._('mssql.common.editor'), hasValue: false },
+                    { value: 'editor', label: this._('mssql.common.editor'), hasValue: false },
                     'msg', 'flow', 'global'/*, 'env'*/
                 ],
                 typeField: $('#node-input-paramsOptType'),
