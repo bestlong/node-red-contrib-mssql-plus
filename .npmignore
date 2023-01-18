@@ -1,14 +1,20 @@
 .*.swp
 .DS_Store
-.git
+.git*
 .npmrc
 npm-debug.log
 
 *.tgz
 
 .eslintrc.js
+.jshintrc
 .vscode
+
+docker
 docker-compose.yml
+
 examples
-temp
 test
+README_dev.md
+
+temp
