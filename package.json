@@ -20,6 +20,7 @@
     "should": "^13.2.3"
   },
   "node-red": {
+    "version": ">=2.0.0",
     "nodes": {
       "mssql": "src/mssql.js"
     }
@@ -59,5 +60,8 @@
   "homepage": "https://github.com/bestlong/node-red-contrib-mssql-plus",
   "bugs": {
     "url": "https://github.com/bestlong/node-red-contrib-mssql-plus/issues"
+  },
+  "engines": {
+    "node": ">=12.0.0"
   }
 }
