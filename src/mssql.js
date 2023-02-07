@@ -493,6 +493,7 @@ module.exports = function (RED) {
         node.paramsOptType = config.paramsOptType || 'none';
         node.rows = config.rows || 'rows';
         node.rowsType = config.rowsType || 'msg';
+        node.parseMustache = config.parseMustache;
 
         const setResult = function (msg, field, value, returnType = 0) {
             // eslint-disable-next-line eqeqeq
@@ -748,51 +749,56 @@ module.exports = function (RED) {
                 }
             }
 
-            const promises = [];
-            const tokens = extractTokens(mustache.parse(msg.query));
-            const resolvedTokens = {};
-            tokens.forEach(function (name) {
-                const envName = parseEnv(name);
-                if (envName) {
-                    const promise = new Promise((resolve, reject) => {
-                        const val = RED.util.evaluateNodeProperty(envName, 'env', node);
-                        resolvedTokens[name] = val;
-                        resolve();
-                    });
-                    promises.push(promise);
-                    return;
-                }
-
-                const context = parseContext(name);
-                if (context) {
-                    const type = context.type;
-                    const store = context.store;
-                    const field = context.field;
-                    const target = node.context()[type];
-                    if (target) {
+            if (node.parseMustache) {
+                const promises = [];
+                const tokens = extractTokens(mustache.parse(msg.query));
+                const resolvedTokens = {};
+                tokens.forEach(function (name) {
+                    const envName = parseEnv(name);
+                    if (envName) {
                         const promise = new Promise((resolve, reject) => {
-                            target.get(field, store, (err, val) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolvedTokens[name] = val;
-                                    resolve();
-                                }
-                            });
+                            const val = RED.util.evaluateNodeProperty(envName, 'env', node);
+                            resolvedTokens[name] = val;
+                            resolve();
                         });
                         promises.push(promise);
+                        return;
                     }
-                }
-            });
 
-            Promise.all(promises).then(function () {
-                const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
-                msg.query = value;
+                    const context = parseContext(name);
+                    if (context) {
+                        const type = context.type;
+                        const store = context.store;
+                        const field = context.field;
+                        const target = node.context()[type];
+                        if (target) {
+                            const promise = new Promise((resolve, reject) => {
+                                target.get(field, store, (err, val) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        resolvedTokens[name] = val;
+                                        resolve();
+                                    }
+                                });
+                            });
+                            promises.push(promise);
+                        }
+                    }
+                });
+
+                Promise.all(promises).then(function () {
+                    const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
+                    msg.query = value;
+                    const values = msg.queryMode === 'bulk' ? rows : queryParamValues;
+                    doSQL(node, msg, values);
+                }).catch(function (err) {
+                    node.processError(err, msg);
+                });
+            } else {
                 const values = msg.queryMode === 'bulk' ? rows : queryParamValues;
                 doSQL(node, msg, values);
-            }).catch(function (err) {
-                node.processError(err, msg);
-            });
+            }
         });
 
         function doSQL(node, msg, values) {

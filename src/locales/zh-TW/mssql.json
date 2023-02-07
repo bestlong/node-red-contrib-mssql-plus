@@ -18,7 +18,8 @@
                 "output_type_driver": "Driver output",
                 "error_handling": "錯誤處理",
                 "error_handling_send_in_msg": "傳送到 msg.error",
-                "error_handling_throw": "拋出 error"
+                "error_handling_throw": "拋出 error",
+                "parse_mustache": "解析 Mustache"
             }
         },
         "connection": {
