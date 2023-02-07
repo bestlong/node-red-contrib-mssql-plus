@@ -18,7 +18,8 @@
                 "output_type_driver": "Driver output",
                 "error_handling": "Error Handling",
                 "error_handling_send_in_msg": "Send in msg.error",
-                "error_handling_throw": "Throw error"
+                "error_handling_throw": "Throw error",
+                "parse_mustache": "Parse Mustache"
             }
         },
         "connection": {

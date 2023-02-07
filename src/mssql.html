@@ -269,6 +269,12 @@
         <input type="hidden" id="node-input-rowsType">
         <input type="text" id="node-input-rows" placeholder="rows" style="width: 70%" dir="">
     </div>
+
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-input-parseMustache"><i class="fa fa-tag"></i> <span data-i18n="mssql.node.label.parse_mustache"></label>
+        <input type="checkbox" id="node-input-parseMustache">
+    </div>
+
     <div class="form-row mssql-plus-form-row">
         <label for="node-input-outField"><i class="fa fa-sign-out"></i> <span data-i18n="mssql.node.label.output_property"></label>
         <input type="text" id="node-input-outField" placeholder="payload" style="width: 70%" dir="">
@@ -385,6 +391,9 @@
             },
             rowsType: {
                 value: 'msg'
+            },
+            parseMustache: {
+                value: true
             },
             params: {
                 value: []
