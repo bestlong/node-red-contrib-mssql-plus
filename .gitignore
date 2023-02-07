@@ -37,3 +37,5 @@ package-lock.json
 
 .vscode
 temp
+
+.env

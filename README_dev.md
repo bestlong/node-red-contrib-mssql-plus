@@ -11,6 +11,10 @@ npm install -g np
 ## Prepare and run test
 
 ```shell
+cp .env.dev .env
+```
+
+```shell
 docker compose build --no-cache
 docker-compose up -d mssql
 ```

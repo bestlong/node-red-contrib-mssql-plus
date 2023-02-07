@@ -4,8 +4,12 @@ services:
 
   nodered:
     image: nodered/node-red
+    environment:
+      - TZ=${TZ}
     ports:
       - 1880:1880
+    volumes:
+      - .:/workspace
     depends_on:
       - mssql
 
@@ -14,6 +18,7 @@ services:
     build:
       context: ./docker
     environment:
+      - TZ=${TZ}
       - "ACCEPT_EULA=Y"
       - "MSSQL_SA_PASSWORD=P@ssw0rdP@ssw0rd"
       # - MSSQL_PID=Express
