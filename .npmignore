@@ -6,6 +6,8 @@ npm-debug.log
 
 *.tgz
 
+.env
+.env.dev
 .eslintrc.js
 .jshintrc
 .vscode
