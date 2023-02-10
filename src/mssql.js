@@ -493,7 +493,7 @@ module.exports = function (RED) {
         node.paramsOptType = config.paramsOptType || 'none';
         node.rows = config.rows || 'rows';
         node.rowsType = config.rowsType || 'msg';
-        node.parseMustache = config.parseMustache;
+        node.parseMustache = config.parseMustache || true;
 
         const setResult = function (msg, field, value, returnType = 0) {
             // eslint-disable-next-line eqeqeq
