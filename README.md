@@ -11,7 +11,7 @@ Importantly, this package comes with pre-built linux drivers for communicating w
 
 
 ## Features include...
-* Connect to multiple SQL Servers and Azure databases from SQL2000 ~ 2019
+* Connect to multiple SQL Servers and Azure databases from SQL2000 ~ 2022
 * Perform multiple queries in one go & get back multiple recordsets (depends on the queries sent)
 * Supports Stored Procedure execute
 * Supports Bulk Insert
