@@ -35,7 +35,7 @@
                 "database": "資料庫",
                 "tds": {
                     "title": "TDS 版本",
-                    "v7_4": "7_4 (SQL Server 2012 ~ 2019)",
+                    "v7_4": "7_4 (SQL Server 2012 ~ 2022)",
                     "v7_3_b": "7_3_B (SQL Server 2008R2)",
                     "v7_3_a": "7_3_A (SQL Server 2008)",
                     "v7_2": "7_2 (SQL Server 2005)",
