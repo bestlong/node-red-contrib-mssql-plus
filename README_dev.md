@@ -15,7 +15,7 @@ cp .env.dev .env
 ```
 
 ```shell
-docker compose build --no-cache
+docker compose build --no-cache --pull
 docker-compose up -d mssql
 ```
 
