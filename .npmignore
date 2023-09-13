@@ -6,6 +6,7 @@ npm-debug.log
 
 *.tgz
 
+.editorconfig
 .env
 .env.dev
 .eslintrc.js
