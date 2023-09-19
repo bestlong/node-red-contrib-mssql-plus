@@ -18,3 +18,4 @@ jobs:
       run: docker-compose up -d --build mssql
 
     - name: test
+      run: npm install
