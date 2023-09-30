@@ -301,7 +301,8 @@ module.exports = function (RED) {
                 cancelTimeout: config.cancelTimeout ? safeParseInt(config.cancelTimeout, 5000) : undefined,
                 camelCaseColumns: (config.camelCaseColumns === 'true' || config.camelCaseColumns === true) ? true : undefined, //defaults to undefined.
                 parseJSON: !!((config.parseJSON === 'true' || config.parseJSON === true)), //defaults to true.
-                enableArithAbort: !((config.enableArithAbort === 'false' || config.enableArithAbort === false)) //defaults to true.
+                enableArithAbort: !((config.enableArithAbort === 'false' || config.enableArithAbort === false)), //defaults to true.
+                readOnlyIntent: !((config.readOnlyIntent === 'true' || config.readOnlyIntent === true)) //defaults to false.
             },
             pool: {
                 max: safeParseInt(config.pool, 5),
