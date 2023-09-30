@@ -3,7 +3,7 @@
         "common": {
             "editor": "編輯器",
             "query": "查詢",
-            "execute_procedure": "執行預儲程序"            
+            "execute_procedure": "執行預儲程序"
         },
         "node": {
             "label": {
@@ -54,7 +54,8 @@
                 "max_pool_size": "連線池最大連線數",
                 "parse_json": "支援 JSON?",
                 "arith_abort": "ARITHABORT?",
-                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."
+                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled.",
+                "read_only_intent": "ReadOnly Intent"
             }
         }
     }

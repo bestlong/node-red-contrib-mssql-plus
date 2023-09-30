@@ -3,7 +3,7 @@
         "common": {
             "editor": "Editor",
             "query": "Query",
-            "execute_procedure": "Execute Procedure"            
+            "execute_procedure": "Execute Procedure"
         },
         "node": {
             "label": {
@@ -54,7 +54,8 @@
                 "max_pool_size": "Max Pool Size",
                 "parse_json": "JSON Support?",
                 "arith_abort": "ARITHABORT?",
-                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled."
+                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled.",
+                "read_only_intent": "ReadOnly Intent"
             }
         }
     }

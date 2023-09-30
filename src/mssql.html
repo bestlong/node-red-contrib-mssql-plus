@@ -146,6 +146,10 @@
         <label for="node-config-input-enableArithAbort" data-i18n="[title]mssql.connection.label.arith_abort_tooltip"><i class="fa fa-times"></i> <span data-i18n="mssql.connection.label.arith_abort"></label>
         <input type="checkbox" id="node-config-input-enableArithAbort" checked  data-i18n="[title]mssql.connection.label.arith_abort_tooltip">
     </div>
+    <div class="form-row mssql-plus-form-row">
+        <label for="node-config-input-readOnlyIntent"><i class="fa fa-square-o"></i> <span data-i18n="mssql.connection.label.read_only_intent"></label>
+        <input type="checkbox" id="node-config-input-readOnlyIntent">
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -196,6 +200,9 @@
             },
             enableArithAbort: {
                 value: true
+            },
+            readOnlyIntent: {
+                value: false
             }
         },
         inputs: 0,
