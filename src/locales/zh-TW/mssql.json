@@ -54,7 +54,7 @@
                 "max_pool_size": "連線池最大連線數",
                 "parse_json": "支援 JSON?",
                 "arith_abort": "ARITHABORT?",
-                "arith_abort_tooltip": "Ends a query when an overflow or divide-by-zero error occurs during query execution. Should normally be enabled.",
+                "arith_abort_tooltip": "查詢執行期間發生溢位或除以零錯誤時結束查詢. 通常應該開啟.",
                 "read_only_intent": "ReadOnly Intent"
             }
         }
