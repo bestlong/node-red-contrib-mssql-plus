@@ -1,22 +1,40 @@
 name: CI
 
 on:
-  push:
-    # branches:
-    #   - master
+  workflow_dispatch:
   pull_request:
+  push:
     branches:
       - master
+    paths:
+      - "src/**"
+      - "test/**"
+      - ".npmignore"
+      - "package*.json"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16, 18]
+
     steps:
     - uses: actions/checkout@v4
 
     - name: Start MSSQL containers
       working-directory: ./
-      run: docker-compose up -d --build mssql
+      run: docker-compose up -d mssql
 
-    - name: test
-      run: npm install
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+
+    - name: npm install and test
+      run: |
+        cp .env.dev .env
+        npm install
+        npm test
