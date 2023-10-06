@@ -3,6 +3,8 @@ const should = require('should');
 const helper = require('node-red-node-test-helper');
 const mssqlPlusNode = require('../src/mssql.js');
 
+helper.init(require.resolve('node-red'));
+
 let testConnectionConfig;
 try {
     testConnectionConfig = require('../test/config.json') || {};
@@ -108,6 +110,47 @@ describe('Load MSSQL Plus Node', function () {
                     should(msg.payload.length).eql(1, 'payload array must have 1 element');
                     msg.payload[0].should.have.property('now');
                     should(msg.payload[0].now).not.be.undefined();
+                    done();
+                } catch (error) {
+                    done(error);
+                }
+            });
+
+            sqlNode.receive({ payload: query }); // fire input of testNode
+        });
+    });
+
+    it('should can create table and insert/select data', function (done) {
+        const cn = getConfigNode('configNode', testConnectionConfig);
+
+        const flow = [
+            cn,
+            { id: 'helperNode', type: 'helper' },
+            { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
+        ];
+
+        helper.load(mssqlPlusNode, flow, function () {
+            const query = "create table #t (id int PRIMARY KEY, data varchar(20)); insert into #t (id, data) values(1, 'a'); insert into #t (id, data) values(2, 'b'); select * from #t;";
+            const helperNode = helper.getNode('helperNode');
+            const sqlNode = helper.getNode('sqlNode');
+            const configNode = helper.getNode('configNode');
+
+            configNode.config.user = testConnectionConfig.username;
+            configNode.config.password = testConnectionConfig.password;
+            configNode.pool.config.user = testConnectionConfig.username;
+            configNode.pool.config.password = testConnectionConfig.password;
+
+            configNode.should.have.property('id', 'configNode');
+
+            helperNode.on('input', function (msg) {
+                try {
+                    msg.should.have.property('query', query);
+                    msg.should.have.property('payload');
+                    should(Array.isArray(msg.payload)).be.true('payload must be an array');
+                    should(msg.payload.length).eql(2, 'payload array must have 2 element');
+                    msg.payload[0].should.have.property('id');
+                    msg.payload[0].should.have.property('data');
+                    should(msg.payload[0].id).not.be.undefined();
                     done();
                 } catch (error) {
                     done(error);
