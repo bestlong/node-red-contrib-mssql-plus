@@ -7,9 +7,10 @@ on:
     branches:
       - master
     paths:
+      - ".github/**"
+      - ".npmignore"
       - "src/**"
       - "test/**"
-      - ".npmignore"
       - "package*.json"
 
 jobs:
