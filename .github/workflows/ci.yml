@@ -24,6 +24,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: config
+      run: cp .env.dev .env
+
     - uses: isbang/compose-action@v1.5.1
       with:
         services: mssql
@@ -40,6 +43,5 @@ jobs:
 
     - name: npm install and test
       run: |
-        cp .env.dev .env
         npm install
         npm test
