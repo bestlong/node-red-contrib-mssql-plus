@@ -43,5 +43,6 @@ jobs:
 
     - name: npm install and test
       run: |
+        cp ./test/_config.test.json ./test/config.json
         npm install
         npm test
