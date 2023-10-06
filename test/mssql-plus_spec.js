@@ -2,6 +2,7 @@
 const should = require('should');
 const helper = require('node-red-node-test-helper');
 const mssqlPlusNode = require('../src/mssql.js');
+
 let testConnectionConfig;
 try {
     testConnectionConfig = require('../test/config.json') || {};
@@ -11,22 +12,22 @@ try {
 
 function getConfigNode (id, options) {
     const defConf = {
-        'id': 'configNode',
-        'type': 'MSSQL-CN',
-        'tdsVersion': '7_4',
-        'name': 'MS SQL Server connection',
-        'server': '127.0.0.1',
-        'port': '1433',
-        'encyption': false,
-        'trustServerCertificate': true,
-        'database': 'testdb',
-        'useUTC': true,
-        'connectTimeout': '15000',
-        'requestTimeout': '15000',
-        'cancelTimeout': '5000',
-        'pool': '5',
-        'parseJSON': false,
-        'enableArithAbort': true
+        id: 'configNode',
+        type: 'MSSQL-CN',
+        tdsVersion: '7_4',
+        name: 'MS SQL Server connection',
+        server: '127.0.0.1',
+        port: '1433',
+        encyption: false,
+        trustServerCertificate: true,
+        database: 'testdb',
+        useUTC: true,
+        connectTimeout: '15000',
+        requestTimeout: '15000',
+        cancelTimeout: '5000',
+        pool: '5',
+        parseJSON: false,
+        enableArithAbort: true
     };
     const configNode = Object.assign({}, defConf, options);
     configNode.id = id || configNode.id;
@@ -49,23 +50,27 @@ describe('Load MSSQL Plus Node', function () {
     it('should be loaded', function (done) {
         const cn = getConfigNode('configNode', testConnectionConfig);
         const flow = [
+            cn,
             { id: 'helperNode', type: 'helper' },
-            { 'id': 'sqlNode', 'type': 'MSSQL', 'name': 'mssql', 'mssqlCN': 'configNode', 'wires': [['helperNode']] },
-            cn
+            { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
         ];
 
         helper.load(mssqlPlusNode, flow, function () {
             const helperNode = helper.getNode('helperNode');
             const sqlNode = helper.getNode('sqlNode');
             const configNode = helper.getNode('configNode');
+
             should(helperNode).not.be.undefined();
             should(sqlNode).not.be.undefined();
             should(configNode).not.be.undefined();
+
             sqlNode.should.have.property('type', 'MSSQL');
             sqlNode.should.have.property('modeOptType', 'query');
+
             configNode.should.have.property('config');
             configNode.should.have.property('pool');
             configNode.should.have.property('type', 'MSSQL-CN');
+
             done();
         });
     });
@@ -77,9 +82,9 @@ describe('Load MSSQL Plus Node', function () {
 
         const cn = getConfigNode('configNode', testConnectionConfig);
         const flow = [
-            { id: 'helperNode', type: 'helper' },
             cn,
-            { 'id': 'sqlNode', 'type': 'MSSQL', 'name': 'mssql', 'mssqlCN': 'configNode', 'wires': [['helperNode']] }
+            { id: 'helperNode', type: 'helper' },
+            { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
         ];
 
         helper.load(mssqlPlusNode, flow, function () {
