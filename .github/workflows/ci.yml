@@ -1,6 +1,7 @@
 name: CI
 
 on:
+<<<<<<< HEAD
   workflow_dispatch:
   pull_request:
   push:
@@ -11,20 +12,32 @@ on:
       - "test/**"
       - ".npmignore"
       - "package*.json"
+=======
+  push:
+    # branches:
+    #   - master
+  pull_request:
+    branches:
+      - master
+>>>>>>> 8a880bfec89e3f3fb893a92b1229c3fd51795b93
 
 jobs:
   build:
     runs-on: ubuntu-latest
+<<<<<<< HEAD
 
     strategy:
       matrix:
         node-version: [16, 18]
 
+=======
+>>>>>>> 8a880bfec89e3f3fb893a92b1229c3fd51795b93
     steps:
     - uses: actions/checkout@v4
 
     - name: Start MSSQL containers
       working-directory: ./
+<<<<<<< HEAD
       run: docker-compose up -d mssql
 
     - name: Use Node.js ${{ matrix.node-version }}
@@ -38,3 +51,9 @@ jobs:
         cp .env.dev .env
         npm install
         npm test
+=======
+      run: docker-compose up -d --build mssql
+
+    - name: test
+      run: npm install
+>>>>>>> 8a880bfec89e3f3fb893a92b1229c3fd51795b93
