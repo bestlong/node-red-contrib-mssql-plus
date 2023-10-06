@@ -27,7 +27,8 @@ function getConfigNode (id, options) {
         cancelTimeout: '5000',
         pool: '5',
         parseJSON: false,
-        enableArithAbort: true
+        enableArithAbort: true,
+        readOnlyIntent: false
     };
     const configNode = Object.assign({}, defConf, options);
     configNode.id = id || configNode.id;
