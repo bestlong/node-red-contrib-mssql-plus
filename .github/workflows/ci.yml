@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  # workflow_dispatch:
+  pull_request:
+  push:
+    # branches:
+    #   - master
+    paths:
+      - ".github/**"
+      - ".npmignore"
+      - "src/**"
+      - "test/**"
+      - "package*.json"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16, 18]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: config
+      run: cp .env.dev .env
+
+    - uses: isbang/compose-action@v1.5.1
+      with:
+        services: mssql
+
+    # - name: Start MSSQL containers
+    #   working-directory: ./
+    #   run: docker-compose up -d mssql
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        # cache: npm
+
+    - name: npm install and test
+      run: |
+        cp ./test/_config.docker.json ./test/config.json
+        npm install
+        npm test
