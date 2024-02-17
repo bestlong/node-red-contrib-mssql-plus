@@ -331,9 +331,11 @@ module.exports = function (RED) {
                 }
             } catch (error) {
             }
-            try {
-                if (node.pool) node.pool.close();
-            } catch (error) {
+
+            // node-mssql 5.x to 6.x changes
+            // ConnectionPool.close() now returns a promise / callbacks will be executed once closing of the
+            if (node.pool && node.pool.close) {
+                node.pool.close().catch(() => {})
             }
             if (updateStatusAndLog) node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' });
             node.poolConnect = null;
