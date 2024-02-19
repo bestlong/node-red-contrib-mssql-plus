@@ -8,6 +8,7 @@ services:
       - TZ=${TZ}
     ports:
       - 1880:1880
+      - 9229:9229
     volumes:
       - .:/workspace
     depends_on:
