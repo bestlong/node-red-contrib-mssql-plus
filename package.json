@@ -61,6 +61,6 @@
     "url": "https://github.com/bestlong/node-red-contrib-mssql-plus/issues"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=14"
   }
 }
