@@ -52,8 +52,8 @@
   "author": "Redconnect.io",
   "contributors": [
     "Shao Yu-Lung <bestlong168@gmail.com> (https://github.com/bestlong)",
-    "Olli Kasari <8488349+kasarol@users.noreply.github.com>",
-    "Steve McLaughlin <44235289+Steve-Mcl@users.noreply.github.com> (https://github.com/Steve-Mcl)"
+    "Steve McLaughlin <44235289+Steve-Mcl@users.noreply.github.com> (https://github.com/Steve-Mcl)",
+    "Olli Kasari <8488349+kasarol@users.noreply.github.com>"
   ],
   "license": "MIT",
   "homepage": "https://github.com/bestlong/node-red-contrib-mssql-plus",
