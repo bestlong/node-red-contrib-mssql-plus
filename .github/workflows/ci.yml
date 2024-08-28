@@ -49,17 +49,16 @@ jobs:
     #   working-directory: ./
     #   run: docker-compose up -d mssql
 
-
     - name: Wait for SQL Server to be ready
       run: |
         for i in {1..30}; do
-          /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q "SELECT 1" && break
+          /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P YourStrong!Passw0rd -Q "SELECT 1" && break
           sleep 1
         done
 
     - name: Create database
       run: |
-        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q "CREATE DATABASE TestDB"
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P YourStrong!Passw0rd -Q "CREATE DATABASE testdb"
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -69,7 +68,7 @@ jobs:
 
     - name: npm install
       run: |
-        cp ./test/_config.docker.json ./test/config.json
+        cp ./test/_config.github.json ./test/config.json
         npm install
 
     - name: npm test

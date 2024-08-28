@@ -1,0 +1,13 @@
+{
+    "server": "mssql",
+    "port": 1433,
+    "username": "sa",
+    "password": "YourStrong!Passw0rd",
+    "database": "testdb",
+    "encyption": false,
+    "trustServerCertificate": true,
+    "useUTC": true,
+    "connectTimeout": 15000,
+    "requestTimeout": 15000,
+    "cancelTimeout": 5000
+}
