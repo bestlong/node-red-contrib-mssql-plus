@@ -41,13 +41,25 @@ jobs:
     - name: config
       run: cp .env.dev .env
 
-    - uses: isbang/compose-action@v1.5.1
-      with:
-        services: mssql
+    # - uses: isbang/compose-action@v1.5.1
+    #   with:
+    #     services: mssql
 
     # - name: Start MSSQL containers
     #   working-directory: ./
     #   run: docker-compose up -d mssql
+
+
+    - name: Wait for SQL Server to be ready
+      run: |
+        for i in {1..30}; do
+          /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q "SELECT 1" && break
+          sleep 1
+        done
+
+    - name: Create database
+      run: |
+        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q "CREATE DATABASE TestDB"
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
