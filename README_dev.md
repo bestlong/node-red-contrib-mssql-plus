@@ -16,7 +16,7 @@ cp .env.dev .env
 
 ```shell
 docker compose build --no-cache --pull
-docker-compose up -d mssql
+docker compose up -d mssql
 ```
 
 ```shell
@@ -42,13 +42,20 @@ run node-red and mssql use docker
 
 ```shell
 docker compose build --no-cache
-docker-compose up -d
+docker compose up -d
+```
+
+```shell
+docker compose exec nodered npm install node-red-contrib-mssql-plus-mssql
+docker compose exec nodered npm install node-red-contrib-mssql-plus-mssql@0.12.1
+docker compose exec nodered npm install /workspace/node-red-contrib-mssql-plus-mssql
+docker compose restart nodered
 ```
 
 view node-red container log output
 
 ```shell
-docker-compose logs -f node-red
+docker compose logs -f node-red
 ```
 
 Open `http://127.0.0.1:1880`

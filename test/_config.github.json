@@ -1,0 +1,14 @@
+{
+    "server": "localhost",
+    "port": 1433,
+    "username": "sa",
+    "password": "P@ssw0rdP@ssw0rd",
+    "database": "testdb",
+    "encyption": false,
+    "tdsVersion": "7_4",
+    "trustServerCertificate": true,
+    "useUTC": true,
+    "connectTimeout": 15000,
+    "requestTimeout": 15000,
+    "cancelTimeout": 5000
+}

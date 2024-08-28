@@ -1,16 +1,16 @@
-version: "3"
-
 services:
 
   nodered:
-    image: nodered/node-red
+    # image: nodered/node-red
+    build:
+      context: ./docker/nodered
     environment:
       - TZ=${TZ}
     ports:
       - 1880:1880
       - 9229:9229
     volumes:
-      - .:/workspace
+      - .:/workspace/node-red-contrib-mssql-plus-mssql
     depends_on:
       - mssql
 
