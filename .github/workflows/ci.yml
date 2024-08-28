@@ -41,14 +41,6 @@ jobs:
     - name: config
       run: cp .env.dev .env
 
-    # - uses: isbang/compose-action@v1.5.1
-    #   with:
-    #     services: mssql
-
-    # - name: Start MSSQL containers
-    #   working-directory: ./
-    #   run: docker-compose up -d mssql
-
     - name: Wait for SQL Server to be ready
       run: |
         for i in {1..30}; do
