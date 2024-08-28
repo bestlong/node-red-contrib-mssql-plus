@@ -63,5 +63,8 @@ jobs:
         cp ./test/_config.github.json ./test/config.json
         npm install
 
+    - name: Run ESLint
+      run: npm run lint
+
     - name: npm test
       run: npm test
