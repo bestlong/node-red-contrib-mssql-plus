@@ -32,6 +32,8 @@
   },
   "scripts": {
     "test": "mocha \"test/**/*_spec.js\"",
+    "lint": "eslint test/**/*.js src/**/*.js src/**/*.html",
+    "lint:fix": "eslint test/**/*.js src/**/*.js src/**/*.html --fix",
     "release": "np"
   },
   "repository": {
