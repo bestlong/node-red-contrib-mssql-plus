@@ -1,10 +1,11 @@
 {
-    "server": "mssql",
+    "server": "localhost",
     "port": 1433,
     "username": "sa",
-    "password": "YourStrong!Passw0rd",
+    "password": "P@ssw0rdP@ssw0rd",
     "database": "testdb",
     "encyption": false,
+    "tdsVersion": "7_4",
     "trustServerCertificate": true,
     "useUTC": true,
     "connectTimeout": 15000,
