@@ -21,6 +21,20 @@ jobs:
       matrix:
         node-version: [16, 18]
 
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "exit 0"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 5
+        env:
+          SA_PASSWORD: "YourStrong!Passw0rd"
+          ACCEPT_EULA: "Y"
+
     steps:
     - uses: actions/checkout@v4
 
