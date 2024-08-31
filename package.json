@@ -26,7 +26,8 @@
     }
   },
   "files": [
-    "src/"
+    "src/",
+    "examples/"
   ],
   "directories": {
     "example": "examples"
