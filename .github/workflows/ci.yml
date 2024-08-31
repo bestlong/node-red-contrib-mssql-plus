@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16, 18]
+        node-version: [16, 18, 20]
 
     env:
       SA_PASSWORD: "P@ssw0rdP@ssw0rd"
@@ -65,6 +65,10 @@ jobs:
       run: |
         cp ./test/_config.github.json ./test/config.json
         npm install
+
+    - name: Run ESLint
+      if: matrix.node-version == 20
+      run: npm run lint
 
     - name: npm test
       run: npm test
