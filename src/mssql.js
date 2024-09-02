@@ -267,8 +267,18 @@ module.exports = function (RED) {
     }
 
     function connection (config) {
+        // implement an eventBus (separate to the node-red provided emitter) to allow for status updates
+        const EventEmitter = require('events')
+
         RED.nodes.createNode(this, config)
         const node = this
+
+        node.eventBus = new EventEmitter()
+        // add default listeners to prevent unhandled exceptions
+        node.eventBus.on('error', () => {})
+        node.eventBus.on('connected', () => {})
+        node.eventBus.on('connecting', () => {})
+        node.eventBus.on('disconnected', () => {})
 
         // add mustache transformation to connection object
         const configStr = JSON.stringify(config)
@@ -321,43 +331,41 @@ module.exports = function (RED) {
         node.config.encrypt = node.config.options.encrypt
 
         node.connectedNodes = []
+        /** @type {Promise<sql.ConnectionPool>} */
+        node.poolConnect = null
+        /** @type {sql.ConnectionPool} */
+        node.pool = null
 
-        node.connectionCleanup = function (quiet) {
-            const updateStatusAndLog = !quiet
-            try {
-                if (node.poolConnect) {
-                    if (updateStatusAndLog) node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`)
-                    node.poolConnect.then(_ => _.close()).catch(e => { console.error(e) })
-                }
-            } catch (error) {
-            }
-
-            // node-mssql 5.x to 6.x changes
-            // ConnectionPool.close() now returns a promise / callbacks will be executed once closing of the
-            if (node.pool && node.pool.close) {
-                node.pool.close().catch(() => {})
-            }
-            if (updateStatusAndLog) node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' })
-            node.poolConnect = null
-        }
-
-        node.pool = new sql.ConnectionPool(node.config)
-        node.pool.on('error', err => {
-            node.error(err)
-            node.connectionCleanup()
-        })
-
+        /** @returns {Promise<sql.ConnectionPool>} */
         node.connect = function () {
-            if (node.poolConnect) {
-                return
+            if (!node.pool) {
+                node.pool = new sql.ConnectionPool(node.config)
+                node.pool.on('error', node.onPoolError)
             }
-            node.status({
-                fill: 'yellow',
-                shape: 'dot',
-                text: 'connecting'
-            })
+            if (node.pool && (node.pool.connected || node.pool.connecting)) {
+                return node.poolConnect
+            }
             node.poolConnect = node.pool.connect()
             return node.poolConnect
+        }
+
+        node.connectionCleanup = async function (quiet) {
+            const updateStatusAndLog = !quiet
+            try {
+                if (node.isConnectedOrConnecting()) {
+                    node.pool.off('error', node.onPoolError)
+                    node.pool.removeAllListeners()
+                    await node.pool.close()
+                }
+            } catch (error) {
+                console.warn('Error closing connection pool:', error)
+            }
+            node.poolConnect = null
+            node.pool = null
+            node.connectedNodes = []
+            if (updateStatusAndLog) {
+                node.eventBus.emit('disconnected')
+            }
         }
 
         node.execSql = async function (queryMode, sqlQuery, params, paramValues, callback) {
@@ -451,15 +459,43 @@ module.exports = function (RED) {
             }
         }
 
-        node.disconnect = function (nodeId) {
+        /**
+         * Remove a node from the list of connected nodes.
+         * If `nodeId` is `undefined`, all nodes that use this connection are disconnected.
+         * @param {String} [nodeId] - ID of the node disconnecting
+         */
+        node.disconnect = async function (nodeId) {
+            if (nodeId === undefined) {
+                await node.connectionCleanup()
+                return
+            }
             const index = node.connectedNodes.indexOf(nodeId)
             if (index >= 0) {
                 node.connectedNodes.splice(index, 1)
             }
             if (node.connectedNodes.length === 0) {
-                node.connectionCleanup()
+                await node.connectionCleanup()
             }
         }
+
+        node.onPoolError = async function (err) {
+            node.error(err)
+            node.eventBus.emit('error', err)
+            await node.connectionCleanup()
+        }
+
+        node.isConnected = function () {
+            return node.pool && node.pool.connected
+        }
+
+        node.isConnectedOrConnecting = function () {
+            return node.pool && (node.pool.connected || node.pool.connecting)
+        }
+
+        node.on('close', async done => {
+            await node.connectionCleanup(true)
+            done()
+        })
     }
 
     RED.nodes.registerType('MSSQL-CN', connection, {
@@ -478,8 +514,36 @@ module.exports = function (RED) {
 
     function mssql (config) {
         RED.nodes.createNode(this, config)
+        /** @type {connection} */
         const mssqlCN = RED.nodes.getNode(config.mssqlCN)
         const node = this
+        node.status({ fill: 'grey', shape: 'ring', text: 'ready' })
+
+        if (!mssqlCN) {
+            node.status({ fill: 'red', shape: 'ring', text: 'missing connection' })
+            return
+        }
+
+        node.statusConnected = function () {
+            node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+        }
+
+        node.statusDisconnected = function () {
+            node.status({})
+        }
+
+        node.statusError = function (message) {
+            node.status({ fill: 'red', shape: 'ring', text: message })
+        }
+
+        node.statusConnecting = function () {
+            node.status({ fill: 'yellow', shape: 'ring', text: 'connecting' })
+        }
+
+        mssqlCN.eventBus.on('connected', node.statusConnected)
+        mssqlCN.eventBus.on('connecting', node.statusConnecting)
+        mssqlCN.eventBus.on('disconnected', node.statusDisconnected)
+        mssqlCN.eventBus.on('error', node.statusError)
 
         node.query = config.query
         node.outField = config.outField || 'payload'
@@ -563,7 +627,7 @@ module.exports = function (RED) {
             return true
         }
 
-        node.processError = function (err, msg) {
+        node.processError = function (err, msg, send, done, notifyAll) {
             let errMsg = 'Error'
             if (typeof err === 'string') {
                 errMsg = err
@@ -592,29 +656,54 @@ module.exports = function (RED) {
                     procName: err.procName,
                     serverName: err.serverName,
                     state: err.state,
+                    stack: err.stack,
                     toString: function () {
                         return this.message
                     }
                 }
             }
-
-            node.status({
-                fill: 'red',
-                shape: 'ring',
-                text: errMsg
-            })
-
+            if (notifyAll) {
+                mssqlCN.eventBus.emit('error', errMsg)
+            } else {
+                node.status({ fill: 'red', shape: 'ring', text: errMsg })
+            }
             if (node.throwErrors) {
-                node.error(msg.error, msg)
+                done(msg.error)
             } else {
                 node.log(err)
-                node.send(msg)
+                send(msg)
+                done()
             }
         }
 
-        node.on('input', function (msg) {
+        node.on('input', async function (msg, send, done) {
             node.status({}) // clear node status
             delete msg.error // remove any .error property passed in from previous node
+
+            // determine if the user is requesting a command to control the connection
+            const controlCommands = ['connect', 'disconnect']
+            if (msg.topic === 'command' && controlCommands.includes(msg.payload)) {
+                switch (msg.payload) {
+                case 'connect':
+                    try {
+                        mssqlCN.eventBus.emit('connecting')
+                        await mssqlCN.connect()
+                        mssqlCN.eventBus.emit('connected')
+                        done()
+                    } catch (error) {
+                        node.processError(error, msg, send, done, true)
+                    }
+                    return
+                case 'disconnect':
+                    if (!mssqlCN.poolConnect) {
+                        mssqlCN.eventBus.emit('disconnected')
+                    } else {
+                        await mssqlCN.disconnect(undefined)
+                    }
+                    done()
+                    return
+                }
+            }
 
             // evaluate UI typedInput settings...
             let queryMode
@@ -624,7 +713,7 @@ module.exports = function (RED) {
                 RED.util.evaluateNodeProperty(node.modeOpt, node.modeOptType, node, msg, (err, value) => {
                     if (err) {
                         const errmsg = 'Unable to evaluate query mode choice'
-                        node.processError(errmsg, msg)
+                        node.processError(errmsg, msg, send, done)
                     } else {
                         queryMode = value || 'query'
                     }
@@ -632,7 +721,7 @@ module.exports = function (RED) {
             }
 
             if (!['query', 'execute', /* "prepared", */'bulk'].includes(queryMode)) {
-                node.processError(`Query mode '${queryMode}' is not valid. Supported options are 'query' and 'execute'.`, msg)
+                node.processError(`Query mode '${queryMode}' is not valid. Supported options are 'query' and 'execute'.`, msg, send, done)
                 return null// halt flow
             }
 
@@ -643,7 +732,7 @@ module.exports = function (RED) {
                 RED.util.evaluateNodeProperty(node.queryOpt, node.queryOptType, node, msg, (err, value) => {
                     if (err) {
                         const errmsg = 'Unable to evaluate query choice'
-                        node.processError(errmsg, msg)
+                        node.processError(errmsg, msg, send, done)
                     } else {
                         query = value
                     }
@@ -653,19 +742,19 @@ module.exports = function (RED) {
             let rows = null
             if (queryMode === 'bulk') {
                 if (node.paramsOptType === 'none') {
-                    node.processError('Columns must be provided in bulk mode', msg)
+                    node.processError('Columns must be provided in bulk mode', msg, send, done)
                     return// halt flow!
                 }
                 RED.util.evaluateNodeProperty(node.rows, node.rowsType, node, msg, (err, value) => {
                     if (err) {
                         const errmsg = 'Unable to evaluate rows field'
-                        node.processError(errmsg, msg)
+                        node.processError(errmsg, msg, send, done)
                     } else {
                         rows = value
                     }
                 })
                 if (!rows || !Array.isArray(rows) || !rows.length || !(Array.isArray(rows[0]) || typeof rows[0] === 'object')) {
-                    node.processError('In bulk mode, rows must be an array of arrays or objects', msg)
+                    node.processError('In bulk mode, rows must be an array of arrays or objects', msg, send, done)
                     return// halt flow!
                 }
             }
@@ -691,7 +780,7 @@ module.exports = function (RED) {
                             RED.util.evaluateNodeProperty(param.value, param.valueType, node, msg, (err, value) => {
                                 if (err) {
                                     const errmsg = `Unable to evaluate value for parameter at index [${iParam}] named '${param.name}'`
-                                    node.processError(errmsg, msg)
+                                    node.processError(errmsg, msg, send, done)
                                 } else {
                                     param.value = value
                                 }
@@ -704,7 +793,7 @@ module.exports = function (RED) {
                 RED.util.evaluateNodeProperty(node.paramsOpt, node.paramsOptType, node, msg, (err, value) => {
                     if (err) {
                         const errmsg = 'Unable to evaluate parameter choice'
-                        node.processError(errmsg, msg)
+                        node.processError(errmsg, msg, send, done)
                     } else {
                         const _params = value || []
                         for (let iParam = 0; iParam < _params.length; iParam++) {
@@ -728,7 +817,7 @@ module.exports = function (RED) {
                             validateBulkColumn(param)
                             param.type = coerceType(param.type)
                         } catch (error) {
-                            node.processError(`Column parameter at index [${iParam}] is not valid. ${error.message}.`, msg)
+                            node.processError(`Column parameter at index [${iParam}] is not valid. ${error.message}.`, msg, send, done)
                             return null
                         }
                     }
@@ -745,7 +834,7 @@ module.exports = function (RED) {
                             }
                             delete param.valueType
                         } catch (error) {
-                            node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg)
+                            node.processError(`query parameter at index [${iParam}] is not valid. ${error.message}.`, msg, send, done)
                             return null
                         }
                     }
@@ -789,50 +878,49 @@ module.exports = function (RED) {
                         }
                     }
                 })
-
+                node.status({ fill: 'blue', shape: 'dot', text: 'requesting' })
                 Promise.all(promises).then(function () {
                     const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens))
                     msg.query = value
                     const values = msg.queryMode === 'bulk' ? rows : queryParamValues
-                    doSQL(node, msg, values)
+                    mssqlCN.execSql(msg.queryMode, msg.query, msg.queryParams, values, execSqlResultHandler)
                 }).catch(function (err) {
-                    node.processError(err, msg)
+                    node.processError(err, msg, send, done)
                 })
             } else {
+                node.status({ fill: 'blue', shape: 'dot', text: 'requesting' })
                 const values = msg.queryMode === 'bulk' ? rows : queryParamValues
-                doSQL(node, msg, values)
+                mssqlCN.execSql(msg.queryMode, msg.query, msg.queryParams, values, execSqlResultHandler)
+            }
+
+            function execSqlResultHandler (err, data, info) {
+                if (err) {
+                    node.processError(err, msg, send, done)
+                } else {
+                    node.status({
+                        fill: 'green',
+                        shape: 'dot',
+                        text: 'done'
+                    })
+                    msg.sqlInfo = info
+                    updateOutputParams(msg.queryParams, data)
+                    setResult(msg, node.outField, data, node.returnType)
+                    send(msg)
+                    done()
+                }
             }
         })
 
-        function doSQL (node, msg, values) {
-            node.status({
-                fill: 'blue',
-                shape: 'dot',
-                text: 'requesting'
-            })
-
+        node.on('close', async function () {
             try {
-                mssqlCN.execSql(msg.queryMode, msg.query, msg.queryParams, values, function (err, data, info) {
-                    if (err) {
-                        node.processError(err, msg)
-                    } else {
-                        node.status({
-                            fill: 'green',
-                            shape: 'dot',
-                            text: 'done'
-                        })
-                        msg.sqlInfo = info
-                        updateOutputParams(msg.queryParams, data)
-                        setResult(msg, node.outField, data, node.returnType)
-                        node.send(msg)
-                    }
-                })
-            } catch (err) {
-                node.processError(err, msg)
+                mssqlCN.eventBus.removeListener('connected', node.statusConnected)
+                mssqlCN.eventBus.removeListener('connecting', node.statusConnecting)
+                mssqlCN.eventBus.removeListener('disconnected', node.statusDisconnected)
+                mssqlCN.eventBus.removeListener('error', node.statusError)
+                await mssqlCN.disconnect(node.id)
+            } catch (error) {
+                console.error('Error closing node', error)
             }
-        }
-        node.on('close', function () {
-            mssqlCN.disconnect(node.id)
         })
     }
     RED.nodes.registerType('MSSQL', mssql)

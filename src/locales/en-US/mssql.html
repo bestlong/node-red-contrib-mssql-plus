@@ -21,8 +21,15 @@
     <dl class="message-properties">
         Examples have been included to help you do some common tasks. 
         <a onclick="RED.actions.invoke('core:show-examples-import-dialog')" href="#">Click here</a> to import an example or press the hamburger menu <a class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b> or press <kbd>ctrl+i</kbd>
-    </dl>        
+    </dl>
 
+    <h3>Commands...</h3>
+    <div style="padding-left: 15px;">
+        <p>The connection to the database can be manually controlled by sending a <code>topic</code> containing <code>command</code> and a <code>payload</code> containing either <code>connect</code> or <code>disconnect</code>. This can be useful for forcing connection state at runtime.</p>
+        <div class="form-tips" style="width: 100%">
+            The result of this operation can be determined by adding a <code>complete</code> node or a <code>catch</code> node pointed at the MSSQL node.
+        </div>
+    </div>
     <h3>Query Mode...</h3>
     <div style="padding-left: 15px;">
         <p>Select the execution mode, this can be "Query", "Stored procedure" or "Bulk Insert"</p>
@@ -32,7 +39,7 @@
         <p>INFO: TVP variables are only supported in stored procedures. Some variable types are not supported by the underlying SQL driver.
         </p>
     </div>
-     
+
     <h3>Query...</h3>
     <div style="padding-left: 15px;">
         <p>Enter the query or stored procedure name to execute. It is possible to use <i><a href="http://mustache.github.io/mustache.5.html" target="_new">mustache</a></i> format to access properties of the msg, flow context and global context.</p>
@@ -88,7 +95,7 @@
             </ul>
         </p>
     </div>
-    
+
     <h3>Parameters...</h3>
     <div style="padding-left: 15px;">
         <p>Input and Output Parameters can be specified for a query or procedure. In bulk mode, the parameters represent the columns of the table</p>
@@ -118,8 +125,8 @@
             </div>
             <div style="padding-left: 15px;">
                 <code style="font-weight: bold;">Parameters</code>
-                <ul>               
-                    <li>
+                <ul>
+                        <li>
                         <span>In/Out </span><code style="white-space: normal;">input</code> 
                         <span>, Name </span><code style="white-space: normal;">name</code>
                         <span>, Type </span><code style="white-space: normal;">varchar(20)</code>
@@ -135,7 +142,7 @@
             </div>
         </p>
     </div>
-    
+
     <h3>Output options...</h3>
     <div style="padding-left: 15px;">
         <h4>Output property</h4>

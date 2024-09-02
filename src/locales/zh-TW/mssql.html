@@ -18,7 +18,13 @@
         Examples have been included to help you do some common tasks. 
         <a onclick="RED.actions.invoke('core:show-examples-import-dialog')" href="#">Click here</a> to import an example or press the hamburger menu <a class="button" href="#"><i class="fa fa-bars"></i></a> select <b>import</b> then <b>examples</b> or press <kbd>ctrl+i</kbd>
     </dl>        
-
+    <h3>Commands...</h3>
+    <div style="padding-left: 15px;">
+        <p>可以透過發送包含 <code>command</code> 的 <code>topic</code> 和包含 <code>connect</code> 或 <code>disconnect</code> 的 <code>payload</code> 代碼來手動控制資料庫的連接。這對於在執行時期強制變動連線狀態很有用處。</p>
+        <div class="form-tips" style="width: 100%">
+            可以透過新增指向 MSSQL 節點的 <code>complete</code> 節點或 <code>catch</code> 節點來確定此操作的結果
+        </div>
+    </div>
     <h3>查詢模式...</h3>
     <div style="padding-left: 15px;">
         <p>選擇查詢模式, 可以為 "Query" 或是 "Stored procedure"</p>
