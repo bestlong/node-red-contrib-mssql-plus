@@ -752,12 +752,11 @@ module.exports = function (RED) {
                 }
             }
 
-            let doMustache = false;
             const promises = [];
             const resolvedTokens = {};
+            let tokens;
             if (node.parseMustache) {
-                const tokens = extractTokens(mustache.parse(msg.query));
-                doMustache = tokens.size > 0;
+                tokens = extractTokens(mustache.parse(msg.query));
                 tokens.forEach(function (name) {
                     const envName = parseEnv(name);
                     if (envName) {
@@ -792,7 +791,7 @@ module.exports = function (RED) {
                     }
                 });
             }
-            if (doMustache) {
+            if (tokens && tokens.size > 0) {
                 Promise.all(promises).then(function () {
                     const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
                     msg.query = value;
