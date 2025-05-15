@@ -26,7 +26,10 @@
     }
   },
   "files": [
-    "src/"
+    "examples/",
+    "src/",
+    "LICENSE",
+    "README.md"
   ],
   "directories": {
     "example": "examples"
