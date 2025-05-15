@@ -757,7 +757,7 @@ module.exports = function (RED) {
             const resolvedTokens = {};
             if (node.parseMustache) {
                 const tokens = extractTokens(mustache.parse(msg.query));
-                doMustache = tokens.length > 0;
+                doMustache = tokens.size > 0;
                 tokens.forEach(function (name) {
                     const envName = parseEnv(name);
                     if (envName) {
