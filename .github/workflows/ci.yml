@@ -12,6 +12,8 @@ on:
       - "src/**"
       - "test/**"
       - "package*.json"
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   build:
