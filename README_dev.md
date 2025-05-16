@@ -34,6 +34,7 @@ npm test
 
 ```shell
 npm run release
+npm run release-no-tests
 ```
 
 ## Test flow
