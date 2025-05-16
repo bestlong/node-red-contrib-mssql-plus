@@ -33,7 +33,8 @@
   },
   "scripts": {
     "test": "mocha \"test/**/*_spec.js\"",
-    "release": "np"
+    "release": "np",
+    "release-no-tests": "np --no-tests"
   },
   "repository": {
     "type": "git",
