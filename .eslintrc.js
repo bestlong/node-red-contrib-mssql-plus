@@ -8,26 +8,20 @@ module.exports = {
         es2021: true
     },
     extends: [
+        'eslint:recommended',
         'standard'
     ],
     globals: {
         RED: true,
         Promise: true
     },
+    plugins: ['eslint-plugin-html', 'no-only-tests'],
+    parserOptions: {
+        ecmaVersion: 13
+    },
     rules: {
         indent: ['error', 4],
-        semi: ['error', 'always'],
-        quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-        'quote-props': ['error', 'as-needed', { unnecessary: false }]
-        // 'space-before-function-paren': ['never'],
-        // 'spaced-comment': ['never']
-
-    },
-    plugins: [
-        'html'
-    ],
-    settings: {
-        'html/html-extensions': ['.html']
+        'spaced-comment': ['error', 'always', { block: { balanced: true }, line: { markers: ['/'] } }],
+        'no-only-tests/no-only-tests': 'error'
     }
-
-};
+}

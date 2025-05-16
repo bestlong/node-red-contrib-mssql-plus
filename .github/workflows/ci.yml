@@ -75,5 +75,9 @@ jobs:
         cp ./test/_config.github.json ./test/config.json
         npm install
 
+    - name: Run ESLint
+      if: matrix.node-version == 20
+      run: npm run lint
+
     - name: npm test
       run: npm test

@@ -1,15 +1,15 @@
 /* global describe,beforeEach,afterEach,it */
-const should = require('should');
-const helper = require('node-red-node-test-helper');
-const mssqlPlusNode = require('../src/mssql.js');
+const should = require('should')
+const helper = require('node-red-node-test-helper')
+const mssqlPlusNode = require('../src/mssql.js')
 
-helper.init(require.resolve('node-red'));
+helper.init(require.resolve('node-red'))
 
-let testConnectionConfig;
+let testConnectionConfig
 try {
-    testConnectionConfig = require('../test/config.json') || {};
+    testConnectionConfig = require('../test/config.json') || {}
 } catch (error) {
-    testConnectionConfig = {};
+    testConnectionConfig = {}
 }
 
 function getConfigNode (id, options) {
@@ -31,133 +31,133 @@ function getConfigNode (id, options) {
         parseJSON: false,
         enableArithAbort: true,
         readOnlyIntent: false
-    };
-    const configNode = Object.assign({}, defConf, options);
-    configNode.id = id || configNode.id;
-    return configNode;
+    }
+    const configNode = Object.assign({}, defConf, options)
+    configNode.id = id || configNode.id
+    return configNode
 }
 
 describe('Load MSSQL Plus Node', function () {
-    'use strict';
+    'use strict'
 
     beforeEach(function (done) {
-        helper.startServer(done);
-    });
+        helper.startServer(done)
+    })
 
     afterEach(function (done) {
         helper.unload().then(function () {
-            helper.stopServer(done);
-        });
-    });
+            helper.stopServer(done)
+        })
+    })
 
     it('should be loaded', function (done) {
-        const cn = getConfigNode('configNode', testConnectionConfig);
+        const cn = getConfigNode('configNode', testConnectionConfig)
         const flow = [
             cn,
             { id: 'helperNode', type: 'helper' },
             { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
-        ];
+        ]
 
         helper.load(mssqlPlusNode, flow, function () {
-            const helperNode = helper.getNode('helperNode');
-            const sqlNode = helper.getNode('sqlNode');
-            const configNode = helper.getNode('configNode');
+            const helperNode = helper.getNode('helperNode')
+            const sqlNode = helper.getNode('sqlNode')
+            const configNode = helper.getNode('configNode')
 
-            should(helperNode).not.be.undefined();
-            should(sqlNode).not.be.undefined();
-            should(configNode).not.be.undefined();
+            should(helperNode).not.be.undefined()
+            should(sqlNode).not.be.undefined()
+            should(configNode).not.be.undefined()
 
-            sqlNode.should.have.property('type', 'MSSQL');
-            sqlNode.should.have.property('modeOptType', 'query');
+            sqlNode.should.have.property('type', 'MSSQL')
+            sqlNode.should.have.property('modeOptType', 'query')
 
-            configNode.should.have.property('config');
-            configNode.should.have.property('pool');
-            configNode.should.have.property('type', 'MSSQL-CN');
+            configNode.should.have.property('config')
+            configNode.should.have.property('pool')
+            configNode.should.have.property('type', 'MSSQL-CN')
 
-            done();
-        });
-    });
+            done()
+        })
+    })
 
     // Dynamic Tests
     // TODO: expose internal functionality (like row/column creation, coerceType helper functions to permit testing)
     it('should perform a simple query', function (done) {
-        this.timeout((testConnectionConfig.requestTimeout || 5000) + 1000); // timeout with an error if done() isn't called within alloted time
+        this.timeout((testConnectionConfig.requestTimeout || 5000) + 1000) // timeout with an error if done() isn't called within alloted time
 
-        const cn = getConfigNode('configNode', testConnectionConfig);
+        const cn = getConfigNode('configNode', testConnectionConfig)
         const flow = [
             cn,
             { id: 'helperNode', type: 'helper' },
             { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
-        ];
+        ]
 
         helper.load(mssqlPlusNode, flow, function () {
-            const query = 'SELECT GETDATE() as now';
-            const helperNode = helper.getNode('helperNode');
-            const sqlNode = helper.getNode('sqlNode');
-            const configNode = helper.getNode('configNode');
+            const query = 'SELECT GETDATE() as now'
+            const helperNode = helper.getNode('helperNode')
+            const sqlNode = helper.getNode('sqlNode')
+            const configNode = helper.getNode('configNode')
 
-            configNode.config.user = testConnectionConfig.username;
-            configNode.config.password = testConnectionConfig.password;
-            configNode.pool.config.user = testConnectionConfig.username;
-            configNode.pool.config.password = testConnectionConfig.password;
+            configNode.config.user = testConnectionConfig.username
+            configNode.config.password = testConnectionConfig.password
+            configNode.pool.config.user = testConnectionConfig.username
+            configNode.pool.config.password = testConnectionConfig.password
 
-            configNode.should.have.property('id', 'configNode');
+            configNode.should.have.property('id', 'configNode')
             helperNode.on('input', function (msg) {
                 try {
-                    msg.should.have.property('query', query);
-                    msg.should.have.property('payload');
-                    should(Array.isArray(msg.payload)).be.true('payload must be an array');
-                    should(msg.payload.length).eql(1, 'payload array must have 1 element');
-                    msg.payload[0].should.have.property('now');
-                    should(msg.payload[0].now).not.be.undefined();
-                    done();
+                    msg.should.have.property('query', query)
+                    msg.should.have.property('payload')
+                    should(Array.isArray(msg.payload)).be.true('payload must be an array')
+                    should(msg.payload.length).eql(1, 'payload array must have 1 element')
+                    msg.payload[0].should.have.property('now')
+                    should(msg.payload[0].now).not.be.undefined()
+                    done()
                 } catch (error) {
-                    done(error);
+                    done(error)
                 }
-            });
+            })
 
-            sqlNode.receive({ payload: query }); // fire input of testNode
-        });
-    });
+            sqlNode.receive({ payload: query }) // fire input of testNode
+        })
+    })
 
     it('should can create table and insert/select data', function (done) {
-        const cn = getConfigNode('configNode', testConnectionConfig);
+        const cn = getConfigNode('configNode', testConnectionConfig)
 
         const flow = [
             cn,
             { id: 'helperNode', type: 'helper' },
             { id: 'sqlNode', type: 'MSSQL', name: 'mssql', mssqlCN: cn.id, wires: [['helperNode']] }
-        ];
+        ]
 
         helper.load(mssqlPlusNode, flow, function () {
-            const query = "create table #t (id int PRIMARY KEY, data varchar(20)); insert into #t (id, data) values(1, 'a'); insert into #t (id, data) values(2, 'b'); select * from #t;";
-            const helperNode = helper.getNode('helperNode');
-            const sqlNode = helper.getNode('sqlNode');
-            const configNode = helper.getNode('configNode');
+            const query = "create table #t (id int PRIMARY KEY, data varchar(20)); insert into #t (id, data) values(1, 'a'); insert into #t (id, data) values(2, 'b'); select * from #t;"
+            const helperNode = helper.getNode('helperNode')
+            const sqlNode = helper.getNode('sqlNode')
+            const configNode = helper.getNode('configNode')
 
-            configNode.config.user = testConnectionConfig.username;
-            configNode.config.password = testConnectionConfig.password;
-            configNode.pool.config.user = testConnectionConfig.username;
-            configNode.pool.config.password = testConnectionConfig.password;
+            configNode.config.user = testConnectionConfig.username
+            configNode.config.password = testConnectionConfig.password
+            configNode.pool.config.user = testConnectionConfig.username
+            configNode.pool.config.password = testConnectionConfig.password
 
-            configNode.should.have.property('id', 'configNode');
+            configNode.should.have.property('id', 'configNode')
 
             helperNode.on('input', function (msg) {
                 try {
-                    msg.should.have.property('query', query);
-                    msg.should.have.property('payload');
-                    should(Array.isArray(msg.payload)).be.true('payload must be an array');
-                    should(msg.payload.length).eql(2, 'payload array must have 2 element');
-                    msg.payload[0].should.have.property('id');
-                    msg.payload[0].should.have.property('data');
-                    should(msg.payload[0].id).not.be.undefined();
-                    done();
+                    msg.should.have.property('query', query)
+                    msg.should.have.property('payload')
+                    should(Array.isArray(msg.payload)).be.true('payload must be an array')
+                    should(msg.payload.length).eql(2, 'payload array must have 2 element')
+                    msg.payload[0].should.have.property('id')
+                    msg.payload[0].should.have.property('data')
+                    should(msg.payload[0].id).not.be.undefined()
+                    done()
                 } catch (error) {
-                    done(error);
+                    done(error)
                 }
-            });
+            })
 
-            sqlNode.receive({ payload: query }); // fire input of testNode
-        });
-    });
-});
+            sqlNode.receive({ payload: query }) // fire input of testNode
+        })
+    })
+})

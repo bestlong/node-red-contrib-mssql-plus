@@ -220,21 +220,21 @@
         },
         label: function () {
             if (this.name) {
-                return this.name;
+                return this.name
             }
-            let n = 'MSSQL-CN';
+            let n = 'MSSQL-CN'
             if (this.server) {
-                n = this.server;
+                n = this.server
                 if (this.database) {
-                    n += '.' + this.database;
+                    n += '.' + this.database
                 }
             }
-            return n;
+            return n
         },
         oneditresize: function (size) {
-            $('div.form-row.mssql-plus-form-row > .form-tips').css('maxWidth', 'unset');
+            $('div.form-row.mssql-plus-form-row > .form-tips').css('maxWidth', 'unset')
         }
-    });
+    })
 </script>
 
 
@@ -328,30 +328,30 @@
 /* eslint-disable spaced-comment */
 /* eslint-disable space-before-function-paren */
 (function() {
-    let paramsHeight = 145;
+    let paramsHeight = 145
     function resizeParameters() {
-        let paramsWidth = $('#node-input-params-container').width();
-        const queryMode = $('#node-input-modeOpt').typedInput('type');
-        const bulkMode = queryMode === 'bulk';
-        const showItemOptsRow = ['bulk', 'msg', 'flow', 'env'].indexOf(queryMode) >= 0;
+        let paramsWidth = $('#node-input-params-container').width()
+        const queryMode = $('#node-input-modeOpt').typedInput('type')
+        const bulkMode = queryMode === 'bulk'
+        const showItemOptsRow = ['bulk', 'msg', 'flow', 'env'].indexOf(queryMode) >= 0
         if (showItemOptsRow) {
-            $('#node-input-params-container .node-input-item-property-options').show();
+            $('#node-input-params-container .node-input-item-property-options').show()
         } else {
-            $('#node-input-params-container .node-input-item-property-options').hide();
+            $('#node-input-params-container .node-input-item-property-options').hide()
         }
-        paramsWidth -= (28 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28);//remove outer padding, margins & input/output width
-        let p1 = Math.max(((paramsWidth / 3) - 20), 80);
-        let p2 = Math.max(p1 - 20, 80);
-        const p3 = Math.max(paramsWidth - (p1 + p2), 80);
+        paramsWidth -= (28 + 5 + 72 + 6 + 6 + 6 + 6 + 5 + 28)//remove outer padding, margins & input/output width
+        let p1 = Math.max(((paramsWidth / 3) - 20), 80)
+        let p2 = Math.max(p1 - 20, 80)
+        const p3 = Math.max(paramsWidth - (p1 + p2), 80)
 
         if (bulkMode) {
-            p1 += (p3 / 2);
-            p2 += (p3 / 2);
+            p1 += (p3 / 2)
+            p2 += (p3 / 2)
         } else {
-            $('#node-input-params-container .node-input-item-property-value').typedInput('width', Math.round(p3));
+            $('#node-input-params-container .node-input-item-property-value').typedInput('width', Math.round(p3))
         }
-        $('#node-input-params-container .node-input-item-property-name').typedInput('width', Math.round(p1));
-        $('#node-input-params-container .node-input-item-property-type').typedInput('width', Math.round(p2));
+        $('#node-input-params-container .node-input-item-property-name').typedInput('width', Math.round(p1))
+        $('#node-input-params-container .node-input-item-property-type').typedInput('width', Math.round(p2))
     }
     RED.nodes.registerType('MSSQL', {
         category: 'storage',
@@ -410,25 +410,25 @@
         outputs: 1,
         icon: 'db.png',
         label: function () {
-            return this.name || 'MSSQL-PLUS';
+            return this.name || 'MSSQL-PLUS'
         },
         labelStyle: function () {
-            return this.name ? 'node_label_italic' : '';
+            return this.name ? 'node_label_italic' : ''
         },
         oneditprepare: function () {
-            const node = this;
+            const node = this
             if (typeof node.parseMustache === 'undefined') {
-                node.parseMustache = true;
-                $('#node-input-parseMustache').prop('checked', true);
+                node.parseMustache = true
+                $('#node-input-parseMustache').prop('checked', true)
             }
             //ensure node.query is a string otherwise editor wont initialise
-            if (typeof node.query !== 'string') node.query = '';
+            if (typeof node.query !== 'string') node.query = ''
             //create the query editor
             this.editor = RED.editor.createEditor({
                 id: 'node-sql-query-editor',
                 mode: 'ace/mode/sql',
                 value: node.query // $("#node-input-query").val()
-            });
+            })
             //create typedInput widgets
             const modeField = $('#node-input-modeOpt').typedInput({
                 types: [
@@ -440,7 +440,7 @@
                 ],
                 typeField: $('#node-input-modeOptType'),
                 default: 'query'
-            });
+            })
             const queryField = $('#node-input-queryOpt').typedInput({
                 types: [
                     { value: 'editor', label: this._('mssql.common.editor'), hasValue: false },
@@ -448,7 +448,7 @@
                 ],
                 typeField: $('#node-input-queryOptType'),
                 default: 'editor'
-            });
+            })
             const paramsField = $('#node-input-paramsOpt').typedInput({
                 types: [
                     { value: 'none', label: 'None', hasValue: false },
@@ -457,86 +457,86 @@
                 ],
                 typeField: $('#node-input-paramsOptType'),
                 default: 'none'
-            });
+            })
             // eslint-disable-next-line no-unused-vars
             const rowsField = $('#node-input-rows').typedInput({
                 types: ['msg', 'flow', 'global', 'json', 'jsonata'],
                 typeField: $('#node-input-rowsType'),
                 default: 'msg'
-            });
+            })
             // eslint-disable-next-line no-unused-vars
             const outField = $('#node-input-outField').typedInput({
                 types: [
                     { value: 'str', label: 'msg.' }
                 ],
                 default: 'str'
-            });
+            })
             //show/hide rows field depending on query type
             modeField.on('change', function() {
-                const queryMode = $(this).typedInput('type');
+                const queryMode = $(this).typedInput('type')
                 if (queryMode === 'bulk') {
-                    $('#mssql-plus-params-label').text('Columns');
-                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').show();
-                    $('#node-input-params-container .node-input-item-property-value').typedInput('hide');
-                    $('#node-input-params-container .node-input-item-property-options').show();
+                    $('#mssql-plus-params-label').text('Columns')
+                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').show()
+                    $('#node-input-params-container .node-input-item-property-value').typedInput('hide')
+                    $('#node-input-params-container .node-input-item-property-options').show()
                 } else if (queryMode === 'query' || queryMode === 'execute') {
-                    $('#mssql-plus-params-label').text('Parameters');
-                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').hide();
-                    $('#node-input-params-container .node-input-item-property-value').typedInput('show');
-                    $('#node-input-params-container .node-input-item-property-options').hide();
+                    $('#mssql-plus-params-label').text('Parameters')
+                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').hide()
+                    $('#node-input-params-container .node-input-item-property-value').typedInput('show')
+                    $('#node-input-params-container .node-input-item-property-options').hide()
                 } else {
-                    $('#mssql-plus-params-label').text('Params/Cols');
-                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').show();
-                    $('#node-input-params-container .node-input-item-property-value').typedInput('show');
-                    $('#node-input-params-container .node-input-item-property-options').show();
+                    $('#mssql-plus-params-label').text('Params/Cols')
+                    $('#dialog-form > div.form-row.mssql-plus-form-row.bulk-data-input-row').show()
+                    $('#node-input-params-container .node-input-item-property-value').typedInput('show')
+                    $('#node-input-params-container .node-input-item-property-options').show()
                 }
-                RED.tray.resize();
-            });
+                RED.tray.resize()
+            })
 
             //show/hide editor depending on query source
             queryField.on('change', function() {
-                const type = $(this).typedInput('type');
+                const type = $(this).typedInput('type')
                 if (type === 'editor') {
-                    $('.form-row.node-text-editor-row').removeClass('mssql-plus-hide-row');
+                    $('.form-row.node-text-editor-row').removeClass('mssql-plus-hide-row')
                 } else {
-                    $('.form-row.node-text-editor-row').addClass('mssql-plus-hide-row');
+                    $('.form-row.node-text-editor-row').addClass('mssql-plus-hide-row')
                 }
-                RED.tray.resize();
+                RED.tray.resize()
                 if (type === 'editor') {
-                    $('#node-query-expand').show();
+                    $('#node-query-expand').show()
                 } else {
-                    $('#node-query-expand').hide();
+                    $('#node-query-expand').hide()
                 }
-            });
+            })
             //show/hide parameter list depending on queryMode
             paramsField.on('change', function() {
-                const type = $(this).typedInput('type');
+                const type = $(this).typedInput('type')
                 if (type === 'editor') {
-                    $('.form-row.node-input-params-container-row').removeClass('mssql-plus-hide-row');
+                    $('.form-row.node-input-params-container-row').removeClass('mssql-plus-hide-row')
                 } else {
-                    $('.form-row.node-input-params-container-row').addClass('mssql-plus-hide-row');
+                    $('.form-row.node-input-params-container-row').addClass('mssql-plus-hide-row')
                 }
-                RED.tray.resize();
-            });
+                RED.tray.resize()
+            })
 
             $('#node-query-expand').click(function(e) {
-                e.preventDefault();
-                const value = node.editor.getValue();
+                e.preventDefault()
+                const value = node.editor.getValue()
                 RED.editor.editJavaScript({
                     title: 'Edit SQL Query',
-                    value: value,
+                    value,
                     width: 'Infinity',
                     cursor: node.editor.getCursorPosition(),
                     mode: 'ace/mode/sql',
                     complete: function(v, cursor) {
-                        node.editor.setValue(v, -1);
-                        node.editor.gotoLine(cursor.row + 1, cursor.column, false);
+                        node.editor.setValue(v, -1)
+                        node.editor.gotoLine(cursor.row + 1, cursor.column, false)
                         setTimeout(function() {
-                            node.editor.focus();
-                        }, 300);
+                            node.editor.focus()
+                        }, 300)
                     }
-                });
-            });
+                })
+            })
 
             // *** compatibility defaults ***
             //if node.query is empty, the user would probably have been sending the
@@ -545,53 +545,53 @@
             //      if they have any other value, the user must have been in and operated the Done
             //      button (thus accepting the .queryOpt setting - i.e. leave as is!)
             if (!node.query && typeof node.queryOpt === 'undefined' && typeof node.queryOptType === 'undefined') {
-                queryField.typedInput('type', 'msg');
-                queryField.typedInput('value', 'payload');
+                queryField.typedInput('type', 'msg')
+                queryField.typedInput('value', 'payload')
             }
             if ((!node.params || !node.params.length) && typeof node.paramsOpt === 'undefined' && typeof node.paramsOptType === 'undefined') {
-                paramsField.typedInput('type', 'msg');
-                paramsField.typedInput('value', 'queryParams');
+                paramsField.typedInput('type', 'msg')
+                paramsField.typedInput('value', 'queryParams')
             }
 
-            $('#node-input-returnType')[0].selectedIndex = this.returnType ? this.returnType : 0;
-            $('#node-input-throwErrors')[0].selectedIndex = this.throwErrors ? this.throwErrors : 0;
+            $('#node-input-returnType')[0].selectedIndex = this.returnType ? this.returnType : 0
+            $('#node-input-throwErrors')[0].selectedIndex = this.throwErrors ? this.throwErrors : 0
 
             //Parameters Editor...
             $('#node-input-params-container').css('min-height', '120px').css('min-width', '520px').editableList({
                 addItem: function (container, i, opt) {
-                    const queryMode = modeField.typedInput('type');
-                    let rule = opt; let isNew = false;
+                    const queryMode = modeField.typedInput('type')
+                    let rule = opt; let isNew = false
                     if (!Object.prototype.hasOwnProperty.call(rule, 'type') && !Object.prototype.hasOwnProperty.call(rule, 'name')) {
-                        rule = { type: 'int', name: 'param' + (i + 1), value: 0, valueType: 'num', output: false };
-                        isNew = true;
+                        rule = { type: 'int', name: 'param' + (i + 1), value: 0, valueType: 'num', output: false }
+                        isNew = true
                     }
                     if (!rule.options || typeof rule.options !== 'object') {
-                        rule.options = { nullable: true, primary: false, identity: false, readOnly: false };
+                        rule.options = { nullable: true, primary: false, identity: false, readOnly: false }
                     }
                     container.css({
                         overflow: 'hidden',
                         whiteSpace: 'nowrap'
-                    });
-                    const fragment = document.createDocumentFragment();
-                    const row1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row' }).appendTo(fragment);
-                    const row2 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row' }).appendTo(fragment);
+                    })
+                    const fragment = document.createDocumentFragment()
+                    const row1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row' }).appendTo(fragment)
+                    const row2 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row' }).appendTo(fragment)
 
-                    const row1Div1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1);
+                    const row1Div1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1)
                     const inoutField = $('<input/>', { class: 'node-input-item-property-inout', type: 'text', width: '72px' })
                         .appendTo(row1Div1)
-                        .typedInput({ types: [{ label: 'Input', value: 'input', hasValue: false }, { label: 'Output', value: 'output', hasValue: false }] });
+                        .typedInput({ types: [{ label: 'Input', value: 'input', hasValue: false }, { label: 'Output', value: 'output', hasValue: false }] })
 
-                    const row1Div2 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1);
+                    const row1Div2 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1)
                     const nameField = $('<input/>', { class: 'node-input-item-property-name', type: 'text', width: '112px' })
                         .appendTo(row1Div2)
-                        .typedInput({ types: [{ label: 'Name', value: 'str' }] });
+                        .typedInput({ types: [{ label: 'Name', value: 'str' }] })
 
-                    const row1Div3 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1);
+                    const row1Div3 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1)
                     const typeField = $('<input/>', { class: 'node-input-item-property-type', type: 'text', width: '120px' })
                         .appendTo(row1Div3)
-                        .typedInput({ types: [{ label: 'Type', value: 'str' }] });
+                        .typedInput({ types: [{ label: 'Type', value: 'str' }] })
 
-                    const row1Div4 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1);
+                    const row1Div4 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row1)
                     const valueField = $('<input/>', { class: 'node-input-item-property-value', type: 'text', width: '140px' })
                         .appendTo(row1Div4)
                         .typedInput(
@@ -621,34 +621,34 @@
                                     }],
                                 default: 'num'
                             }
-                        );
-                    valueField.typedInput(queryMode === 'bulk' ? 'hide' : 'show');
+                        )
+                    valueField.typedInput(queryMode === 'bulk' ? 'hide' : 'show')
 
-                    const row2Div1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row2);
+                    const row2Div1 = $('<div/>', { style: 'display:flex;', class: 'mssql-plus-row-item' }).appendTo(row2)
                     const optionsField = $('<fieldset/>', { class: 'node-input-item-property-options', type: 'text', width: '100px' })
                         .data('role', 'controlgroup').data('type', 'horizontal')
-                        .appendTo(row2Div1);
+                        .appendTo(row2Div1)
 
-                    optionsField.append($('<label>nullable <input type="checkbox" class="node-input-item-property-nullable" /> </label>'));
-                    optionsField.append($('<label>primary <input type="checkbox" class="node-input-item-property-primary" /> </label>'));
-                    optionsField.append($('<label>identity <input type="checkbox" class="node-input-item-property-identity" /> </label>'));
-                    optionsField.append($('<label>readOnly <input type="checkbox" class="node-input-item-property-readOnly" /> </label>'));
+                    optionsField.append($('<label>nullable <input type="checkbox" class="node-input-item-property-nullable" /> </label>'))
+                    optionsField.append($('<label>primary <input type="checkbox" class="node-input-item-property-primary" /> </label>'))
+                    optionsField.append($('<label>identity <input type="checkbox" class="node-input-item-property-identity" /> </label>'))
+                    optionsField.append($('<label>readOnly <input type="checkbox" class="node-input-item-property-readOnly" /> </label>'))
 
-                    const nullableOptionField = optionsField.find('.node-input-item-property-nullable');
-                    const primaryOptionField = optionsField.find('.node-input-item-property-primary');
-                    const identityOptionField = optionsField.find('.node-input-item-property-identity');
-                    const readOnlyOptionField = optionsField.find('.node-input-item-property-readOnly');
+                    const nullableOptionField = optionsField.find('.node-input-item-property-nullable')
+                    const primaryOptionField = optionsField.find('.node-input-item-property-primary')
+                    const identityOptionField = optionsField.find('.node-input-item-property-identity')
+                    const readOnlyOptionField = optionsField.find('.node-input-item-property-readOnly')
 
                     inoutField.on('change', function (o) {
-                        const t = $(this).typedInput('type');
+                        const t = $(this).typedInput('type')
                         if (t === 'output') {
-                            valueField.typedInput('hide');
+                            valueField.typedInput('hide')
                         } else {
-                            valueField.typedInput('show');
+                            valueField.typedInput('show')
                         }
-                    });
+                    })
 
-                    const typeInput = row1Div3.find('input[type!=hidden]');
+                    const typeInput = row1Div3.find('input[type!=hidden]')
                     const sqlTypes = [
                         'VarChar',
                         'VarChar(?)',
@@ -694,94 +694,94 @@
                         'Geography',
                         'Geometry',
                         'Variant'
-                    ];
+                    ]
                     $(typeInput).autocomplete({
                         source: sqlTypes
-                    });
+                    })
 
-                    nameField.typedInput('type', 'str');
-                    nameField.typedInput('value', rule.name || ('param' + (i + 1)));
+                    nameField.typedInput('type', 'str')
+                    nameField.typedInput('value', rule.name || ('param' + (i + 1)))
 
-                    typeField.typedInput('type', 'str');
-                    typeField.typedInput('value', rule.type || '');
+                    typeField.typedInput('type', 'str')
+                    typeField.typedInput('value', rule.type || '')
 
-                    valueField.typedInput('type', rule.valueType || 'num');
-                    valueField.typedInput('value', rule.value || 0);
+                    valueField.typedInput('type', rule.valueType || 'num')
+                    valueField.typedInput('value', rule.value || 0)
 
-                    inoutField.typedInput('type', (rule.output === 'true' || rule.output === true) ? 'output' : 'input');
+                    inoutField.typedInput('type', (rule.output === 'true' || rule.output === true) ? 'output' : 'input')
 
-                    nullableOptionField.prop('checked', rule.options.nullable);
-                    primaryOptionField.prop('checked', rule.options.primary);
-                    identityOptionField.prop('checked', rule.options.identity);
-                    readOnlyOptionField.prop('checked', rule.options.readOnly);
+                    nullableOptionField.prop('checked', rule.options.nullable)
+                    primaryOptionField.prop('checked', rule.options.primary)
+                    identityOptionField.prop('checked', rule.options.identity)
+                    readOnlyOptionField.prop('checked', rule.options.readOnly)
 
-                    container[0].appendChild(fragment);
+                    container[0].appendChild(fragment)
 
-                    if (isNew) resizeParameters();//cause newly added row to size correctly.
+                    if (isNew) resizeParameters()//cause newly added row to size correctly.
                 },
                 removable: true,
                 sortable: true
-            });
+            })
 
             for (let i = 0; i < this.params.length; i++) {
-                const item = this.params[i];
-                $('#node-input-params-container').editableList('addItem', item);
+                const item = this.params[i]
+                $('#node-input-params-container').editableList('addItem', item)
             }
 
             //try to maintain user set height for parameters window
-            const paramsContainer = $('#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container');
-            paramsContainer.css('resize', 'vertical');
-            paramsContainer.css('min-height', 120);
-            paramsHeight = Math.max(120, paramsHeight);
-            paramsContainer.css('height', paramsHeight);
-            resizeParameters();
+            const paramsContainer = $('#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container')
+            paramsContainer.css('resize', 'vertical')
+            paramsContainer.css('min-height', 120)
+            paramsHeight = Math.max(120, paramsHeight)
+            paramsContainer.css('height', paramsHeight)
+            resizeParameters()
         },
         oneditsave: function () {
-            const node = this;
-            node.params = [];
-            const paramsContainer = $('#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container');
-            paramsHeight = Math.max(120, paramsContainer.height());
-            const items = $('#node-input-params-container').editableList('items');
+            const node = this
+            node.params = []
+            const paramsContainer = $('#dialog-form > div.form-row.node-input-params-container-row > .red-ui-editableList > .red-ui-editableList-container')
+            paramsHeight = Math.max(120, paramsContainer.height())
+            const items = $('#node-input-params-container').editableList('items')
             items.each(function (i) {
-                const rule = $(this);
-                const r = {};
-                r.output = rule.find('.node-input-item-property-inout').typedInput('type') === 'output';
-                r.name = rule.find('.node-input-item-property-name').val() || 'param' + (i + 1);
-                r.type = rule.find('.node-input-item-property-type').val() || '';
+                const rule = $(this)
+                const r = {}
+                r.output = rule.find('.node-input-item-property-inout').typedInput('type') === 'output'
+                r.name = rule.find('.node-input-item-property-name').val() || 'param' + (i + 1)
+                r.type = rule.find('.node-input-item-property-type').val() || ''
                 if (r.output) {
                     //exclude value
                 } else {
-                    r.valueType = rule.find('.node-input-item-property-value').typedInput('type') || 'num';
-                    r.value = rule.find('.node-input-item-property-value').typedInput('value') || 0;
+                    r.valueType = rule.find('.node-input-item-property-value').typedInput('type') || 'num'
+                    r.value = rule.find('.node-input-item-property-value').typedInput('value') || 0
                 }
                 r.options = {
                     nullable: rule.find('.node-input-item-property-nullable').prop('checked'),
                     primary: rule.find('.node-input-item-property-primary').prop('checked'),
                     identity: rule.find('.node-input-item-property-identity').prop('checked'),
                     readOnly: rule.find('.node-input-item-property-readOnly').prop('checked')
-                };
-                node.params.push(r);
-            });
+                }
+                node.params.push(r)
+            })
 
-            node.query = this.editor.getValue();
-            this.editor.destroy();
+            node.query = this.editor.getValue()
+            this.editor.destroy()
         },
         oneditresize: function (size) {
-            const rows = $('#dialog-form>div:not(.node-text-editor-row)');
-            let height = $('#dialog-form').height();
-            let row;
+            const rows = $('#dialog-form>div:not(.node-text-editor-row)')
+            let height = $('#dialog-form').height()
+            let row
             for (let i = 0; i < rows.size(); i++) {
-                row = $(rows[i]);
-                if (row && row.is(':hidden')) continue;
-                height -= row.outerHeight(true);
+                row = $(rows[i])
+                if (row && row.is(':hidden')) continue
+                height -= row.outerHeight(true)
             }
-            const editorRow = $('#dialog-form>div.node-text-editor-row');
-            height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
-            const h = Math.max(height, 60);
-            $('.node-text-editor').css('height', h + 'px');
-            this.editor.resize();
-            resizeParameters();
+            const editorRow = $('#dialog-form>div.node-text-editor-row')
+            height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')))
+            const h = Math.max(height, 60)
+            $('.node-text-editor').css('height', h + 'px')
+            this.editor.resize()
+            resizeParameters()
         }
-    });
-})();
+    })
+})()
 </script>
