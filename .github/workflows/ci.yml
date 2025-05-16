@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [16, 18]
 
     env:
       SA_PASSWORD: "P@ssw0rdP@ssw0rd"
