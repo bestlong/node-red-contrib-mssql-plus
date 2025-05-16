@@ -335,7 +335,7 @@ module.exports = function (RED) {
             // node-mssql 5.x to 6.x changes
             // ConnectionPool.close() now returns a promise / callbacks will be executed once closing of the
             if (node.pool && node.pool.close) {
-                node.pool.close().catch(() => {})
+                node.pool.close().catch(() => {});
             }
             if (updateStatusAndLog) node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' });
             node.poolConnect = null;
@@ -496,7 +496,7 @@ module.exports = function (RED) {
         node.paramsOptType = config.paramsOptType || 'none';
         node.rows = config.rows || 'rows';
         node.rowsType = config.rowsType || 'msg';
-        node.parseMustache = config.parseMustache || true;
+        node.parseMustache = !(config.parseMustache === false || config.parseMustache === 'false'); // if not explicitly set to false, then enable mustache parsing
 
         const setResult = function (msg, field, value, returnType = 0) {
             // eslint-disable-next-line eqeqeq
@@ -752,10 +752,11 @@ module.exports = function (RED) {
                 }
             }
 
+            const promises = [];
+            const resolvedTokens = {};
+            let tokens;
             if (node.parseMustache) {
-                const promises = [];
-                const tokens = extractTokens(mustache.parse(msg.query));
-                const resolvedTokens = {};
+                tokens = extractTokens(mustache.parse(msg.query));
                 tokens.forEach(function (name) {
                     const envName = parseEnv(name);
                     if (envName) {
@@ -789,7 +790,8 @@ module.exports = function (RED) {
                         }
                     }
                 });
-
+            }
+            if (tokens && tokens.size > 0) {
                 Promise.all(promises).then(function () {
                     const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens));
                     msg.query = value;
