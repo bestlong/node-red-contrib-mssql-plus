@@ -335,7 +335,7 @@ module.exports = function (RED) {
             // node-mssql 5.x to 6.x changes
             // ConnectionPool.close() now returns a promise / callbacks will be executed once closing of the
             if (node.pool && node.pool.close) {
-                node.pool.close().catch(() => {})
+                node.pool.close().catch(() => {});
             }
             if (updateStatusAndLog) node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' })
             node.poolConnect = null
@@ -474,29 +474,29 @@ module.exports = function (RED) {
                 type: 'text'
             }
         }
-    })
+    });
 
-    function mssql (config) {
-        RED.nodes.createNode(this, config)
-        const mssqlCN = RED.nodes.getNode(config.mssqlCN)
-        const node = this
+    function mssql(config) {
+        RED.nodes.createNode(this, config);
+        const mssqlCN = RED.nodes.getNode(config.mssqlCN);
+        const node = this;
 
-        node.query = config.query
-        node.outField = config.outField || 'payload'
-        node.returnType = config.returnType
-        node.throwErrors = !(!config.throwErrors || config.throwErrors === '0')
-        node.params = config.params
-        node.queryMode = config.queryMode
+        node.query = config.query;
+        node.outField = config.outField || 'payload';
+        node.returnType = config.returnType;
+        node.throwErrors = !(!config.throwErrors || config.throwErrors === '0');
+        node.params = config.params;
+        node.queryMode = config.queryMode;
 
-        node.modeOpt = config.modeOpt
-        node.modeOptType = config.modeOptType || 'query'
-        node.queryOpt = config.queryOpt
-        node.queryOptType = config.queryOptType || 'editor'
-        node.paramsOpt = config.paramsOpt
-        node.paramsOptType = config.paramsOptType || 'none'
-        node.rows = config.rows || 'rows'
-        node.rowsType = config.rowsType || 'msg'
-        node.parseMustache = config.parseMustache || true
+        node.modeOpt = config.modeOpt;
+        node.modeOptType = config.modeOptType || 'query';
+        node.queryOpt = config.queryOpt;
+        node.queryOptType = config.queryOptType || 'editor';
+        node.paramsOpt = config.paramsOpt;
+        node.paramsOptType = config.paramsOptType || 'none';
+        node.rows = config.rows || 'rows';
+        node.rowsType = config.rowsType || 'msg';
+        node.parseMustache = !(config.parseMustache === false || config.parseMustache === 'false'); // if not explicitly set to false, then enable mustache parsing
 
         const setResult = function (msg, field, value, returnType = 0) {
             // eslint-disable-next-line eqeqeq
@@ -752,10 +752,11 @@ module.exports = function (RED) {
                 }
             }
 
+            const promises = [];
+            const resolvedTokens = {};
+            let tokens;
             if (node.parseMustache) {
-                const promises = []
-                const tokens = extractTokens(mustache.parse(msg.query))
-                const resolvedTokens = {}
+                tokens = extractTokens(mustache.parse(msg.query));
                 tokens.forEach(function (name) {
                     const envName = parseEnv(name)
                     if (envName) {
@@ -788,8 +789,9 @@ module.exports = function (RED) {
                             promises.push(promise)
                         }
                     }
-                })
-
+                });
+            }
+            if (tokens && tokens.size > 0) {
                 Promise.all(promises).then(function () {
                     const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens))
                     msg.query = value

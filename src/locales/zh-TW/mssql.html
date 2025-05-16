@@ -87,14 +87,16 @@
             <code><pre style="white-space: pre;">[
     {
         "output": false,
-        "name": "參數名稱",
-        "type": "參數類型",
-        "value": "參數值"
+        "name": "參數名稱", // e.g. myInputParam
+        "type": "參數類型", // e.g. varchar(20), int, float, datetime, etc.
+        "value": "參數值" // 對於“Bulk”操作不需要
+        "options": {"nullable":true,"primary":false,"identity":false,"readOnly":false} // 選修的
     },
     {
         "output": true,
         "name": "參數名稱",
-        "type": "參數類型"
+        "type": "參數類型",
+        "options": {"nullable":true,"primary":false,"identity":false,"readOnly":false} // 選修的
     }
 ]</pre></code>
         </div>

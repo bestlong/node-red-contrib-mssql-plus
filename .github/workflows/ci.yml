@@ -12,6 +12,8 @@ on:
       - "src/**"
       - "test/**"
       - "package*.json"
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   build:
@@ -19,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16, 18, 20]
+        node-version: [18, 20, 22]
 
     env:
       SA_PASSWORD: "P@ssw0rdP@ssw0rd"
@@ -40,6 +42,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install SQL Server tools
+      run: |
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+        curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+        sudo apt-get update
+        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
 
     - name: config
       run: cp .env.dev .env
