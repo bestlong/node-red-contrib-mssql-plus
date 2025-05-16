@@ -93,18 +93,20 @@
     <div style="padding-left: 15px;">
         <p>Input and Output Parameters can be specified for a query or procedure. In bulk mode, the parameters represent the columns of the table</p>
         <div class="form-tips" style="width: 100%">
-            TIP: Query can be set in the UI or dynamically via msg, flow, global in the following format...<br>
+            TIP: Query Params can be set in the UI or dynamically via msg, flow, global in the following format...<br>
             <code><pre style="white-space: pre;">[
 {
     "output": false,
-    "name": "parameter name",
-    "type": "parameter type",
-    "value": "parameter value"
+    "name": "parameter name", // e.g. myInputParam
+    "type": "parameter type", // e.g. varchar(20), int, float, datetime, etc.
+    "value": "parameter value" // not required for bulk ops
+    "options": {"nullable":true,"primary":false,"identity":false,"readOnly":false} // optional
 },
 {
     "output": true,
-    "name": "parameter name",
-    "type": "parameter type"
+    "name": "parameter name", // e.g. myResultParam
+    "type": "parameter type", // e.g. varchar(20), int, float, datetime, etc.
+    "options": {"nullable":true,"primary":false,"identity":false,"readOnly":false} // optional
 }
 ]</pre></code>
         </div>
