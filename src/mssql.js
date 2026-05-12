@@ -486,6 +486,10 @@ module.exports = function (RED) {
         const mssqlCN = RED.nodes.getNode(config.mssqlCN);
         const node = this;
 
+        if (mssqlCN) {
+            mssqlCN.connectedNodes.push(node.id);
+        }
+
         node.query = config.query;
         node.outField = config.outField || 'payload';
         node.returnType = config.returnType;
@@ -839,7 +843,9 @@ module.exports = function (RED) {
             }
         }
         node.on('close', function () {
-            mssqlCN.disconnect(node.id);
+            if (mssqlCN) {
+                mssqlCN.disconnect(node.id);
+            }
         });
     }
     RED.nodes.registerType('MSSQL', mssql);
