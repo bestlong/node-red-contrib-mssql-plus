@@ -363,9 +363,11 @@ module.exports = function (RED) {
         node.execSql = async function (queryMode, sqlQuery, params, paramValues, callback) {
             const _info = [];
             try {
-                if (!node.poolConnect && !!(await node.connect())) {
+                if (!node.poolConnect) {
+                    node.connect();
                     node.log(`Connected to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
                 }
+                await node.poolConnect;
 
                 //FUTURE: let req =  queryMode == "prepared" ? new sql.PreparedStatement(node.pool) :  node.pool.request();
                 const req = node.pool.request();
