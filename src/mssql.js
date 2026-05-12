@@ -460,6 +460,11 @@ module.exports = function (RED) {
                 node.connectionCleanup();
             }
         };
+
+        node.on('close', function (done) {
+            node.connectionCleanup();
+            done();
+        });
     }
 
     RED.nodes.registerType('MSSQL-CN', connection, {
