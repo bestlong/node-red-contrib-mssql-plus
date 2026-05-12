@@ -1,0 +1,35 @@
+services:
+
+  # https://hub.docker.com/_/microsoft-mssql-server
+  mssql:
+    build:
+      context: ./docker/mssql
+    environment:
+      - TZ=${TZ}
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -U sa -P \"$$MSSQL_SA_PASSWORD\" -d testdb -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  tester:
+    build:
+      context: ./docker/tester
+    working_dir: /workspace/node-red-contrib-mssql-plus
+    environment:
+      - TZ=${TZ}
+      - MSSQL_SERVER=mssql
+      - MSSQL_PORT=1433
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+    volumes:
+      - .:/workspace/node-red-contrib-mssql-plus
+      - tester_node_modules:/workspace/node-red-contrib-mssql-plus/node_modules
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+volumes:
+  tester_node_modules:

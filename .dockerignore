@@ -1,3 +1,6 @@
 .git
 .gitignore
 .tool-versions
+node_modules
+temp
+*.log

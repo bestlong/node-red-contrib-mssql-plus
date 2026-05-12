@@ -7,21 +7,27 @@ services:
     environment:
       - TZ=${TZ}
     ports:
-      - 1880:1880
-      - 9229:9229
+      - "1880:1880"
+      - "9229:9229"
     volumes:
-      - .:/workspace/node-red-contrib-mssql-plus-mssql
+      - .:/workspace/node-red-contrib-mssql-plus
     depends_on:
-      - mssql
+      mssql:
+        condition: service_healthy
 
   # https://hub.docker.com/_/microsoft-mssql-server
   mssql:
     build:
-      context: ./docker
+      context: ./docker/mssql
     environment:
       - TZ=${TZ}
-      - "ACCEPT_EULA=Y"
-      - "MSSQL_SA_PASSWORD=P@ssw0rdP@ssw0rd"
-      # - MSSQL_PID=Express
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     ports:
-      - 2433:1433
+      - "${MSSQL_PORT:-2433}:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -U sa -P \"$$MSSQL_SA_PASSWORD\" -d testdb -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s

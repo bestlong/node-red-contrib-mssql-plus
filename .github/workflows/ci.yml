@@ -4,8 +4,6 @@ on:
   # workflow_dispatch:
   pull_request:
   push:
-    # branches:
-    #   - master
     paths:
       - ".github/**"
       - ".npmignore"
@@ -24,7 +22,7 @@ jobs:
         node-version: [18, 20, 22]
 
     env:
-      SA_PASSWORD: "P@ssw0rdP@ssw0rd"
+      MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD || 'P@ssw0rdP@ssw0rd' }}
 
     services:
       mssql:
@@ -32,48 +30,57 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "exit 0"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -C -U sa -P \"$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' || exit 1"
           --health-interval 10s
-          --health-timeout 10s
-          --health-retries 5
+          --health-timeout 5s
+          --health-retries 12
+          --health-start-period 30s
         env:
-          SA_PASSWORD: ${{ env.SA_PASSWORD }}
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD || 'P@ssw0rdP@ssw0rd' }}
           ACCEPT_EULA: "Y"
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install SQL Server tools
+    - name: Install mssql-tools18
       run: |
-        curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-        curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+        curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+        curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
         sudo apt-get update
-        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
-
-    - name: config
-      run: cp .env.dev .env
-
-    - name: Wait for SQL Server to be ready
-      run: |
-        for i in {1..30}; do
-          /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ env.SA_PASSWORD }} -Q "SELECT 1" && break
-          sleep 1
-        done
+        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
 
     - name: Create database
       run: |
-        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ env.SA_PASSWORD }} -Q "CREATE DATABASE testdb"
+        /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q "CREATE DATABASE testdb"
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        # cache: npm
+        cache: npm
 
     - name: npm install
+      run: npm install
+
+    - name: Generate test config
       run: |
-        cp ./test/_config.github.json ./test/config.json
-        npm install
+        node -e "
+        const cfg = {
+          server: 'localhost',
+          port: 1433,
+          username: 'sa',
+          password: process.env.MSSQL_SA_PASSWORD,
+          database: 'testdb',
+          encyption: false,
+          tdsVersion: '7_4',
+          trustServerCertificate: true,
+          useUTC: true,
+          connectTimeout: 15000,
+          requestTimeout: 15000,
+          cancelTimeout: 5000
+        };
+        require('fs').writeFileSync('test/config.json', JSON.stringify(cfg, null, 4));
+        "
 
     - name: npm test
       run: npm test
