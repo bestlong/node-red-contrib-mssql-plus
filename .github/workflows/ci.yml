@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [18, 20, 22, 24]
 
     env:
       MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD || 'P@ssw0rdP@ssw0rd' }}
@@ -40,7 +40,7 @@ jobs:
           ACCEPT_EULA: "Y"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Create database
       run: |
@@ -49,7 +49,7 @@ jobs:
           /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q "CREATE DATABASE testdb"
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
 
