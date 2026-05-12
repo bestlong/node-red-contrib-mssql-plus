@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [18, 20, 22, 24]
 
     env:
       MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD || 'P@ssw0rdP@ssw0rd' }}
