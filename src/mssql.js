@@ -322,34 +322,42 @@ module.exports = function (RED) {
 
         node.connectedNodes = [];
 
+        const _createPool = function () {
+            node.pool = new sql.ConnectionPool(node.config);
+            node.pool.on('error', err => {
+                node.error(err);
+                node.connectionCleanup();
+            });
+        };
+
         node.connectionCleanup = function (quiet) {
             const updateStatusAndLog = !quiet;
             try {
                 if (node.poolConnect) {
                     if (updateStatusAndLog) node.log(`Disconnecting server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
-                    node.poolConnect.then(_ => _.close()).catch(e => { console.error(e); });
                 }
             } catch (error) {
             }
 
             // node-mssql 5.x to 6.x changes
             // ConnectionPool.close() now returns a promise / callbacks will be executed once closing of the
-            if (node.pool && node.pool.close) {
+            if (node.pool) {
+                node.pool.removeAllListeners();
                 node.pool.close().catch(() => {});
+                node.pool = null;
             }
             if (updateStatusAndLog) node.status({ fill: 'grey', shape: 'dot', text: 'disconnected' });
             node.poolConnect = null;
         };
 
-        node.pool = new sql.ConnectionPool(node.config);
-        node.pool.on('error', err => {
-            node.error(err);
-            node.connectionCleanup();
-        });
+        _createPool();
 
         node.connect = function () {
             if (node.poolConnect) {
-                return;
+                return node.poolConnect;
+            }
+            if (!node.pool) {
+                _createPool();
             }
             node.status({
                 fill: 'yellow',
