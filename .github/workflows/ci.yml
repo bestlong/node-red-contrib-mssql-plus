@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
   pull_request:
   push:
     paths:
@@ -42,16 +42,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install mssql-tools18
-      run: |
-        curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-        curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-        sudo apt-get update
-        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
-
     - name: Create database
       run: |
-        /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q "CREATE DATABASE testdb"
+        docker exec \
+          $(docker ps -q --filter "ancestor=mcr.microsoft.com/mssql/server:2019-latest") \
+          /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q "CREATE DATABASE testdb"
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
