@@ -560,7 +560,7 @@ module.exports = function (RED) {
         node.paramsOptType = config.paramsOptType || 'none'
         node.rows = config.rows || 'rows'
         node.rowsType = config.rowsType || 'msg'
-        node.parseMustache = config.parseMustache || true
+        node.parseMustache = !(config.parseMustache === false || config.parseMustache === 'false') // if not explicitly set to false, then enable mustache parsing
 
         const setResult = function (msg, field, value, returnType = 0) {
             // eslint-disable-next-line eqeqeq
@@ -841,10 +841,11 @@ module.exports = function (RED) {
                 }
             }
 
+            const promises = []
+            const resolvedTokens = {}
+            let tokens
             if (node.parseMustache) {
-                const promises = []
-                const tokens = extractTokens(mustache.parse(msg.query))
-                const resolvedTokens = {}
+                tokens = extractTokens(mustache.parse(msg.query))
                 tokens.forEach(function (name) {
                     const envName = parseEnv(name)
                     if (envName) {
@@ -879,6 +880,8 @@ module.exports = function (RED) {
                     }
                 })
                 node.status({ fill: 'blue', shape: 'dot', text: 'requesting' })
+            }
+            if (tokens && tokens.size > 0) {
                 Promise.all(promises).then(function () {
                     const value = mustache.render(msg.query, new NodeContext(msg, node.context(), null, false, resolvedTokens))
                     msg.query = value

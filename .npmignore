@@ -12,6 +12,7 @@ npm-debug.log
 .eslintrc.js
 .jshintrc
 .vscode
+.tool-versions
 
 docker
 docker-compose.yml
