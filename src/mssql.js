@@ -457,6 +457,7 @@ module.exports = function (RED) {
                 node.log(`Error connecting to server : ${node.config.server}, database : ${node.config.database}, port : ${node.config.options.port}, user : ${node.config.user}`);
                 console.error(e);
                 node.poolConnect = null;
+                node.pool = null;
                 callback(e);
             }
         };
